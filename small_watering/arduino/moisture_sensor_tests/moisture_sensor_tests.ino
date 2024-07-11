@@ -1,22 +1,3 @@
-/*
-  SoilWatch 10 soil moisture sensor example - Simple
-
-  Reads analog value of soil moisture sensor and displays it
-  on the serial port.
-
-  The circuit:
-  Sensor output (white wire) connect to Analog A0 on Arduino.
-  Connect VCC (brown wire) to 3.3V or 5V on Arduino (3.3V gives more stable readings)
-  Connect GND (green wire) to GND on Arduino.
-
-  created 30 Aug. 2017
-  last updated 9 Feb 2018
-  by Piotr Trembecki
-  https://pino-tech.eu/sw10
-
-  This example code is in the public domain.
-
-*/
 
 /*
 ******** SETUP ********
