@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Precision Farming Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/1df86e7f33.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='chartjs-plugin-annotation.min.js') }}"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body>
+<h1 class="text-center fw-bold mt-3">
+    Precision Gardening Dashboard
+</h1>
+
+
+<div class="container text-center p-3">
+    <div class="row mb-3">
+        <div class="col">
+            <div>
+                <canvas id="lineChart" class="w-100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        let ctx = $('#lineChart')[0].getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 60 }, (_, i) => i),
+                datasets: [{
+                    label: 'ms_10_10',
+                    data: [],
+                    borderWidth: 2,
+                    borderColor: 'blue',
+                    fill: false
+                },
+                {
+                    label: 'ms_10_30',
+                    data: [],
+                    borderWidth: 2,
+                    borderColor: 'green',
+                    fill: false
+                },
+                {
+                    label: 'ms_20_10',
+                    data: [],
+                    borderWidth: 2,
+                    borderColor: 'purple',
+                    fill: false
+                },
+                {
+                    label: 'ms_20_30',
+                    data: [],
+                    borderWidth: 2,
+                    borderColor: 'orange',
+                    fill: false
+                },
+                {
+                    label: 'ms_30_10',
+                    data: [],
+                    borderWidth: 2,
+                    borderColor: 'cyan',
+                    fill: false
+                },
+                {
+                    label: 'ms_30_30',
+                    data: [],
+                    borderWidth: 2,
+                    borderColor: 'magenta',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (seconds)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Humidity level'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 0 // Disabilita l'animazione iniziale
+                }
+            }
+        });
+
+        let dataHistory = {
+            ms_10_10: [],
+            ms_10_30: [],
+            ms_20_10: [],
+            ms_20_30: [],
+            ms_30_10: [],
+            ms_30_30: []
+        };
+
+        function fetchData() {
+            fetch('/getLastReadings')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched data: ", data);
+
+                    // Aggiorna i dati storici per ogni sensore
+                    for (let key in dataHistory) {
+                        if (dataHistory.hasOwnProperty(key)) {
+                            dataHistory[key].push(data[key]);
+                            if (dataHistory[key].length > 60) {
+                                dataHistory[key].splice(0, dataHistory[key].length - 60);
+                            }
+                        }
+                    }
+
+                    chart.data.datasets[0].data = [...dataHistory.ms_10_10];
+                    chart.data.datasets[1].data = [...dataHistory.ms_10_30];
+                    chart.data.datasets[2].data = [...dataHistory.ms_20_10];
+                    chart.data.datasets[3].data = [...dataHistory.ms_20_30];
+                    chart.data.datasets[4].data = [...dataHistory.ms_30_10];
+                    chart.data.datasets[5].data = [...dataHistory.ms_30_30];
+
+                    chart.update();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        fetchData();
+        setInterval(fetchData, 500);
+    });
+</script>
+
+</body>
+</html>
