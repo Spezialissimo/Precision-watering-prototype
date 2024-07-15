@@ -61,7 +61,8 @@ def receiving(ser):
             last_received = lines[-2]
             buffer = lines[-1]
             try:
-                last_moisture_values = json.loads(last_received)            
+                last_moisture_values = json.loads(last_received)
+                last_moisture_values["timestamp"] = datetime.now().timestamp()
             except:
                 print("Error parsing json")
 

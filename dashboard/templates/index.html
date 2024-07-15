@@ -58,7 +58,7 @@
                         {
                             data: [],
                             backgroundColor: function (context) {
-                                if(context.dataset == null || context.dataset.data.length == 0 || context.dataset.data[context.dataIndex].v == null) return "lightgrey";                                
+                                if(context.dataset == null || context.dataset.data.length == 0 || context.dataset.data[context.dataIndex].v == null) return "lightgrey";
                                 const value = context.dataset.data[context.dataIndex].v;
                                 return getBackgroundColor(value);
                             },
@@ -120,8 +120,12 @@
                             labels: {
                                 value: {
                                     color() {
-                                        return 'red';
+                                        return 'black';
                                     },
+                                    font() {
+                                        weight: 'bold'
+                                    },
+
 
                                     formatter(value) {
                                         return value.v;
@@ -215,7 +219,7 @@
                     },
                     animation: {
                         duration: 0 // Disabilita l'animazione iniziale
-                    },                    
+                    },
                 }
             });
 
@@ -238,12 +242,16 @@
             }
 
             function getBackgroundColor(value) {
-                if (value < 10) return "#abdbe3";
-                else if (value < 20) return "#76b5c5";
-                else if (value < 30) return "#1e81b0";
-                else if (value < 40) return "#154c79";
-                else return "#063970";
+                const startColor = { r: 178, g: 34, b: 34 };
+                const endColor = { r: 127, g: 255, b: 212 };
+
+                const r = startColor.r + (endColor.r - startColor.r) * (value / 100);
+                const g = startColor.g + (endColor.g - startColor.g) * (value / 100);
+                const b = startColor.b + (endColor.b - startColor.b) * (value / 100);
+
+                return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
             }
+
 
             const colors = [
                 { value: 10, color: "#abdbe3" },
@@ -289,7 +297,7 @@
 
                         lineChart.update();
 
-                        matrixChart.data.datasets[0].data = convertToMatrixData(data);                        
+                        matrixChart.data.datasets[0].data = convertToMatrixData(data);
                         matrixChart.update();
                     })
                     .catch(error => {
