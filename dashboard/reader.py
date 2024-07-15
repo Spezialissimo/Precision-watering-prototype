@@ -57,19 +57,20 @@ def receiving(ser):
     buffer = ''
 
     while True:
-        bytes_to_read = ser.inWaiting()
-        if bytes_to_read > 0:
-            buffer += ser.read(bytes_to_read).decode('utf-8')
+        try:
+            bytes_to_read = ser.inWaiting()
+            if bytes_to_read > 0:
+                buffer += ser.read(bytes_to_read).decode('utf-8')
 
-        if '\n' in buffer:
-            lines = buffer.split('\n')
-            last_received = lines[-2]
-            buffer = lines[-1]
-            try:
+            if '\n' in buffer:
+                lines = buffer.split('\n')
+                last_received = lines[-2]
+                buffer = lines[-1]
                 last_moisture_values = json.loads(last_received)
                 last_moisture_values["timestamp"] = datetime.now().timestamp()
-            except:
-                print("Error parsing json")
+        except Exception as e:
+            print("Error parsing json: ", e)
+
 
 def start_flask(host, port):
     app.run(host=host, port=port, debug=False)
