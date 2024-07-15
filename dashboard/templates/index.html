@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Precision Farming Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/DwwykcV8Qyq46cDfL" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script src="https://kit.fontawesome.com/1df86e7f33.js" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='chartjs-plugin-annotation.min.js') }}"></script>
     <style>
@@ -17,202 +22,285 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
+
     </style>
 </head>
+
 <body>
-<h1 class="text-center fw-bold mt-3">
-    Precision Gardening Dashboard
-</h1>
+    <h1 class="text-center fw-bold mt-3">
+        Precision Gardening Dashboard
+    </h1>
 
-
-<div class="container text-center p-3">
-    <div class="row mb-3">
-        <div class="col">
-            <div>
-                <canvas id="lineChart" class="w-100"></canvas>
+    <div class="container text-center p-3">
+        <div class="row mb-3">
+            <div class="col h-100 w-100">
+                <canvas id="lineChart" height="400"></canvas>
             </div>
         </div>
     </div>
-</div>
 
-<div class="container text-center p-3">
-    <div class="row mb-3">
-        <div class="col">
-            <div>
-                <canvas id="matrixChart" class="w-100"></canvas>
+    <div class="container text-center p-3">
+        <div class="row mb-3">
+            <div class="col h-100 w-100">
+                    <canvas id="matrixChart"></canvas>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    $(document).ready(function() {
-        let matrixCtx = $('#matrixChart')[0].getContext('2d');
-        let matrixChart = new Chart(matrixCtx, {
-            type: 'matrix',
-            data: {
-                datasets: [{
-                    label: 'ms_10_10',
-                    data: [{x: 1, y: 1}, {x: 2, y: 1}, {x: 1, y: 2}, {x: 2, y: 2}, {x: 1, y: 2}, {x: 2, y: 2}],
-                    borderWidth: 2,
-                    borderColor: 'blue',
-                    fill: false,
-                    width: ({chart}) => (chart.chartArea || {}).width / 2 - 1,
-                    height: ({chart}) => (chart.chartArea || {}).height / 2 - 1,
-                }]
-            },
-            options: {
-                scales: {
-                x: {
-                    display: false,
-                    min: 0.5,
-                    max: 2.5,
-                    offset: false
-                },
-                y: {
-                    display: false,
-                    min: 0.5,
-                    max: 2.5
-                }
-                }
-            }
-        });
-
-        let lineCtx = $('#lineChart')[0].getContext('2d');
-        let lineChart = new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: Array.from({ length: 60 }, (_, i) => i),
-                datasets: [{
-                    label: 'ms_10_10',
-                    data: [],
-                    borderWidth: 2,
-                    borderColor: 'blue',
-                    fill: false
-                },
-                {
-                    label: 'ms_10_30',
-                    data: [],
-                    borderWidth: 2,
-                    borderColor: 'green',
-                    fill: false
-                },
-                {
-                    label: 'ms_20_10',
-                    data: [],
-                    borderWidth: 2,
-                    borderColor: 'purple',
-                    fill: false
-                },
-                {
-                    label: 'ms_20_30',
-                    data: [],
-                    borderWidth: 2,
-                    borderColor: 'orange',
-                    fill: false
-                },
-                {
-                    label: 'ms_30_10',
-                    data: [],
-                    borderWidth: 2,
-                    borderColor: 'cyan',
-                    fill: false
-                },
-                {
-                    label: 'ms_30_30',
-                    data: [],
-                    borderWidth: 2,
-                    borderColor: 'magenta',
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: false,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Time (seconds)'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Humidity level'
-                        }
-                    }
-                },
-                animation: {
-                    duration: 0 // Disabilita l'animazione iniziale
-                }
-            }
-        });
-
-        let dataHistory = {
-            ms_10_10: [],
-            ms_10_30: [],
-            ms_20_10: [],
-            ms_20_30: [],
-            ms_30_10: [],
-            ms_30_30: []
-        };
-
-        let matrixCurrentData = {
-            ms_10_10: 0,
-            ms_10_30: 0,
-            ms_20_10: 0,
-            ms_20_30: 0,
-            ms_30_10: 0,
-            ms_30_30: 0
-        }
-
-        function fetchData() {
-            fetch('/getLastReadings')
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Fetched data: ", data);
-
-                    // Aggiorna i dati storici per ogni sensore
-                    for (let key in dataHistory) {
-                        if (dataHistory.hasOwnProperty(key)) {
-                            dataHistory[key].push(data[key]);
-                            if (dataHistory[key].length > 60) {
-                                dataHistory[key].splice(0, dataHistory[key].length - 60);
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let matrixCtx = $('#matrixChart')[0].getContext('2d');
+            const matrixChart = new Chart(matrixCtx, {
+                plugins: [ChartDataLabels],
+                type: "matrix",
+                data: {
+                    datasets: [
+                        {
+                            data: [],
+                            backgroundColor: function (context) {
+                                if(context.dataset == null || context.dataset.data.length == 0 || context.dataset.data[context.dataIndex].v == null) return "lightgrey";                                
+                                const value = context.dataset.data[context.dataIndex].v;
+                                return getBackgroundColor(value);
+                            },
+                            width(c) {
+                                const a = c.chart.chartArea || {};
+                                return (a.right - a.left) / 2;
+                            },
+                            height(c) {
+                                const a = c.chart.chartArea || {};
+                                return (a.bottom - a.top) / 3;
                             }
                         }
-                    }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            type: "category",
+                            reverse: false,
+                            offset: true,
+                            labels: ["10", "20", "30"],
+                            ticks: {
+                                autoSkip: true
+                            },
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            type: "category",
+                            offset: true,
+                            position: "bottom",
+                            labels: ["10", "30"],
+                            ticks: {
+                                autoSkip: true,
+                                maxRotation: 0
+                            },
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: false,
+                        tooltip: {
+                            callbacks: {
+                                title() {
+                                    return "";
+                                },
+                                label(context) {
+                                    const v = context.dataset.data[context.dataIndex];
+                                    return ["x: " + v.x, "y: " + v.y, "v: " + v.v];
+                                }
+                            }
+                        },
+                        datalabels: {
+                            labels: {
+                                value: {
+                                    color() {
+                                        return 'red';
+                                    },
 
-                    lineChart.data.datasets[0].data = [...dataHistory.ms_10_10];
-                    lineChart.data.datasets[1].data = [...dataHistory.ms_10_30];
-                    lineChart.data.datasets[2].data = [...dataHistory.ms_20_10];
-                    lineChart.data.datasets[3].data = [...dataHistory.ms_20_30];
-                    lineChart.data.datasets[4].data = [...dataHistory.ms_30_10];
-                    lineChart.data.datasets[5].data = [...dataHistory.ms_30_30];
+                                    formatter(value) {
+                                        return value.v;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    tooltips: {
+                        callbacks: {
+                            title() {
+                                return '';
+                            },
+                            label(item, chartDataValue) {
+                                const v = chartDataValue.datasets[item.datasetIndex].data[item.index];
+                                return ['x: ' + v.x, 'y: ' + v.y, 'v: ' + v.v];
+                            }
+                        }
+                    },
+                }
+            });
 
-                    lineChart.update();
 
-                    matrixChart.data.datasets[0].data = [...dataHistory.ms_10_10];
-                    matrixChart.data.datasets[1].data = [...dataHistory.ms_10_30];
-                    matrixChart.data.datasets[2].data = [...dataHistory.ms_20_10];
-                    matrixChart.data.datasets[3].data = [...dataHistory.ms_20_30];
-                    matrixChart.data.datasets[4].data = [...dataHistory.ms_30_10];
-                    matrixChart.data.datasets[5].data = [...dataHistory.ms_30_30];
+            let lineCtx = $('#lineChart')[0].getContext('2d');
+            let lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: 60 }, (_, i) => "-".concat((60 - i))),
+                    datasets: [{
+                        label: 'ms_10_10',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'blue',
+                        fill: false
+                    },
+                    {
+                        label: 'ms_10_30',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'green',
+                        fill: false
+                    },
+                    {
+                        label: 'ms_20_10',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'purple',
+                        fill: false
+                    },
+                    {
+                        label: 'ms_20_30',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'orange',
+                        fill: false
+                    },
+                    {
+                        label: 'ms_30_10',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'cyan',
+                        fill: false
+                    },
+                    {
+                        label: 'ms_30_30',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'magenta',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Humidity level'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 0 // Disabilita l'animazione iniziale
+                    },                    
+                }
+            });
 
-                    matrixChart.update();
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
+            let dataHistory = {
+                ms_10_10: [],
+                ms_10_30: [],
+                ms_20_10: [],
+                ms_20_30: [],
+                ms_30_10: [],
+                ms_30_30: []
+            };
 
-        fetchData();
-        setInterval(fetchData, 500);
-    });
-</script>
+            let matrixCurrentData = {
+                ms_10_10: 0,
+                ms_10_30: 0,
+                ms_20_10: 0,
+                ms_20_30: 0,
+                ms_30_10: 0,
+                ms_30_30: 0
+            }
 
+            function getBackgroundColor(value) {
+                if (value < 10) return "#abdbe3";
+                else if (value < 20) return "#76b5c5";
+                else if (value < 30) return "#1e81b0";
+                else if (value < 40) return "#154c79";
+                else return "#063970";
+            }
+
+            const colors = [
+                { value: 10, color: "#abdbe3" },
+                { value: 20, color: "#76b5c5" },
+                { value: 30, color: "#1e81b0" },
+                { value: 40, color: "#154c79" },
+                { value: 50, color: "#063970" }
+            ];
+
+            function convertToMatrixData(data) {
+                return [
+                    { x: "10", y: "10", v: data.ms_10_10 },
+                    { x: "10", y: "20", v: data.ms_20_10 },
+                    { x: "10", y: "30", v: data.ms_30_10 },
+                    { x: "30", y: "10", v: data.ms_10_30 },
+                    { x: "30", y: "20", v: data.ms_20_30 },
+                    { x: "30", y: "30", v: data.ms_30_30 }
+                ];
+            }
+
+            function fetchData() {
+                fetch('/getLastReadings')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Fetched data: ", data);
+
+                        // Aggiorna i dati storici per ogni sensore
+                        for (let key in dataHistory) {
+                            if (dataHistory.hasOwnProperty(key)) {
+                                dataHistory[key].push(data[key]);
+                                if (dataHistory[key].length > 60) {
+                                    dataHistory[key].splice(0, dataHistory[key].length - 60);
+                                }
+                            }
+                        }
+
+                        lineChart.data.datasets[0].data = [...dataHistory.ms_10_10];
+                        lineChart.data.datasets[1].data = [...dataHistory.ms_10_30];
+                        lineChart.data.datasets[2].data = [...dataHistory.ms_20_10];
+                        lineChart.data.datasets[3].data = [...dataHistory.ms_20_30];
+                        lineChart.data.datasets[4].data = [...dataHistory.ms_30_10];
+                        lineChart.data.datasets[5].data = [...dataHistory.ms_30_30];
+
+                        lineChart.update();
+
+                        matrixChart.data.datasets[0].data = convertToMatrixData(data);                        
+                        matrixChart.update();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            }
+
+            fetchData();
+            setInterval(fetchData, 500);
+        });
+    </script>
 </body>
+
 </html>

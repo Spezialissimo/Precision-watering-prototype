@@ -11,17 +11,18 @@ app = Flask(__name__)
 
 host = '127.0.0.1'
 port = 5001
-last_received = ''
+last_moisture_values = {}
 
 tz = pytz.timezone("Europe/Rome")
 
 SERIAL_PORT = '/dev/ttyACM0'
 SERIAL_BAUDRATE = 9600
-DEMO = True
+DEMO = False
 
 ser = ""
+
 if ( DEMO != True ):
-    serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE, timeout=1)
+    ser =serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE, timeout=1)
 
 @app.route('/')
 def index():
@@ -29,8 +30,11 @@ def index():
 
 @app.route('/getLastReadings', methods=['GET'])
 def get_data():
+    global last_moisture_values
+    moisture_values = {}
     if( DEMO ):
         moisture_values = {
+            "timestamp": datetime.now().timestamp(),
             "ms_10_10": random.randint(0, 100),
             "ms_10_30": random.randint(0, 100),
             "ms_20_10": random.randint(0, 100),
@@ -38,20 +42,13 @@ def get_data():
             "ms_30_10": random.randint(0, 100),
             "ms_30_30": random.randint(0, 100)
         }
-    else:
-        print(last_received)
-        moisture_values = {}
-        if( last_received != ""):
-            try:
-                moisture_values = json.loads(last_received)
-                print(json.dumps(moisture_values, indent=4))
-            except:
-                print("Error parsing json")
+    if( last_moisture_values != {}):
+        moisture_values = last_moisture_values
     return jsonify(moisture_values)
 
 def receiving(ser):
     print("Receiving thread started")
-    global last_received
+    global last_moisture_values
     buffer = ''
 
     while True:
@@ -63,6 +60,10 @@ def receiving(ser):
             lines = buffer.split('\n')
             last_received = lines[-2]
             buffer = lines[-1]
+            try:
+                last_moisture_values = json.loads(last_received)            
+            except:
+                print("Error parsing json")
 
 def start_flask(host, port):
     app.run(host=host, port=port, debug=False)
