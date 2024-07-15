@@ -156,42 +156,42 @@
                     labels: Array.from({ length: 60 }, (_, i) => "-".concat((60 - i))),
                     datasets: [{
                         label: 'ms_10_10',
-                        data: [],
+                        data: Array.from({ length: 60 }, (_, i) => 0),
                         borderWidth: 2,
                         borderColor: 'blue',
                         fill: false
                     },
                     {
                         label: 'ms_10_30',
-                        data: [],
+                        data: Array.from({ length: 60 }, (_, i) => 0),
                         borderWidth: 2,
                         borderColor: 'green',
                         fill: false
                     },
                     {
                         label: 'ms_20_10',
-                        data: [],
+                        data: Array.from({ length: 60 }, (_, i) => 0),
                         borderWidth: 2,
                         borderColor: 'purple',
                         fill: false
                     },
                     {
                         label: 'ms_20_30',
-                        data: [],
+                        data: Array.from({ length: 60 }, (_, i) => 0),
                         borderWidth: 2,
                         borderColor: 'orange',
                         fill: false
                     },
                     {
                         label: 'ms_30_10',
-                        data: [],
+                        data: Array.from({ length: 60 }, (_, i) => 0),
                         borderWidth: 2,
                         borderColor: 'cyan',
                         fill: false
                     },
                     {
                         label: 'ms_30_30',
-                        data: [],
+                        data: Array.from({ length: 60 }, (_, i) => 0),
                         borderWidth: 2,
                         borderColor: 'magenta',
                         fill: false
@@ -218,18 +218,18 @@
                         }
                     },
                     animation: {
-                        duration: 0 // Disabilita l'animazione iniziale
+                        duration: 0
                     },
                 }
             });
 
             let dataHistory = {
-                ms_10_10: [],
-                ms_10_30: [],
-                ms_20_10: [],
-                ms_20_30: [],
-                ms_30_10: [],
-                ms_30_30: []
+                ms_10_10: Array.from({ length: 60 }, (_, i) => 0),
+                ms_10_30: Array.from({ length: 60 }, (_, i) => 0),
+                ms_20_10: Array.from({ length: 60 }, (_, i) => 0),
+                ms_20_30: Array.from({ length: 60 }, (_, i) => 0),
+                ms_30_10: Array.from({ length: 60 }, (_, i) => 0),
+                ms_30_30: Array.from({ length: 60 }, (_, i) => 0),
             };
 
             let matrixCurrentData = {
@@ -282,9 +282,7 @@
                         for (let key in dataHistory) {
                             if (dataHistory.hasOwnProperty(key)) {
                                 dataHistory[key].push(data[key]);
-                                if (dataHistory[key].length > 60) {
-                                    dataHistory[key].splice(0, dataHistory[key].length - 60);
-                                }
+                                dataHistory[key].splice(0, dataHistory[key].length - 60);
                             }
                         }
 

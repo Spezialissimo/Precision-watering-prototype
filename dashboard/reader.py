@@ -43,7 +43,12 @@ def get_data():
             "ms_30_30": random.randint(0, 100)
         }
     if( last_moisture_values != {}):
-        moisture_values = last_moisture_values
+        moisture_values = moisture_values = {
+            key: min(int(value), 100) if key != "timestamp" else value
+            for key, value in last_moisture_values.items()
+        }
+
+
     return jsonify(moisture_values)
 
 def receiving(ser):
