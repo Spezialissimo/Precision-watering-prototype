@@ -2,6 +2,7 @@
 
 const int Sensors[3][2] = {{A0, A1}, {A2, A3}, {A4, A5}};
 const String JsonNames[3][2] = {{"ms_10_10", "ms_10_30"}, {"ms_20_10", "ms_20_30"}, {"ms_30_10", "ms_30_30"}};
+const int PumpPin = 2;
 
 int minADC = 0;
 int maxADC = 600;
@@ -26,6 +27,15 @@ void loop() {
   String output;
   serializeJson(doc, output);
   Serial.println(output);
+
+  if( Serial.available() > 0 ) {
+    int pumpState = Serial.read();
+    if( pumpState == '1' ) {
+      digitalWrite(PumpPin, HIGH);
+    } else {
+      digitalWrite(PumpPin, LOW);
+    }
+  }
 
   delay(500);
 }

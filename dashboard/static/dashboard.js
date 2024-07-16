@@ -24,8 +24,12 @@ $(document).ready(function () {
     }
 
     window.fetchData = fetchData;
+    $('#togglePump').click(function () {
+        fetch('/togglePump');
+    });
 
     fetchData();
     setInterval(fetchData, 500);
 });
+
 

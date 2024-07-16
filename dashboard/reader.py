@@ -12,6 +12,7 @@ app = Flask(__name__)
 host = '127.0.0.1'
 port = 5001
 last_moisture_values = {}
+pump_state = False
 
 tz = pytz.timezone("Europe/Rome")
 
@@ -50,6 +51,13 @@ def get_data():
 
 
     return jsonify(moisture_values)
+
+@app.route('/togglePump', methods=['GET'])
+def toggle_pump():
+    global pump_state
+    pump_state = not pump_state
+    ser.write(b"1" if pump_state else b"0")
+    return jsonify({"pump_state": pump_state})
 
 def receiving(ser):
     print("Receiving thread started")
