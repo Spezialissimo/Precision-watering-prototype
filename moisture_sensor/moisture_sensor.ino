@@ -1,3 +1,7 @@
+#define TIMER_INTERRUPT_DEBUG 0
+#define _TIMERINTERRUPT_LOGLEVEL_ 0
+#define USE_TIMER_1 true
+#include <TimerInterrupt.h>
 #include <ArduinoJson.h>
 
 const int Sensors[3][2] = {{A0, A1}, {A2, A3}, {A4, A5}};
@@ -7,35 +11,63 @@ const int PumpPin = 2;
 int minADC = 0;
 int maxADC = 600;
 int values[3][2];
+bool retrieveSensorsDataAndSend = false;
 
-void setup() {
-  Serial.begin(9600);
-  pinMode(A1, INPUT);
-  pinMode(A5, INPUT);
+void TimerHandler(void)
+{
+	retrieveSensorsDataAndSend = true;
 }
 
-void loop() {
-  JsonDocument doc;
+#define TIMER_INTERVAL_MS 500
 
-  for (int i=0; i<3; i++) {
-    for (int j=0; j<2; j++) {
-      doc[JsonNames[i][j]] = map(analogRead(Sensors[i][j]), minADC, maxADC, 0, 100);
-    }
-  }
+void setup()
+{
+	Serial.begin(9600);
+	while (!Serial);
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 2; j++)
+		{
+			pinMode(Sensors[i][j], INPUT);
+		}
+	}
+	pinMode(PumpPin, OUTPUT);
+	ITimer1.init();
 
+	if (ITimer1.attachInterruptInterval(TIMER_INTERVAL_MS, TimerHandler))
+		Serial.println("Starting  ITimer OK, millis() = " + String(millis()));
+	else
+		Serial.println("Can't set ITimer. Select another freq. or timer");
+}
 
-  String output;
-  serializeJson(doc, output);
-  Serial.println(output);
+void loop()
+{
+	if (retrieveSensorsDataAndSend)
+	{
+		JsonDocument doc;
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				doc[JsonNames[i][j]] = map(analogRead(Sensors[i][j]), minADC, maxADC, 0, 100);
+			}
+		}
+		String output;
+		serializeJson(doc, output);
+		Serial.println(output);
+		retrieveSensorsDataAndSend = false;
+	}
 
-  if( Serial.available() > 0 ) {
-    int pumpState = Serial.read();
-    if( pumpState == '1' ) {
-      digitalWrite(PumpPin, HIGH);
-    } else {
-      digitalWrite(PumpPin, LOW);
-    }
-  }
-
-  delay(500);
+	if (Serial.available() > 0)
+	{
+		int pumpState = Serial.read();
+		if (pumpState == '1')
+		{
+			digitalWrite(PumpPin, HIGH);
+		}
+		else
+		{
+			digitalWrite(PumpPin, LOW);
+		}
+	}
 }
