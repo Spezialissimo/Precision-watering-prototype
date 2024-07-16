@@ -16,6 +16,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script src="https://kit.fontawesome.com/1df86e7f33.js" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='chartjs-plugin-annotation.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='line-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
 
@@ -26,10 +29,7 @@
 </head>
 
 <body>
-
-    <h1 class="text-center fw-bold mt-3">
-        Precision Gardening Dashboard
-    </h1>
+    <h1 class="text-center fw-bold mt-3">Precision Gardening Dashboard</h1>
     <div class="modal fade" id="syncingModal" tabindex="-1" aria-labelledby="syncingModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -47,266 +47,18 @@
             </div>
         </div>
     </div>
+
     <div class="container text-center p-3">
         <div class="row mb-3">
-            <div class="col h-100 w-100">
+            <div class="col">
                 <canvas id="lineChart" height="400"></canvas>
             </div>
-        </div>
-    </div>
-
-    <div class="container text-center p-3">
-        <div class="row mb-3">
             <div class="col h-100 w-100">
-                <canvas id="matrixChart"></canvas>
+                <canvas id="matrixChart" height="600" width="400"></canvas>
             </div>
         </div>
     </div>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            let matrixCtx = $('#matrixChart')[0].getContext('2d');
-            const matrixChart = new Chart(matrixCtx, {
-                plugins: [ChartDataLabels],
-                type: "matrix",
-                data: {
-                    datasets: [
-                        {
-                            data: [],
-                            backgroundColor: function (context) {
-                                if (!context.dataset || !context.dataset.data.length || context.dataset.data[context.dataIndex].v == null) return "lightgrey";
-                                const value = context.dataset.data[context.dataIndex].v;
-                                return getBackgroundColor(value);
-                            },
-                            width(c) {
-                                const a = c.chart.chartArea || {};
-                                return (a.right - a.left) / 2;
-                            },
-                            height(c) {
-                                const a = c.chart.chartArea || {};
-                                return (a.bottom - a.top) / 3;
-                            }
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            type: "category",
-                            reverse: false,
-                            offset: true,
-                            labels: ["10", "20", "30"],
-                            ticks: {
-                                autoSkip: true
-                            },
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            }
-                        },
-                        x: {
-                            type: "category",
-                            offset: true,
-                            position: "bottom",
-                            labels: ["10", "30"],
-                            ticks: {
-                                autoSkip: true,
-                                maxRotation: 0
-                            },
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: false,
-                        tooltip: {
-                            callbacks: {
-                                title() {
-                                    return "";
-                                },
-                                label(context) {
-                                    const v = context.dataset.data[context.dataIndex];
-                                    return ["x: " + v.x, "y: " + v.y, "v: " + v.v];
-                                }
-                            }
-                        },
-                        datalabels: {
-                            labels: {
-                                value: {
-                                    color() {
-                                        return 'black';
-                                    },
-                                    font() {
-                                        weight: 'bold'
-                                    },
-                                    formatter(value) {
-                                        return value.v;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            let lineCtx = $('#lineChart')[0].getContext('2d');
-            let lineChart = new Chart(lineCtx, {
-                type: 'line',
-                data: {
-                    labels: Array.from({ length: 60 }, (_, i) => "-".concat((60 - i))),
-                    datasets: [{
-                        label: 'ms_10_10',
-                        data: Array.from({ length: 60 }, (_, i) => 0),
-                        borderWidth: 2,
-                        borderColor: 'blue',
-                        fill: false
-                    },
-                    {
-                        label: 'ms_10_30',
-                        data: Array.from({ length: 60 }, (_, i) => 0),
-                        borderWidth: 2,
-                        borderColor: 'green',
-                        fill: false
-                    },
-                    {
-                        label: 'ms_20_10',
-                        data: Array.from({ length: 60 }, (_, i) => 0),
-                        borderWidth: 2,
-                        borderColor: 'purple',
-                        fill: false
-                    },
-                    {
-                        label: 'ms_20_30',
-                        data: Array.from({ length: 60 }, (_, i) => 0),
-                        borderWidth: 2,
-                        borderColor: 'orange',
-                        fill: false
-                    },
-                    {
-                        label: 'ms_30_10',
-                        data: Array.from({ length: 60 }, (_, i) => 0),
-                        borderWidth: 2,
-                        borderColor: 'cyan',
-                        fill: false
-                    },
-                    {
-                        label: 'ms_30_30',
-                        data: Array.from({ length: 60 }, (_, i) => 0),
-                        borderWidth: 2,
-                        borderColor: 'magenta',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Time (seconds)'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            min: 0,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Humidity level'
-                            }
-                        }
-                    },
-                    animation: {
-                        duration: 0
-                    }
-                }
-            });
-
-            let dataHistory = {
-                ms_10_10: Array.from({ length: 60 }, (_, i) => 0),
-                ms_10_30: Array.from({ length: 60 }, (_, i) => 0),
-                ms_20_10: Array.from({ length: 60 }, (_, i) => 0),
-                ms_20_30: Array.from({ length: 60 }, (_, i) => 0),
-                ms_30_10: Array.from({ length: 60 }, (_, i) => 0),
-                ms_30_30: Array.from({ length: 60 }, (_, i) => 0),
-            };
-
-            let matrixCurrentData = {
-                ms_10_10: 0,
-                ms_10_30: 0,
-                ms_20_10: 0,
-                ms_20_30: 0,
-                ms_30_10: 0,
-                ms_30_30: 0
-            };
-
-            function getBackgroundColor(value) {
-                const startColor = { r: 178, g: 34, b: 34 };
-                const endColor = { r: 127, g: 255, b: 212 };
-
-                const r = startColor.r + (endColor.r - startColor.r) * (value / 100);
-                const g = startColor.g + (endColor.g - startColor.g) * (value / 100);
-                const b = startColor.b + (endColor.b - startColor.b) * (value / 100);
-
-                return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-            }
-
-            // Convert fetched data to matrix format
-            function convertToMatrixData(data) {
-                return [
-                    { x: "10", y: "10", v: data.ms_10_10 },
-                    { x: "10", y: "20", v: data.ms_20_10 },
-                    { x: "10", y: "30", v: data.ms_30_10 },
-                    { x: "30", y: "10", v: data.ms_10_30 },
-                    { x: "30", y: "20", v: data.ms_20_30 },
-                    { x: "30", y: "30", v: data.ms_30_30 }
-                ];
-            }
-
-            function fetchData() {
-                fetch('/getLastReadings')
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.timestamp == null) throw new Error("Error fetching data");
-                        console.log("Fetched data: ", data);
-
-                        for (let key in dataHistory) {
-                            if (dataHistory.hasOwnProperty(key)) {
-                                dataHistory[key].push(data[key]);
-                                dataHistory[key].splice(0, dataHistory[key].length - 60);
-                            }
-                        }
-
-                        lineChart.data.datasets[0].data = [...dataHistory.ms_10_10];
-                        lineChart.data.datasets[1].data = [...dataHistory.ms_10_30];
-                        lineChart.data.datasets[2].data = [...dataHistory.ms_20_10];
-                        lineChart.data.datasets[3].data = [...dataHistory.ms_20_30];
-                        lineChart.data.datasets[4].data = [...dataHistory.ms_30_10];
-                        lineChart.data.datasets[5].data = [...dataHistory.ms_30_30];
-
-                        lineChart.update();
-
-                        matrixChart.data.datasets[0].data = convertToMatrixData(data);
-                        matrixChart.update();
-
-                        if ($('#syncingModal').is(':visible')) {
-                            $('#syncingModal').modal('hide');
-                        }
-                    })
-                    .catch(error => {
-                        if (!$('#syncingModal').is(':visible')) {
-                            $('#syncingModal').modal('show');
-                        }
-                    });
-            }
-
-            fetchData();
-            setInterval(fetchData, 500);
-        });
-    </script>
 </body>
 
 </html>
