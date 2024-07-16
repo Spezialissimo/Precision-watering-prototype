@@ -16,11 +16,11 @@ function setupMatrixChart() {
                     },
                     width(c) {
                         const a = c.chart.chartArea || {};
-                        return (a.right - a.left) / 2;
+                        return (a.right - a.left) / 5;
                     },
                     height(c) {
                         const a = c.chart.chartArea || {};
-                        return (a.bottom - a.top) / 3;
+                        return (a.bottom - a.top) / 5;
                     }
                 }
             ]
@@ -31,7 +31,7 @@ function setupMatrixChart() {
                     type: "category",
                     reverse: false,
                     offset: true,
-                    labels: ["10", "20", "30"],
+                    labels: ["5", "10", "15", "20", "25"],
                     ticks: {
                         autoSkip: true
                     },
@@ -44,7 +44,7 @@ function setupMatrixChart() {
                     type: "category",
                     offset: true,
                     position: "bottom",
-                    labels: ["10", "30"],
+                    labels: ["10", "15", "20", "25", "30"],
                     ticks: {
                         autoSkip: true,
                         maxRotation: 0,
@@ -103,14 +103,11 @@ function getBackgroundColor(value) {
 }
 
 function convertToMatrixData(data) {
-    return [
-        { x: "10", y: "10", v: data.ms_10_10 },
-        { x: "10", y: "20", v: data.ms_20_10 },
-        { x: "10", y: "30", v: data.ms_30_10 },
-        { x: "30", y: "10", v: data.ms_10_30 },
-        { x: "30", y: "20", v: data.ms_20_30 },
-        { x: "30", y: "30", v: data.ms_30_30 }
-    ];
+    return data["data"].map(obj => ({
+        x: String(obj.x),
+        y: String(obj.y),
+        v: String(obj.v)
+    }));
 }
 
 window.setupMatrixChart = setupMatrixChart;

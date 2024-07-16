@@ -1,29 +1,32 @@
 import serial
 from datetime import datetime
 import pytz
-from time import sleep
 import json
-from flask import Flask, jsonify, render_template, request
-import random
+from flask import Flask, jsonify, render_template
+import numpy as np
+from scipy.interpolate import interpn
 from threading import Thread
 
 app = Flask(__name__)
 
+# Configuration variables
 host = '127.0.0.1'
 port = 5001
+SERIAL_PORT = '/dev/ttyACM0'
+SERIAL_BAUDRATE = 9600
+tz = pytz.timezone("Europe/Rome")
+
+# Global variables
 last_moisture_values = {}
 pump_state = False
 
-tz = pytz.timezone("Europe/Rome")
+# Grid points for interpolation
+x_values = [10, 30]
+y_values = [5, 15, 25]
+points = np.array([[x, y] for x in x_values for y in y_values])
 
-SERIAL_PORT = '/dev/ttyACM0'
-SERIAL_BAUDRATE = 9600
-DEMO = False
-
-ser = ""
-
-if ( DEMO != True ):
-    ser =serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE, timeout=1)
+# Serial port setup
+ser = serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE, timeout=1)
 
 @app.route('/')
 def index():
@@ -32,25 +35,7 @@ def index():
 @app.route('/getLastReadings', methods=['GET'])
 def get_data():
     global last_moisture_values
-    moisture_values = {}
-    if( DEMO ):
-        moisture_values = {
-            "timestamp": datetime.now().timestamp(),
-            "ms_10_10": random.randint(0, 100),
-            "ms_10_30": random.randint(0, 100),
-            "ms_20_10": random.randint(0, 100),
-            "ms_20_30": random.randint(0, 100),
-            "ms_30_10": random.randint(0, 100),
-            "ms_30_30": random.randint(0, 100)
-        }
-    if( last_moisture_values != {}):
-        moisture_values = moisture_values = {
-            key: min(int(value), 100) if key != "timestamp" else value
-            for key, value in last_moisture_values.items()
-        }
-
-
-    return jsonify(moisture_values)
+    return jsonify(last_moisture_values)
 
 @app.route('/togglePump', methods=['GET'])
 def toggle_pump():
@@ -62,6 +47,7 @@ def toggle_pump():
 def receiving(ser):
     print("Receiving thread started")
     global last_moisture_values
+    global points
     buffer = ''
 
     while True:
@@ -74,17 +60,48 @@ def receiving(ser):
                 lines = buffer.split('\n')
                 last_received = lines[-2]
                 buffer = lines[-1]
-                last_moisture_values = json.loads(last_received)
-                last_moisture_values["timestamp"] = datetime.now().timestamp()
+                data = json.loads(last_received)
+                values = data["data"]
+                formatted_values = []
+                for point in points:
+                    found = False
+                    for value in values:
+                        if value["x"] == point[0] and value["y"] == point[1]:
+                            formatted_values.append(value["v"])
+                            found = True
+                            break
+                    if not found:
+                        formatted_values.append(0)
+                values_grid = np.array(formatted_values).reshape((len(np.unique(points[:,0])), len(np.unique(points[:,1]))))
+                xi = np.array([
+                    [10, 10], [10, 20],
+                    [15, 5], [15, 10], [15, 15], [15, 20], [15, 25],
+                    [20, 5], [20, 10], [20, 15], [20, 20], [20, 25],
+                    [25, 5], [25, 10], [25, 15], [25, 20], [25, 25],
+                    [30, 10], [30, 20]
+                ])
+                interpolated_values = interpn((x_values, y_values), values_grid, xi)
+                new_data = []
+                for i, point in enumerate(xi):
+                    new_data.append({
+                        "x": int(point[0]),
+                        "y": int(point[1]),
+                        "v": int(interpolated_values[i])
+                    })
+                data["data"].extend(new_data)
+                data["timestamp"] = datetime.now().timestamp()
+                last_moisture_values = data
         except Exception as e:
-            print("Error parsing json: ", e)
-
+            print("Error receiving data:", e)
 
 def start_flask(host, port):
     app.run(host=host, port=port, debug=False)
 
 if __name__ == '__main__':
-    if( DEMO != True ):
-        Thread(target=receiving, args=(ser,)).start()
-    Thread(target=start_flask, args = (host, port)).start()
+    # Start receiving thread for serial data
+    receiving_thread = Thread(target=receiving, args=(ser,))
+    receiving_thread.start()
 
+    # Start Flask app in a separate thread
+    flask_thread = Thread(target=start_flask, args=(host, port))
+    flask_thread.start()

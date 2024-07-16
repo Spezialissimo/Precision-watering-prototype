@@ -5,7 +5,6 @@
 #include <ArduinoJson.h>
 
 const int Sensors[3][2] = {{A0, A1}, {A2, A3}, {A4, A5}};
-const String JsonNames[3][2] = {{"ms_10_10", "ms_10_30"}, {"ms_20_10", "ms_20_30"}, {"ms_30_10", "ms_30_30"}};
 const int PumpPin = 2;
 
 int minADC = 0;
@@ -33,23 +32,27 @@ void setup()
 	}
 	pinMode(PumpPin, OUTPUT);
 	ITimer1.init();
-
-	if (ITimer1.attachInterruptInterval(TIMER_INTERVAL_MS, TimerHandler))
-		Serial.println("Starting  ITimer OK, millis() = " + String(millis()));
-	else
-		Serial.println("Can't set ITimer. Select another freq. or timer");
+	ITimer1.attachInterruptInterval(TIMER_INTERVAL_MS, TimerHandler);
 }
 
 void loop()
 {
 	if (retrieveSensorsDataAndSend)
 	{
-		JsonDocument doc;
+		StaticJsonDocument<512> doc;
+		JsonArray data = doc.createNestedArray("data");
+
 		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				doc[JsonNames[i][j]] = map(analogRead(Sensors[i][j]), minADC, maxADC, 0, 100);
+				int sensorValue = analogRead(Sensors[i][j]);
+				int mappedValue = map(sensorValue, minADC, maxADC, 0, 100);
+
+				JsonObject sensorData = data.createNestedObject();
+				sensorData["y"] = 5 + 5 * (i) * 2;
+				sensorData["x"] = 10 + 10 * (j) * 2;
+				sensorData["v"] = mappedValue;
 			}
 		}
 		String output;
