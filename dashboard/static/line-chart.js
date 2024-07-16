@@ -51,7 +51,7 @@ function setupLineChart() {
                     realtime: {
                         duration: 30000,
                         refresh: 1000,
-                        delay: 2000,
+                        delay: 500,
                         pause: false,
                         frameRate: 60,
                         onRefresh: function (matrixChart) {
