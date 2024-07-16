@@ -112,3 +112,6 @@ function convertToMatrixData(data) {
         { x: "30", y: "30", v: data.ms_30_30 }
     ];
 }
+
+window.setupMatrixChart = setupMatrixChart;
+window.updateMatrixChart = updateMatrixChart;

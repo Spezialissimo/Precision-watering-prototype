@@ -11,11 +11,18 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"
+        integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script src="https://kit.fontawesome.com/1df86e7f33.js" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='chartjs-plugin-annotation.min.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
+
     <script src="{{ url_for('static', filename='line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
@@ -40,10 +47,6 @@
                 <div class="modal-body">
                     Syncing data, please wait...
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
             </div>
         </div>
     </div>
@@ -58,7 +61,6 @@
             </div>
         </div>
     </div>
-
 </body>
 
 </html>
