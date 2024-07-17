@@ -1,8 +1,10 @@
-let lineChart;
+let lastSensorMap = {};
+let lastUpdateTimeStamp = 0;
+
 
 function setupLineChart() {
     let lineCtx = $('#lineChart')[0].getContext('2d');
-    lineChart = new Chart(lineCtx, {
+    let lineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
             datasets: [{
@@ -51,11 +53,16 @@ function setupLineChart() {
                     realtime: {
                         duration: 30000,
                         refresh: 1000,
-                        delay: 1100,
+                        delay: 1000,
                         pause: false,
                         frameRate: 30,
-                        onRefresh: function (matrixChart) {
-                            fetchData();
+                        onRefresh: function (chart) {
+                            chart.data.datasets[0].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["10-5"] });
+                            chart.data.datasets[1].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["30-5"] });
+                            chart.data.datasets[2].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["10-15"] });
+                            chart.data.datasets[3].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["30-15"] });
+                            chart.data.datasets[4].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["10-25"] });
+                            chart.data.datasets[5].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["30-25"] });
                         }
                     },
                     title: {
@@ -79,22 +86,13 @@ function setupLineChart() {
 }
 
 function updateLineChart(newData) {
-    const now = new Date().getTime();
     const sensorMap = {};
-
+    lastUpdateTimeStamp = (parseFloat(newData["timestamp"]) * 1000);
     newData["data"].forEach(sensor => {
         const key = `${sensor.x}-${sensor.y}`;
         sensorMap[key] = sensor.v;
     });
-
-    lineChart.data.datasets[0].data.push({ x: now, y: sensorMap["10-5"] });
-    lineChart.data.datasets[1].data.push({ x: now, y: sensorMap["30-5"] });
-    lineChart.data.datasets[2].data.push({ x: now, y: sensorMap["10-15"] });
-    lineChart.data.datasets[3].data.push({ x: now, y: sensorMap["30-15"] });
-    lineChart.data.datasets[4].data.push({ x: now, y: sensorMap["10-25"] });
-    lineChart.data.datasets[5].data.push({ x: now, y: sensorMap["30-25"] });
-
-    lineChart.update('quiet');
+    lastSensorMap = sensorMap;
 }
 
 window.setupLineChart = setupLineChart;

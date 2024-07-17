@@ -1,7 +1,7 @@
 from flask import jsonify, render_template
 from . import app
-from dashboard.moisture_system.moisture_system import togglePump
-from dashboard.repository.data import get_last_sensor_data
+from moisture_system.moisture_system import togglePump
+from repository.data import get_last_sensor_data
 
 @app.route('/')
 def index():

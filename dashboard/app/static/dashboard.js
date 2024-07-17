@@ -7,7 +7,6 @@ $(document).ready(function () {
             .then(response => response.json())
             .then(data => {
                 if (data.timestamp == null) throw new Error("Error fetching data");
-                console.log("Fetched data: ", data);
 
                 updateLineChart(data);
                 updateMatrixChart(data);
@@ -29,6 +28,7 @@ $(document).ready(function () {
     });
 
     fetchData();
+    setInterval(fetchData, 250);
 });
 
 

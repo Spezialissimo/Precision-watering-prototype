@@ -1,10 +1,10 @@
 # dashboard/main.py
 
-import sys
-import os
+# import sys
+# import os
 
-# Aggiungi la directory radice del progetto al sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# # Aggiungi la directory radice del progetto al sys.path
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.index import start_flask
 from moisture_system.moisture_system import receive

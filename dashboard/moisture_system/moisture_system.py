@@ -5,7 +5,7 @@ import json
 import numpy as np
 from scipy.interpolate import interpn
 import threading
-from dashboard.repository.data import save_sensor_data, get_last_sensor_data
+from repository.data import save_sensor_data, get_last_sensor_data
 from dotenv import dotenv_values
 
 tz = pytz.timezone("Europe/Rome")

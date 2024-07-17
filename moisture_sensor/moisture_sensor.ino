@@ -17,7 +17,7 @@ void TimerHandler(void)
 	retrieveSensorsDataAndSend = true;
 }
 
-#define TIMER_INTERVAL_MS 500
+#define TIMER_INTERVAL_MS 100
 
 void setup()
 {
