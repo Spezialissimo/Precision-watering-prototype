@@ -2,52 +2,40 @@ import serial
 from datetime import datetime
 import pytz
 import json
-from flask import Flask, jsonify, render_template
 import numpy as np
 from scipy.interpolate import interpn
-from threading import Thread
+import threading
 
-app = Flask(__name__)
-
-# Configuration variables
-host = '127.0.0.1'
-port = 5001
-SERIAL_PORT = '/dev/ttyACM0'
-SERIAL_BAUDRATE = 9600
+ser = None
 tz = pytz.timezone("Europe/Rome")
-
-# Global variables
-last_moisture_values = {}
 pump_state = False
+last_moisture_values = {}
+lock = threading.Lock()
 
-# Grid points for interpolation
-x_values = [10, 30]
-y_values = [5, 15, 25]
-points = np.array([[x, y] for x in x_values for y in y_values])
-
-# Serial port setup
-ser = serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE, timeout=1)
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/getLastReadings', methods=['GET'])
-def get_data():
+def getLastMoistureValues():
     global last_moisture_values
-    return jsonify(last_moisture_values)
+    with lock:
+        return last_moisture_values.copy()
 
-@app.route('/togglePump', methods=['GET'])
-def toggle_pump():
+def togglePump():
+    global ser
     global pump_state
-    pump_state = not pump_state
-    ser.write(b"1" if pump_state else b"0")
-    return jsonify({"pump_state": pump_state})
+    if ser is None:
+        return False
+    else:
+        pump_state = not pump_state
+        ser.write(b"1" if pump_state else b"0")
+    return pump_state
 
-def receiving(ser):
-    print("Receiving thread started")
+def receive(serial_port, baudrate):
     global last_moisture_values
     global points
+    global ser
+    ser = serial.Serial(serial_port, baudrate, timeout=1)
+    x_values = [10, 30]
+    y_values = [5, 15, 25]
+    points = np.array([[x, y] for x in x_values for y in y_values])
+
     buffer = ''
 
     while True:
@@ -90,16 +78,7 @@ def receiving(ser):
                     })
                 data["data"].extend(new_data)
                 data["timestamp"] = datetime.now().timestamp()
-                last_moisture_values = data
+                with lock:
+                    last_moisture_values = data
         except Exception as e:
             print("Error receiving data:", e)
-
-def start_flask(host, port):
-    app.run(host=host, port=port, debug=False)
-
-if __name__ == '__main__':
-    receiving_thread = Thread(target=receiving, args=(ser,))
-    receiving_thread.start()
-
-    flask_thread = Thread(target=start_flask, args=(host, port))
-    flask_thread.start()

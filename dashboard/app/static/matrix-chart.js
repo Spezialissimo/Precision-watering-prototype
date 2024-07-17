@@ -98,7 +98,7 @@ function updateMatrixChart(data) {
 
 function getBackgroundColor(value) {
     const startColor = { r: 178, g: 34, b: 34 };
-    const endColor = { r: 127, g: 255, b: 212 };
+    const endColor = { r: 0, g: 0, b: 255 };
     const r = startColor.r + (endColor.r - startColor.r) * (value / 100);
     const g = startColor.g + (endColor.g - startColor.g) * (value / 100);
     const b = startColor.b + (endColor.b - startColor.b) * (value / 100);
