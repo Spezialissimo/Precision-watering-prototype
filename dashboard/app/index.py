@@ -1,6 +1,7 @@
 from flask import jsonify, render_template
 from . import app
-from dashboard.moisture_system.moisture_system import togglePump, getLastMoistureValues
+from dashboard.moisture_system.moisture_system import togglePump
+from dashboard.repository.data import get_last_sensor_data
 
 @app.route('/')
 def index():
@@ -8,7 +9,7 @@ def index():
 
 @app.route('/getLastReadings', methods=['GET'])
 def get_data():
-    return jsonify(getLastMoistureValues())
+    return jsonify(get_last_sensor_data())
 
 @app.route('/getHistory', methods=['GET'])
 def get_history():

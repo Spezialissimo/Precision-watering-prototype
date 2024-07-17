@@ -5,17 +5,12 @@ import json
 import numpy as np
 from scipy.interpolate import interpn
 import threading
+from dashboard.repository.data import save_sensor_data, get_last_sensor_data
 
 ser = None
 tz = pytz.timezone("Europe/Rome")
 pump_state = False
-last_moisture_values = {}
 lock = threading.Lock()
-
-def getLastMoistureValues():
-    global last_moisture_values
-    with lock:
-        return last_moisture_values.copy()
 
 def togglePump():
     global ser
@@ -28,7 +23,6 @@ def togglePump():
     return pump_state
 
 def receive(serial_port, baudrate):
-    global last_moisture_values
     global points
     global ser
     ser = serial.Serial(serial_port, baudrate, timeout=1)
@@ -79,6 +73,6 @@ def receive(serial_port, baudrate):
                 data["data"].extend(new_data)
                 data["timestamp"] = datetime.now().timestamp()
                 with lock:
-                    last_moisture_values = data
+                    save_sensor_data(data)
         except Exception as e:
             print("Error receiving data:", e)
