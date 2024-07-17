@@ -1,6 +1,7 @@
 import csv
 from dotenv import dotenv_values
 from datetime import datetime
+import os
 
 # filepath = "repository/" + dotenv_values(".env")["DATA_FILE"]
 filepath = "/home/spezialissimo/Documents/tesi/arduino/small_watering/dashboard/repository/data.csv"
@@ -36,12 +37,7 @@ def parse_sensor_data(row):
 
 def save_sensor_data(data):
     formatted_data = format_sensor_data(data)
-    file_exists = False
-    try:
-        with open(filepath, 'r') as f:
-            file_exists = True
-    except FileNotFoundError:
-        pass
+    file_exists = os.path.exists(filepath)
 
     with open(filepath, mode='a', newline='') as file:
         fieldnames = ["timestamp"] + [
@@ -55,6 +51,9 @@ def save_sensor_data(data):
         writer.writerow(formatted_data)
 
 def get_last_sensor_data():
+    if not os.path.exists(filepath):
+        return None
+
     try:
         with open(filepath, mode='r') as file:
             reader = csv.DictReader(file)
@@ -67,6 +66,9 @@ def get_last_sensor_data():
         return None
 
 def get_all_sensor_data():
+    if not os.path.exists(filepath):
+        return []
+
     try:
         with open(filepath, mode='r') as file:
             reader = csv.DictReader(file)

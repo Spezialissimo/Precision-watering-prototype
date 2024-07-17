@@ -6,26 +6,22 @@ import numpy as np
 from scipy.interpolate import interpn
 import threading
 from dashboard.repository.data import save_sensor_data, get_last_sensor_data
+from dotenv import dotenv_values
 
-ser = None
 tz = pytz.timezone("Europe/Rome")
 pump_state = False
 lock = threading.Lock()
+ser = serial.Serial(dotenv_values(".env")["SERIAL_PORT"], int(dotenv_values(".env")["SERIAL_BAUDRATE"]), timeout=1)
+
 
 def togglePump():
-    global ser
     global pump_state
-    if ser is None:
-        return False
-    else:
-        pump_state = not pump_state
-        ser.write(b"1" if pump_state else b"0")
+
+    pump_state = not pump_state
+    ser.write(b"1" if pump_state else b"0")
     return pump_state
 
 def receive(serial_port, baudrate):
-    global points
-    global ser
-    ser = serial.Serial(serial_port, baudrate, timeout=1)
     x_values = [10, 30]
     y_values = [5, 15, 25]
     points = np.array([[x, y] for x in x_values for y in y_values])
