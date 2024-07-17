@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    // setupLineChart();
+    setupLineChart();
     setupMatrixChart();
 
     function fetchData() {
@@ -9,7 +9,7 @@ $(document).ready(function () {
                 if (data.timestamp == null) throw new Error("Error fetching data");
                 console.log("Fetched data: ", data);
 
-                // updateLineChart(data);
+                updateLineChart(data);
                 updateMatrixChart(data);
 
                 if ($('#syncingModal').is(':visible')) {
@@ -29,7 +29,6 @@ $(document).ready(function () {
     });
 
     fetchData();
-    setInterval(fetchData, 500);
 });
 
 

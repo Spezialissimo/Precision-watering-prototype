@@ -51,9 +51,9 @@ function setupLineChart() {
                     realtime: {
                         duration: 30000,
                         refresh: 1000,
-                        delay: 500,
+                        delay: 1100,
                         pause: false,
-                        frameRate: 60,
+                        frameRate: 30,
                         onRefresh: function (matrixChart) {
                             fetchData();
                         }
@@ -73,21 +73,27 @@ function setupLineChart() {
                     }
                 }
             },
-            animation: {
-                duration: 0
-            },
+            animation: false,
         }
     });
 }
 
 function updateLineChart(newData) {
     const now = new Date().getTime();
-    lineChart.data.datasets[0].data.push({ x: now, y: newData.ms_10_10 });
-    lineChart.data.datasets[1].data.push({ x: now, y: newData.ms_10_30 });
-    lineChart.data.datasets[2].data.push({ x: now, y: newData.ms_20_10 });
-    lineChart.data.datasets[3].data.push({ x: now, y: newData.ms_20_30 });
-    lineChart.data.datasets[4].data.push({ x: now, y: newData.ms_30_10 });
-    lineChart.data.datasets[5].data.push({ x: now, y: newData.ms_30_30 });
+    const sensorMap = {};
+
+    newData["data"].forEach(sensor => {
+        const key = `${sensor.x}-${sensor.y}`;
+        sensorMap[key] = sensor.v;
+    });
+
+    lineChart.data.datasets[0].data.push({ x: now, y: sensorMap["10-5"] });
+    lineChart.data.datasets[1].data.push({ x: now, y: sensorMap["30-5"] });
+    lineChart.data.datasets[2].data.push({ x: now, y: sensorMap["10-15"] });
+    lineChart.data.datasets[3].data.push({ x: now, y: sensorMap["30-15"] });
+    lineChart.data.datasets[4].data.push({ x: now, y: sensorMap["10-25"] });
+    lineChart.data.datasets[5].data.push({ x: now, y: sensorMap["30-25"] });
+
     lineChart.update('quiet');
 }
 

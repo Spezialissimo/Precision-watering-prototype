@@ -83,6 +83,9 @@ function setupMatrixChart() {
                         }
                     }
                 }
+            },
+            animation: {
+                duration: 0
             }
         }
     });

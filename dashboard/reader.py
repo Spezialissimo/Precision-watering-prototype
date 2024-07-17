@@ -98,10 +98,8 @@ def start_flask(host, port):
     app.run(host=host, port=port, debug=False)
 
 if __name__ == '__main__':
-    # Start receiving thread for serial data
     receiving_thread = Thread(target=receiving, args=(ser,))
     receiving_thread.start()
 
-    # Start Flask app in a separate thread
     flask_thread = Thread(target=start_flask, args=(host, port))
     flask_thread.start()
