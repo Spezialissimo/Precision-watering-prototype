@@ -51,13 +51,10 @@ def receive(serial_port, baudrate):
                     if not found:
                         formatted_values.append(0)
                 values_grid = np.array(formatted_values).reshape((len(np.unique(points[:,0])), len(np.unique(points[:,1]))))
-                xi = np.array([
-                    [10, 10], [10, 20],
-                    [15, 5], [15, 10], [15, 15], [15, 20], [15, 25],
-                    [20, 5], [20, 10], [20, 15], [20, 20], [20, 25],
-                    [25, 5], [25, 10], [25, 15], [25, 20], [25, 25],
-                    [30, 10], [30, 20]
-                ])
+                x_range = np.arange(10, 31, 1)  # Da 10 a 30 cm ogni 1 cm
+                y_range = np.arange(5, 26, 1)   # Da 5 a 25 cm ogni 1 cm
+                x_grid, y_grid = np.meshgrid(x_range, y_range)
+                xi = np.vstack([x_grid.ravel(), y_grid.ravel()]).T
                 interpolated_values = interpn((x_values, y_values), values_grid, xi)
                 new_data = []
                 for i, point in enumerate(xi):
@@ -66,7 +63,7 @@ def receive(serial_port, baudrate):
                         "y": int(point[1]),
                         "v": int(interpolated_values[i])
                     })
-                data["data"].extend(new_data)
+                data["data"] = new_data
                 data["timestamp"] = datetime.now().timestamp()
                 with lock:
                     save_sensor_data(data)

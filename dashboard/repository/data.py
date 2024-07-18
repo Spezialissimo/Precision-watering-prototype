@@ -3,23 +3,16 @@ from dotenv import dotenv_values
 from datetime import datetime
 import os
 import time
+import re
 
-# filepath = "repository/" + dotenv_values(".env")["DATA_FILE"]
-filepath = "/home/spezialissimo/Documents/tesi/arduino/small_watering/dashboard/repository/data.csv"
+filepath = "repository/" + dotenv_values(".env")["DATA_FILE"]
 
-def format_sensor_data(data):# Create a dictionary for the formatted data
+
+def format_sensor_data(data):
     formatted_data = {"timestamp": data["timestamp"]}
     for item in data['data']:
         key = f"v_{item['x']}_{item['y']}"
         formatted_data[key] = item['v']
-
-
-    expected_keys = [
-        f"v_{x}_{y}" for x in [10, 15, 20, 25, 30] for y in [5, 10, 15, 20, 25]
-    ]
-    for key in expected_keys:
-        if key not in formatted_data:
-            formatted_data[key] = None
 
     return formatted_data
 
@@ -40,9 +33,7 @@ def save_sensor_data(data):
     file_exists = os.path.exists(filepath)
 
     with open(filepath, mode='a', newline='') as file:
-        fieldnames = ["timestamp"] + [
-            f"v_{x}_{y}" for x in [10, 15, 20, 25, 30] for y in [5, 10, 15, 20, 25]
-        ]
+        fieldnames = list(formatted_data.keys())
         writer = csv.DictWriter(file, fieldnames=fieldnames)
 
         if not file_exists:

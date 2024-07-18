@@ -1,6 +1,8 @@
 let matrixChart;
 
-function setupMatrixChart() {
+function setupMatrixChart(data) {
+    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
+    const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
     let matrixCtx = $('#matrixChart')[0].getContext('2d');
     matrixChart = new Chart(matrixCtx, {
         plugins: [ChartDataLabels],
@@ -8,7 +10,7 @@ function setupMatrixChart() {
         data: {
             datasets: [
                 {
-                    data: [],
+                    data: convertToMatrixData(data),
                     backgroundColor: function (context) {
                         if (!context.dataset || !context.dataset.data.length || context.dataset.data[context.dataIndex].v == null) return "lightgrey";
                         const value = context.dataset.data[context.dataIndex].v;
@@ -16,11 +18,11 @@ function setupMatrixChart() {
                     },
                     width(c) {
                         const a = c.chart.chartArea || {};
-                        return (a.right - a.left) / 5;
+                        return (a.right - a.left) / individualXs.length;
                     },
                     height(c) {
                         const a = c.chart.chartArea || {};
-                        return (a.bottom - a.top) / 5;
+                        return (a.bottom - a.top) / individualYs.length;
                     }
                 }
             ]
@@ -29,11 +31,11 @@ function setupMatrixChart() {
             scales: {
                 y: {
                     type: "category",
+                    labels: individualYs,
                     reverse: false,
                     offset: true,
-                    labels: ["5", "10", "15", "20", "25"],
                     ticks: {
-                        autoSkip: true
+                        autoSkip: false
                     },
                     grid: {
                         display: false,
@@ -42,11 +44,11 @@ function setupMatrixChart() {
                 },
                 x: {
                     type: "category",
+                    labels: individualXs,
                     offset: true,
                     position: "bottom",
-                    labels: ["10", "15", "20", "25", "30"],
                     ticks: {
-                        autoSkip: true,
+                        autoSkip: false,
                         maxRotation: 0,
                     },
                     grid: {
@@ -75,7 +77,7 @@ function setupMatrixChart() {
                                 return 'black';
                             },
                             font() {
-                                weight: 'bold'
+                                return { weight: 'bold' };
                             },
                             formatter(value) {
                                 return value.v;
@@ -84,15 +86,17 @@ function setupMatrixChart() {
                     }
                 }
             },
-            animation: {
-                duration: 0
-            }
+            animation: false
         }
     });
 }
 
 function updateMatrixChart(data) {
-    matrixChart.data.datasets[0].data = convertToMatrixData(data);
+    if (matrixChart == null) {
+        setupMatrixChart(data);
+    } else {
+        matrixChart.data.datasets[0].data = convertToMatrixData(data);
+    }
     matrixChart.update();
 }
 
@@ -109,7 +113,7 @@ function convertToMatrixData(data) {
     return data["data"].map(obj => ({
         x: String(obj.x),
         y: String(obj.y),
-        v: String(obj.v)
+        v: obj.v
     }));
 }
 

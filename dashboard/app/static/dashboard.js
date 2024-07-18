@@ -1,6 +1,5 @@
 $(document).ready(function () {
     setupRealtimeLineChart();
-    setupMatrixChart();
 
     function fetchData() {
         fetch('/getLastReadings')
