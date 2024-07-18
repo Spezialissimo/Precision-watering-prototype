@@ -3,10 +3,11 @@ from dotenv import dotenv_values
 from datetime import datetime
 import os
 import time
-import re
+import threading
 
 filepath = "repository/" + dotenv_values(".env")["DATA_FILE"]
-
+last_sensor_value = {}
+lock = threading.Lock()
 
 def format_sensor_data(data):
     formatted_data = {"timestamp": data["timestamp"]}
@@ -29,6 +30,10 @@ def parse_sensor_data(row):
     return {'timestamp': timestamp, 'data': data}
 
 def save_sensor_data(data):
+    global last_sensor_value
+    lock.acquire()
+    last_sensor_value = data
+    lock.release()
     formatted_data = format_sensor_data(data)
     file_exists = os.path.exists(filepath)
 
@@ -43,29 +48,41 @@ def save_sensor_data(data):
 
 
 def get_last_sensor_data(interpolate=False):
-    if not os.path.exists(filepath):
-        return None
+    global last_sensor_value
+    result = {}
+    lock.acquire()
+    result = last_sensor_value
 
-    try:
-        with open(filepath, mode='r') as file:
-            reader = csv.DictReader(file)
-            rows = list(reader)
-            if rows:
-                if interpolate:
-                    return parse_sensor_data(rows[-1])
-                return parse_sensor_data(filter_interpolated_data(rows[-1]))
-            else:
-                return None
-    except FileNotFoundError:
-        return None
+    if(result == {}):
+        if not os.path.exists(filepath):
+            return None
+
+        try:
+            with open(filepath, mode='r') as file:
+                reader = csv.DictReader(file)
+                rows = list(reader)
+                if rows:
+                    if interpolate:
+                        result = parse_sensor_data(rows[-1])
+                    result = filter_interpolated_data(parse_sensor_data(rows[-1]))
+                else:
+                    return None
+        except FileNotFoundError:
+            return None
+    if not interpolate:
+        result = filter_interpolated_data(result)
+    lock.release()
+    return result
 
 def filter_interpolated_data(data):
-    needed_keys = [
-        f"v_{x}_{y}" for x in [10,  30] for y in [5, 15, 25]
-    ]
-    needed_keys.append("timestamp")
-
-    return {key: data[key] for key in needed_keys}
+    result = {
+        "timestamp": data["timestamp"],
+        "data": []
+    }
+    for value in data["data"]:
+        if value["x"]  in [10, 30] and value["y"] in [5, 15, 25]:
+            result['data'].append(value)
+    return result
 
 
 def get_all_sensor_data(seconds=None):
@@ -74,7 +91,7 @@ def get_all_sensor_data(seconds=None):
     try:
         with open(filepath, mode='r') as file:
             reader = csv.DictReader(file)
-            all_data = [parse_sensor_data(filter_interpolated_data(row)) for row in reader]
+            all_data = [filter_interpolated_data(parse_sensor_data((row))) for row in reader]
 
             if seconds is not None:
                 current_time = time.time()

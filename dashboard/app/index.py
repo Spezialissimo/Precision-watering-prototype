@@ -15,7 +15,6 @@ def get_data():
 def get_last_data():
     return jsonify(get_last_sensor_data())
 
-
 @app.route('/getHistory', methods=['GET'])
 def get_history():
     seconds = request.args.get('seconds', default=None, type=int)
@@ -28,4 +27,4 @@ def toggle_pump():
     return jsonify({"pump_state": pump_state})
 
 def start_flask(host, port):
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=port)

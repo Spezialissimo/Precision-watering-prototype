@@ -53,8 +53,8 @@ $(document).ready(function () {
     });
 
     fetchData();
-    fetchHistoryData();
+    // fetchHistoryData();
     fetchInterpolatedData();
-    setInterval(fetchData, 500);
+    setInterval(fetchData, 1000);
     setInterval(fetchInterpolatedData, 100);
 });

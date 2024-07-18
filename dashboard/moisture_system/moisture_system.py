@@ -5,7 +5,7 @@ import json
 import numpy as np
 from scipy.interpolate import interpn
 import threading
-from repository.data import save_sensor_data, get_last_sensor_data
+from repository.data import save_sensor_data
 from dotenv import dotenv_values
 
 tz = pytz.timezone("Europe/Rome")
@@ -13,10 +13,8 @@ pump_state = False
 lock = threading.Lock()
 ser = serial.Serial(dotenv_values(".env")["SERIAL_PORT"], int(dotenv_values(".env")["SERIAL_BAUDRATE"]), timeout=1)
 
-
 def togglePump():
     global pump_state
-
     pump_state = not pump_state
     ser.write(b"1" if pump_state else b"0")
     return pump_state
