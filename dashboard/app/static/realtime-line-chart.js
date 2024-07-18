@@ -1,8 +1,7 @@
 let lastSensorMap = {};
 let lastUpdateTimeStamp = 0;
 
-
-function setupLineChart() {
+function setupRealtimeLineChart() {
     let lineCtx = $('#lineChart')[0].getContext('2d');
     let lineChart = new Chart(lineCtx, {
         type: 'line',
@@ -52,8 +51,8 @@ function setupLineChart() {
                     type: 'realtime',
                     realtime: {
                         duration: 30000,
-                        refresh: 1000,
-                        delay: 1000,
+                        refresh: 500,
+                        delay: 2000,
                         pause: false,
                         frameRate: 30,
                         onRefresh: function (chart) {
@@ -85,7 +84,7 @@ function setupLineChart() {
     });
 }
 
-function updateLineChart(newData) {
+function updateRealtimeLineChart(newData) {
     const sensorMap = {};
     lastUpdateTimeStamp = (parseFloat(newData["timestamp"]) * 1000);
     newData["data"].forEach(sensor => {
@@ -95,5 +94,5 @@ function updateLineChart(newData) {
     lastSensorMap = sensorMap;
 }
 
-window.setupLineChart = setupLineChart;
-window.updateLineChart = updateLineChart;
+window.setupRealtimeLineChart = setupRealtimeLineChart;
+window.updateRealtimeLineChart = updateRealtimeLineChart;

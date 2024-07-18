@@ -23,7 +23,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
 
-    <script src="{{ url_for('static', filename='line-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='realtime-line-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='history-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
     <style>
@@ -31,6 +32,17 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
+        }
+
+        div.chartWrapper {
+            position: relative;
+            overflow: auto;
+            width: 100%;
+        }
+
+        div.chartContainer {
+            position: relative;
+            height: 300px;
         }
     </style>
 </head>
@@ -63,8 +75,29 @@
     </div>
     <div class="container text-center p-3">
         <div class="row mb-3">
-            <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
+            <div class="col">
+                <button class="btn btn-primary" id="refreshHistory">Refresh history</button>
+            </div>
         </div>
+    </div>
+    <div class="container text-center p-3 mb-3">
+        <div class="row">
+            <div class="col w-100">
+                <div class="chartWrapper">
+                    <div class="chartContainer">
+                        <canvas id="historyLineChart" height="400" width="1200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container text-center p-3">
+        <div class="row mb-3">
+            <div class="col">
+                <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
