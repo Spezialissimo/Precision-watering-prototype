@@ -1,7 +1,7 @@
 $(document).ready(function () {
     setupRealtimeLineChart();
 
-    function fetchData() {
+    async function fetchData() {
         fetch('/getLastReadings')
             .then(response => response.json())
             .then(data => {
@@ -18,7 +18,7 @@ $(document).ready(function () {
             });
     }
 
-    function fetchInterpolatedData() {
+    async function fetchInterpolatedData() {
         fetch('/getLastReadingsWithInterpolation')
             .then(response => response.json())
             .then(data => {
@@ -31,7 +31,7 @@ $(document).ready(function () {
             });
     }
 
-    function fetchHistoryData() {
+    async function fetchHistoryData() {
         fetch('/getHistory?seconds=600')
             .then(response => response.json())
             .then(data => {
@@ -53,7 +53,7 @@ $(document).ready(function () {
     });
 
     fetchData();
-    // fetchHistoryData();
+    fetchHistoryData();
     fetchInterpolatedData();
     setInterval(fetchData, 1000);
     setInterval(fetchInterpolatedData, 100);
