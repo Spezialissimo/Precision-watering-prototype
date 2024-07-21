@@ -30,7 +30,11 @@ def receive(serial_port, baudrate):
         try:
             bytes_to_read = ser.inWaiting()
             if bytes_to_read > 0:
-                buffer += ser.read(bytes_to_read).decode('utf-8')
+                read = ser.read(bytes_to_read)
+                read_string = read.decode('utf-8')
+                if(read_string.find('\x00') != -1):
+                    print("ERRORE read: "+ read + " read_string: " + read_string)
+                buffer += read_string
 
             if '\n' in buffer:
                 lines = buffer.split('\n')
