@@ -1,21 +1,25 @@
+## Prima di eseguire il simulatore, assicurarsi di avere configurato la porta seriale in modo che sia accessibile dal simulatore
+## In linux: socat -d -d PTY,link=/tmp/ttyV0,raw,echo=0 PTY,link=/tmp/ttyV1,raw,echo=0
+## Ovviamente è necessario cambiare in .env di dashboard il valore di SERIAL_PORT.
+
 import tkinter as tk
 from tkinter import ttk
 import json
 import serial
 import threading
+import time
+import random
 
-## Prima di eseguire il simulatore, assicurarsi di avere configurato la porta seriale in modo che sia accessibile dal simulatore
-## In linux: socat -d -d PTY,link=/tmp/ttyV0,raw,echo=0 PTY,link=/tmp/ttyV1,raw,echo=0
-## Ovviamente è necessario cambiare in .env di dashboard il valore di SERIAL_PORT.
-
+# Configurazione della porta seriale
 SERIAL_PORT = '/tmp/ttyV0'  # Porta seriale virtuale di invio
 BAUD_RATE = 9600
 
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
 class HardwareSimulator:
-    def __init__(self, root):
+    def __init__(self, root, start_update_sensors_event):
         self.root = root
+        self.start_update_sensors_event = start_update_sensors_event
         self.root.title("Hardware Simulator")
 
         self.sliders = []
@@ -41,6 +45,10 @@ class HardwareSimulator:
         self.serial_thread.daemon = True
         self.serial_thread.start()
 
+        self.sensor_thread = threading.Thread(target=self.update_sensors)
+        self.sensor_thread.daemon = True
+        self.sensor_thread.start()
+
         self.update_data()
 
     def update_value(self, value, idx):
@@ -48,7 +56,7 @@ class HardwareSimulator:
 
     def update_data(self):
         data = json.dumps({"data": self.slider_values})
-        ser.write(data.encode()+b'\n')
+        ser.write(data.encode() + b'\n')
         self.root.after(100, self.update_data)
 
     def read_serial(self):
@@ -56,17 +64,35 @@ class HardwareSimulator:
             if ser.in_waiting > 0:
                 data = ser.readline().decode().strip()
                 if data == '1':
-                    self.update_led_status(True)
+                    self.root.after(0, self.update_led_status, True)
                 elif data == '0':
-                    self.update_led_status(False)
+                    self.root.after(0, self.update_led_status, False)
 
     def update_led_status(self, status):
         self.led_status = status
         self.led_label.config(bg="green" if status else "red")
 
+    def update_sensors(self):
+        self.start_update_sensors_event.wait()  # Wait until main loop has started
+        while True:
+            if self.led_status:
+                for i, slider_value in enumerate(self.slider_values):
+                    slider_value["v"] = min(slider_value["v"] + random.randint(1, 5), 100)
+            else:
+                for i, slider_value in enumerate(self.slider_values):
+                    slider_value["v"] = max(slider_value["v"] - 1, 0)
+            self.root.after(0, self.update_sliders)
+            time.sleep(1)
+
+    def update_sliders(self):
+        for i, slider_value in enumerate(self.slider_values):
+            self.sliders[i].set(slider_value["v"])
+
 def main():
     root = tk.Tk()
-    app = HardwareSimulator(root)
+    start_update_sensors_event = threading.Event()
+    app = HardwareSimulator(root, start_update_sensors_event)
+    start_update_sensors_event.set()  # Signal that main loop is starting
     root.mainloop()
 
 if __name__ == "__main__":
