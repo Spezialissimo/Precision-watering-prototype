@@ -1,7 +1,7 @@
 from flask import jsonify, render_template, request
 from . import app
-from moisture_system.moisture_system import togglePump
-from repository.data import get_last_sensor_data, get_all_sensor_data
+from moisture_system.moisture_system import togglePump, set_moisture
+from repository.data import get_last_sensor_data, get_all_sensor_data, get_last_irrigation_data, get_all_irrigation_data
 
 @app.route('/')
 def index():
@@ -26,5 +26,24 @@ def toggle_pump():
     pump_state = togglePump()
     return jsonify({"pump_state": pump_state})
 
+@app.route('/getIrrigationHistoryData', methods=['GET'])
+def get_irrigation_history_data():
+    seconds = request.args.get('seconds', default=None, type=int)
+    if seconds is None:
+        sensor_data = get_all_irrigation_data()
+    else:
+        sensor_data = get_all_irrigation_data(seconds)
+    return jsonify(sensor_data)
+
+@app.route('/getIrrigationData', methods=['GET'])
+def get_irrigation_data():
+    return jsonify(get_last_irrigation_data())
+
+@app.route('/setIrrigation', methods=['POST'])
+def set_irrigation():
+    value = request.args.get('value', default=None, type=int)
+    set_moisture(value)
+    return jsonify({"value": value})
+
 def start_flask(host, port):
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, debug=False)

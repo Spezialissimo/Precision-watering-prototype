@@ -5,13 +5,26 @@ import json
 import numpy as np
 from scipy.interpolate import interpn
 import threading
-from repository.data import save_sensor_data
+from repository.data import save_sensor_data, save_irrigation_data, get_last_irrigation_data, get_last_sensor_data
 from dotenv import dotenv_values
+from time import sleep
+from statistics import mean
 
 tz = pytz.timezone("Europe/Rome")
+
 pump_state = False
+
+optimal_moisture = 0
+
 lock = threading.Lock()
 ser = serial.Serial(dotenv_values(".env")["SERIAL_PORT"], int(dotenv_values(".env")["SERIAL_BAUDRATE"]), timeout=1)
+
+
+def set_moisture(value):
+    global optimal_moisture
+    lock.acquire()
+    optimal_moisture = value
+    lock.release()
 
 def togglePump():
     global pump_state
@@ -19,7 +32,7 @@ def togglePump():
     ser.write(b"1" if pump_state else b"0")
     return pump_state
 
-def receive(serial_port, baudrate):
+def receive():
     x_values = [10, 30]
     y_values = [5, 15, 25]
     points = np.array([[x, y] for x in x_values for y in y_values])
@@ -71,3 +84,43 @@ def receive(serial_port, baudrate):
                     save_sensor_data(data)
         except Exception as e:
             print("Error receiving data:", e)
+
+def compute_irrigation():
+    # Wait for the Arduino to boot
+    sleep(5)
+    while True:
+        global optimal_moisture
+        global old_irrigation
+
+        last_irrigation_data = get_last_irrigation_data()
+        old_irrigation = last_irrigation_data["irrigation"]
+        last_sensor_data = get_last_sensor_data()["data"]
+        old_r = last_irrigation_data["r"]
+
+        current_moisture = mean(map(lambda x: x['v'], last_sensor_data))
+        lock.acquire()
+        r = current_moisture - optimal_moisture
+        lock.release()
+
+        kp = 10
+        ki = 0.1
+
+        # irrigation = old_irrigation + kp * (r - old_r) + ki * r
+        irrigation = 5
+
+        print(f"Start pump: {irrigation}")
+        threading.Thread(target=open_pump, args=(irrigation,)).start()
+
+        save_irrigation_data({
+            "timestamp": datetime.now().timestamp(),
+            "r": r,
+            "irrigation": irrigation,
+            "optimal_m": optimal_moisture,
+            "current_m": current_moisture
+        })
+        sleep(30)
+
+def open_pump(seconds):
+    togglePump()
+    sleep(seconds)
+    togglePump()

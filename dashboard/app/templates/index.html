@@ -26,6 +26,7 @@
     <script src="{{ url_for('static', filename='realtime-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='history-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='irrigation-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
@@ -63,24 +64,57 @@
         </div>
     </div>
 
-    <div class="container text-center p-3">
-        <div class="row mb-3">
-            <div class="col-8">
-                <canvas id="lineChart" height="400"></canvas>
+    <div class="container text-center p-3 w-100 m-0 mw-100">
+        <div class="row mb-3 w-100">
+            <div class="col-6 content-center">
+                <div class="row">
+                    <h2 class="text-center fw-bold">Valori dei sensori in tempo reale negli ultimi 30 secondi</h2>
+                </div>
+                <div class="row">
+                    <canvas id="lineChart" height="400"></canvas>
+                </div>
             </div>
-            <div class="col-4 ">
-                <canvas id="matrixChart" height="400" width="400"></canvas>
+            <div class="col-6 content-center">
+                <div class="row">
+                    <h2 class="text-center fw-bold">Valori del terreno in tempo reale</h2>
+                </div>
+                <div class="row">
+                    <div class="col-12 content-center w-100">
+                        <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 400px; display: initial;"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="container text-center p-3">
+        <div class="row mb-3">
+            <div class="col">
+                <div class="row">
+                    <h2 class="text-center fw-bold">Gestione pompa</h2>
+                </div>
+                <div class="row ">
+                    <canvas id="irrigationLineChart" height="400" width="400"></canvas>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
+                    </div>
+                    <div class="col-4">
+                        <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span id="sliderValue">50</span></label>
+                        <input type="range" class="form-range" id="irrigationSlider">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container text-center p-3 w-100 m-0 mw-100">
         <div class="row mb-3">
             <div class="col">
                 <button class="btn btn-primary" id="refreshHistory">Refresh history</button>
             </div>
         </div>
-    </div>
-    <div class="container text-center p-3 mb-3">
         <div class="row">
             <div class="col w-100">
                 <div class="chartWrapper">
@@ -88,13 +122,6 @@
                         <canvas id="historyLineChart" height="400" width="1200"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="container text-center p-3">
-        <div class="row mb-3">
-            <div class="col">
-                <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
             </div>
         </div>
     </div>
