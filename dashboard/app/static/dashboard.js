@@ -91,8 +91,8 @@ $(document).ready(function () {
     fetchData();
     fetchHistoryData();
     fetchInterpolatedData();
-    //fetchAllIrrigationData();
+    fetchAllIrrigationData();
     setInterval(fetchData, 1000);
     setInterval(fetchInterpolatedData, 500);
-    // setInterval(fetchIrrigationData, 30000);
+    setInterval(fetchIrrigationData, 5000);
 });

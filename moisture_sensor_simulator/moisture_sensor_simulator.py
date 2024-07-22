@@ -77,10 +77,10 @@ class HardwareSimulator:
         while True:
             if self.led_status:
                 for i, slider_value in enumerate(self.slider_values):
-                    slider_value["v"] = min(slider_value["v"] + random.randint(1, 5), 100)
+                    slider_value["v"] = min(slider_value["v"] + (random.randint(1, 20) / 10), 100)
             else:
                 for i, slider_value in enumerate(self.slider_values):
-                    slider_value["v"] = max(slider_value["v"] - 1, 0)
+                    slider_value["v"] = max(slider_value["v"] - (random.randint(1, 20) / 10), 0)
             self.root.after(0, self.update_sliders)
             time.sleep(1)
 

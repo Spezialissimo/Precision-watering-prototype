@@ -14,7 +14,8 @@ tz = pytz.timezone("Europe/Rome")
 
 pump_state = False
 
-optimal_moisture = 0
+optimal_moisture = get_last_irrigation_data()['optimal_m']
+
 
 lock = threading.Lock()
 ser = serial.Serial(dotenv_values(".env")["SERIAL_PORT"], int(dotenv_values(".env")["SERIAL_BAUDRATE"]), timeout=1)
@@ -91,25 +92,32 @@ def compute_irrigation():
     while True:
         global optimal_moisture
         global old_irrigation
+        global old_r
+
+        print("Optimal moisture: " + str(optimal_moisture))
 
         last_irrigation_data = get_last_irrigation_data()
         old_irrigation = last_irrigation_data["irrigation"]
-        last_sensor_data = get_last_sensor_data()["data"]
         old_r = last_irrigation_data["r"]
-
+        last_sensor_data = get_last_sensor_data()["data"]
         current_moisture = mean(map(lambda x: x['v'], last_sensor_data))
-        lock.acquire()
-        r = current_moisture - optimal_moisture
-        lock.release()
+        print(f"Current moisture: {current_moisture}")
 
-        kp = 10
-        ki = 0.1
+        with lock:
+            r = optimal_moisture - current_moisture  # Inverti l'errore per ottenere un valore positivo
 
-        # irrigation = old_irrigation + kp * (r - old_r) + ki * r
-        irrigation = 5
+        kp = 0.5  # Imposta e ottimizza questi valori
+        ki = 0.3  # Imposta e ottimizza questi valori
 
-        print(f"Start pump: {irrigation}")
-        threading.Thread(target=open_pump, args=(irrigation,)).start()
+        # Calcola il nuovo valore di irrigazione
+        irrigation = old_irrigation + kp * r + ki * (r - old_r)
+        irrigation = min(max(0, irrigation), 15)  # Limita l'irrigazione a valori non negativi
+
+        print(f"Calculated irrigation: {irrigation}")
+
+        if irrigation > 0:
+            # Apri la pompa per il tempo calcolato
+            threading.Thread(target=open_pump, args=(irrigation,)).start()
 
         save_irrigation_data({
             "timestamp": datetime.now().timestamp(),
@@ -118,9 +126,10 @@ def compute_irrigation():
             "optimal_m": optimal_moisture,
             "current_m": current_moisture
         })
-        sleep(30)
+
+        sleep(15)
 
 def open_pump(seconds):
-    togglePump()
+    ser.write(b"1")
     sleep(seconds)
-    togglePump()
+    ser.write(b"0")

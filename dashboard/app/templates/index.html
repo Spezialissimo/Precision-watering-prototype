@@ -22,12 +22,13 @@
     <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
-
+    <!-- Include your custom scripts after the libraries -->
     <script src="{{ url_for('static', filename='realtime-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='history-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='irrigation-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
 
@@ -80,7 +81,8 @@
                 </div>
                 <div class="row">
                     <div class="col-12 content-center w-100">
-                        <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 400px; display: initial;"></canvas>
+                        <canvas id="matrixChart" height="400" width="400"
+                            style="max-height: 400px; max-width: 400px; display: initial;"></canvas>
                     </div>
                 </div>
             </div>
@@ -93,15 +95,16 @@
                 <div class="row">
                     <h2 class="text-center fw-bold">Gestione pompa</h2>
                 </div>
-                <div class="row ">
-                    <canvas id="irrigationLineChart" height="400" width="400"></canvas>
+                <div class="row">
+                    <canvas id="irrigationLineChart" height="400"></canvas>
                 </div>
                 <div class="row">
                     <div class="col-2">
                         <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
                     </div>
                     <div class="col-4">
-                        <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span id="sliderValue">50</span></label>
+                        <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span
+                                id="sliderValue">50</span></label>
                         <input type="range" class="form-range" id="irrigationSlider">
                     </div>
                 </div>

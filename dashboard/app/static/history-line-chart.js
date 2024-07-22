@@ -1,8 +1,7 @@
 let lineChart;
 
 function convertTimestampToDate(timestamp) {
-    date = new Date(timestamp * 1000);
-    return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    return luxon.DateTime.fromSeconds(timestamp).toJSDate();
 }
 
 function setupHistoryLineChart(historyData) {
@@ -77,9 +76,10 @@ function setupHistoryLineChart(historyData) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: {
-                        display: true,
-                        text: 'Time'
+                    type: 'time',
+                    time: {
+                        unit: 'second',
+                        tooltipFormat: 'HH:mm:ss' // Format per le etichette
                     }
                 },
                 y: {

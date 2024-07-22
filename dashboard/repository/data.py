@@ -8,7 +8,7 @@ from collections import defaultdict
 sensors_filepath = "repository/" + dotenv_values(".env")["DATA_FILE"]
 irrigation_filepath = "repository/" + dotenv_values(".env")["IRRIGATION_FILE"]
 last_sensor_value = {}
-last_irrigation_value = { "timestamp": 0, "r": 0, "irrigation": 0, "optimal_m": 0, "current_m": 0 }
+last_irrigation_value = {}
 lock_last_sensor_value = threading.Lock()
 lock_last_irrigation_value = threading.Lock()
 lock_sensor_file = threading.Lock()
@@ -28,9 +28,9 @@ def parse_sensor_data(row):
     for key, value in row.items():
         if key != 'timestamp' and value:
             parts = key.split('_')
-            x = int(parts[1])
-            y = int(parts[2])
-            v = int(value)
+            x = float(parts[1])
+            y = float(parts[2])
+            v = float(value)
             data.append({'x': x, 'y': y, 'v': v})
     return {'timestamp': timestamp, 'data': data}
 
@@ -179,83 +179,102 @@ def aggregate_sensor_data(data, interval):
 
     return aggregated_data
 
-
-
 def save_irrigation_data(data):
     global last_irrigation_value
+
+    # Aggiorna last_irrigation_value con lock
     lock_last_irrigation_value.acquire()
     last_irrigation_value = data
     lock_last_irrigation_value.release()
+
     file_exists = os.path.exists(irrigation_filepath)
+
+    # Scrivi nel file con lock
     lock_irrigation_file.acquire()
-    with open(irrigation_filepath, mode='a', newline='') as file:
-        fieldnames = list(data.keys())
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
+    try:
+        with open(irrigation_filepath, mode='a', newline='') as file:
+            fieldnames = list(data.keys())
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
 
+            if not file_exists:
+                writer.writeheader()
 
-        if not file_exists:
-            writer.writeheader()
+            writer.writerow(data)
+    finally:
+        lock_irrigation_file.release()
 
-        writer.writerow(data)
-    lock_irrigation_file.release()
+def parse_irrigation_data(row):
+    new_dict = {}
+    for key, value in row.items():
+        try:
+            new_dict[key] = float(value)
+        except ValueError:
+            new_dict[key] = value
+    return new_dict
 
 def get_last_irrigation_data():
     global last_irrigation_value
     result = {}
+
+    # Leggi last_irrigation_value con lock
     lock_last_irrigation_value.acquire()
     result = last_irrigation_value
     lock_last_irrigation_value.release()
 
-    if(result == {}):
-        if not os.path.exists(irrigation_filepath):
-            return None
-
+    if result == {}:
+        # Leggi il file con lock
+        lock_irrigation_file.acquire()
         try:
             with open(irrigation_filepath, mode='r') as file:
                 reader = csv.DictReader(file)
                 rows = list(reader)
                 if rows:
                     result = rows[-1]
-                else:
-                    return None
         except FileNotFoundError:
-            return None
-    return result
+            lock_irrigation_file.release()
+            save_irrigation_data({'timestamp': 0, 'r': 0, 'irrigation': 10, 'optimal_m': 50, 'current_m': 0})
+        finally:
+            if lock_irrigation_file.locked():
+                lock_irrigation_file.release()
+    if(result == {}):
+        return get_last_irrigation_data()
+    return parse_irrigation_data(result)
+
 
 def get_all_irrigation_data(seconds=None, aggregation_interval=None):
     if not os.path.exists(irrigation_filepath):
         return []
 
+    # Leggi il file con lock
+    lock_irrigation_file.acquire()
     try:
-        lock_irrigation_file.acquire()
         with open(irrigation_filepath, mode='r') as file:
             reader = csv.DictReader(file)
-            if seconds is not None:
-                end_time = time.time()
-                start_time = end_time - seconds
-                all_data = []
-                for row in reader:
-                    timestamp = float(row["timestamp"])
-                    if timestamp >= start_time:
-                        all_data.append(row)
-                    if timestamp > end_time:
-                        break
-                if aggregation_interval is not None:
-                    lock_irrigation_file.release()
-                    return aggregate_data(all_data, aggregation_interval)
-                lock_irrigation_file.release()
-                return all_data
-            else:
-                all_data = [row for row in reader]
-                if aggregation_interval is not None:
-                    lock_irrigation_file.release()
-                    return aggregate_data(all_data, aggregation_interval)
-                lock_irrigation_file.release()
-                return all_data
-
+            raw_data = list(reader)
     except FileNotFoundError:
-        lock_irrigation_file.release()
         return []
+    finally:
+        lock_irrigation_file.release()
+
+    if seconds is not None:
+        end_time = time.time()
+        start_time = end_time - seconds
+        all_data = [row for row in raw_data if start_time <= float(row["timestamp"]) <= end_time]
+
+        if aggregation_interval is not None:
+            all_data = aggregate_data(all_data, aggregation_interval)
+        result = []
+        for row in all_data:
+            result.append(parse_irrigation_data(row))
+        return result
+    else:
+        all_data = raw_data
+        if aggregation_interval is not None:
+            all_data = aggregate_data(raw_data, aggregation_interval)
+        result = []
+        for row in all_data:
+            result.append(parse_irrigation_data(row))
+        return result
 
 def aggregate_data(data, interval):
     if not data:

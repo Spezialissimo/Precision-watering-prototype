@@ -1,8 +1,7 @@
 let irrigationLineChart;
 
 function convertTimestampToDate(timestamp) {
-    date = new Date(timestamp * 1000);
-    return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    return luxon.DateTime.fromSeconds(timestamp).toJSDate();
 }
 
 function setupIrrigationLineChart(historyData) {
@@ -10,7 +9,6 @@ function setupIrrigationLineChart(historyData) {
     irrigationLineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
-            labels: historyData.map(entry => convertTimestampToDate(entry.timestamp)),
             datasets: [{
                 data: historyData.map(entry => ({
                     x: convertTimestampToDate(entry.timestamp),
@@ -37,9 +35,10 @@ function setupIrrigationLineChart(historyData) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: {
-                        display: true,
-                        text: 'Time'
+                    type: 'time',
+                    time: {
+                        unit: 'second',
+                        tooltipFormat: 'HH:mm:ss' // Format per le etichette
                     }
                 },
                 y: {
@@ -58,10 +57,14 @@ function setupIrrigationLineChart(historyData) {
 }
 
 async function updateIrrigationLineChart(newData) {
-    irrigationLineChart.data.datasets[0].data.push( { x: convertTimestampToDate(newData.timestamp), y: newData.optimal_m } );
-    irrigationLineChart.data.datasets[1].data.push( { x: convertTimestampToDate(newData.timestamp), y: newData.current_m } );
-    irrigationLineChart.data.labels.push(convertTimestampToDate(newData.timestamp));
-    irrigationLineChart.update();
+    const newTimestamp = convertTimestampToDate(newData.timestamp);
+    const dataset = irrigationLineChart.data.datasets;
+
+    if (dataset[0].data.length === 0 || dataset[0].data[dataset[0].data.length - 1].x < newTimestamp) {
+        dataset[0].data.push({ x: newTimestamp, y: newData.optimal_m });
+        dataset[1].data.push({ x: newTimestamp, y: newData.current_m });
+        irrigationLineChart.update();
+    }
 }
 
 window.setupIrrigationLineChart = setupIrrigationLineChart;
