@@ -1,72 +1,70 @@
 let lineChart;
 
 function convertTimestampToDate(timestamp) {
-    date = new Date(timestamp * 1000);
-    return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    return luxon.DateTime.fromSeconds(timestamp).toJSDate();
 }
 
 function setupHistoryLineChart(historyData) {
-    const pointsOfInterest = {
-        '10-5': [],
-        '30-5': [],
-        '10-15': [],
-        '30-15': [],
-        '10-25': [],
-        '30-25': []
-    };
-
-    historyData.forEach(entry => {
-        const timestamp = entry.timestamp;
-        entry.data.forEach(sensor => {
-            const key = `${sensor.x}-${sensor.y}`;
-            if (pointsOfInterest.hasOwnProperty(key)) {
-                pointsOfInterest[key].push({ x: timestamp, y: sensor.v });
-            }
-        });
-    });
-
     let lineCtx = $('#historyLineChart')[0].getContext('2d');
     lineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
             labels: historyData.map(entry => convertTimestampToDate(entry.timestamp)),
             datasets: [{
-                data: pointsOfInterest['10-5'],
+                data: historyData.map(entry => ({
+                    x: convertTimestampToDate(entry.timestamp),
+                    y: entry.data.filter(data => data.y == '5' && data.x == '10')[0].v
+                })),
                 label: 'ms_10_10',
                 borderWidth: 2,
                 borderColor: 'blue',
                 fill: false
             },
             {
-                data: pointsOfInterest['30-5'],
+                data: historyData.map(entry => ({
+                    x: convertTimestampToDate(entry.timestamp),
+                    y: entry.data.filter(data => data.y == '15' && data.x == '30')[0].v
+                })),
                 label: 'ms_10_30',
                 borderWidth: 2,
                 borderColor: 'green',
                 fill: false
             },
             {
-                data: pointsOfInterest['10-15'],
+                data: historyData.map(entry => ({
+                    x: convertTimestampToDate(entry.timestamp),
+                    y: entry.data.filter(data => data.y == '25' && data.x == '10')[0].v
+                })),
                 label: 'ms_20_10',
                 borderWidth: 2,
                 borderColor: 'purple',
                 fill: false
             },
             {
-                data: pointsOfInterest['10-25'],
+                data: historyData.map(entry => ({
+                    x: convertTimestampToDate(entry.timestamp),
+                    y: entry.data.filter(data => data.y == '25' && data.x == '30')[0].v
+                })),
                 label: 'ms_20_30',
                 borderWidth: 2,
                 borderColor: 'orange',
                 fill: false
             },
             {
-                data: pointsOfInterest['30-15'],
+                data: historyData.map(entry => ({
+                    x: convertTimestampToDate(entry.timestamp),
+                    y: entry.data.filter(data => data.y == '25' && data.x == '10')[0].v
+                })),
                 label: 'ms_30_10',
                 borderWidth: 2,
                 borderColor: 'cyan',
                 fill: false
             },
             {
-                data: pointsOfInterest['30-25'],
+                data: historyData.map(entry => ({
+                    x: convertTimestampToDate(entry.timestamp),
+                    y: entry.data.filter(data => data.y == '25' && data.x == '30')[0].v
+                })),
                 label: 'ms_30_30',
                 borderWidth: 2,
                 borderColor: 'magenta',
@@ -78,9 +76,10 @@ function setupHistoryLineChart(historyData) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    title: {
-                        display: true,
-                        text: 'Time'
+                    type: 'time',
+                    time: {
+                        unit: 'second',
+                        tooltipFormat: 'HH:mm:ss' // Format per le etichette
                     }
                 },
                 y: {
@@ -101,41 +100,22 @@ function setupHistoryLineChart(historyData) {
 function fitChart() {
     var chartCanvas = document.getElementById('historyLineChart');
     var maxWidth = chartCanvas.parentElement.parentElement.clientWidth;
-    var width = Math.max(lineChart.data.labels.length * 2, maxWidth);
+    var width = Math.max(lineChart.data.labels.length * 1.5, maxWidth);
 
     chartCanvas.parentElement.style.width = width + 'px';
 }
 
 
 async function updateHistoryLineChart(historyData) {
-    if (lineChart == null) setupHistoryLineChart(historyData);
-    const pointsOfInterest = {
-        '10-5': [],
-        '30-5': [],
-        '10-15': [],
-        '30-15': [],
-        '10-25': [],
-        '30-25': []
-    };
+    if (lineChart == null || lineChart.data.datasets.length == 0) setupHistoryLineChart(historyData);
 
-    historyData.forEach(entry => {
-        const timestamp = entry.timestamp;
-        entry.data.forEach(sensor => {
-            const key = `${sensor.x}-${sensor.y}`;
-            if (pointsOfInterest.hasOwnProperty(key)) {
-                pointsOfInterest[key].push({ x: convertTimestampToDate(timestamp), y: sensor.v });
-            }
-        });
-    });
-
-    lineChart.data.datasets[0].data = pointsOfInterest['10-5'];
-    lineChart.data.datasets[1].data = pointsOfInterest['30-5'];
-    lineChart.data.datasets[2].data = pointsOfInterest['10-15'];
-    lineChart.data.datasets[3].data = pointsOfInterest['30-15'];
-    lineChart.data.datasets[4].data = pointsOfInterest['10-25'];
-    lineChart.data.datasets[5].data = pointsOfInterest['30-25'];
+    lineChart.data.datasets[0].data = historyData.map(entry => entry.data.filter(data => data.y == '5' && data.x == '10')[0].v);
+    lineChart.data.datasets[1].data = historyData.map(entry => entry.data.filter(data => data.y == '15' && data.x == '10')[0].v);
+    lineChart.data.datasets[2].data = historyData.map(entry => entry.data.filter(data => data.y == '25' && data.x == '10')[0].v);
+    lineChart.data.datasets[3].data = historyData.map(entry => entry.data.filter(data => data.y == '5' && data.x == '30')[0].v);
+    lineChart.data.datasets[4].data = historyData.map(entry => entry.data.filter(data => data.y == '15' && data.x == '30')[0].v);
+    lineChart.data.datasets[5].data = historyData.map(entry => entry.data.filter(data => data.y == '25' && data.x == '30')[0].v);
     lineChart.data.labels = historyData.map(entry => convertTimestampToDate(entry.timestamp));
-
     fitChart()
     lineChart.update();
 }
