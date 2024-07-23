@@ -1,6 +1,5 @@
 import serial
 from datetime import datetime
-import pytz
 import json
 import numpy as np
 from scipy.interpolate import interpn
@@ -10,12 +9,9 @@ from dotenv import dotenv_values
 from time import sleep
 from statistics import mean
 
-tz = pytz.timezone("Europe/Rome")
-
 pump_state = False
 
 optimal_moisture = get_last_irrigation_data()['optimal_m']
-
 
 lock = threading.Lock()
 ser = serial.Serial(dotenv_values(".env")["SERIAL_PORT"], int(dotenv_values(".env")["SERIAL_BAUDRATE"]), timeout=1)
@@ -115,7 +111,7 @@ def compute_irrigation():
 
         print(f"Calculated irrigation: {irrigation}")
 
-        if irrigation > 0:
+        if irrigation >= 0:
             # Apri la pompa per il tempo calcolato
             threading.Thread(target=open_pump, args=(irrigation,)).start()
 
@@ -130,6 +126,7 @@ def compute_irrigation():
         sleep(15)
 
 def open_pump(seconds):
-    ser.write(b"1")
-    sleep(seconds)
+    if seconds > 0 :
+        ser.write(b"1")
+        sleep(seconds)
     ser.write(b"0")

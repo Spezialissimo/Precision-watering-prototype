@@ -47,6 +47,7 @@ $(document).ready(function () {
             const response = await fetch('/getIrrigationHistoryData');
             const data = await response.json();
             setupIrrigationLineChart(data);
+            setInterval(fetchIrrigationData, 5000);
         } catch (error) {
             $('#syncingModal').modal('show');
         }
@@ -69,12 +70,11 @@ $(document).ready(function () {
         var value = $(this).val();
         $('#sliderValue').text(value);
     });
-    
+
     fetchData();
     fetchHistoryData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
     setInterval(fetchData, 1000);
     setInterval(fetchInterpolatedData, 500);
-    setInterval(fetchIrrigationData, 5000);
 });

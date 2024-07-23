@@ -233,10 +233,13 @@ def get_last_irrigation_data():
                     result = rows[-1]
         except FileNotFoundError:
             lock_irrigation_file.release()
-            save_irrigation_data({'timestamp': 0, 'r': 0, 'irrigation': 10, 'optimal_m': 50, 'current_m': 0})
+            save_irrigation_data({'timestamp': datetime.now().timestamp(), 'r': 0, 'irrigation': 10, 'optimal_m': 50, 'current_m': 0})
         finally:
             if lock_irrigation_file.locked():
                 lock_irrigation_file.release()
+            lock_last_irrigation_value.acquire()
+            last_irrigation_value = result
+            lock_last_irrigation_value.release()
     if(result == {}):
         return get_last_irrigation_data()
     return parse_irrigation_data(result)
