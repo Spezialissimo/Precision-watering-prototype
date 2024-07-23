@@ -4,6 +4,7 @@ import os
 import time
 import threading
 from collections import defaultdict
+from datetime import datetime
 
 sensors_filepath = os.path.normpath("repository/" + dotenv_values(".env")["DATA_FILE"])
 irrigation_filepath = os.path.normpath("repository/" + dotenv_values(".env")["IRRIGATION_FILE"])
