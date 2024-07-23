@@ -5,8 +5,8 @@ import time
 import threading
 from collections import defaultdict
 
-sensors_filepath = "repository/" + dotenv_values(".env")["DATA_FILE"]
-irrigation_filepath = "repository/" + dotenv_values(".env")["IRRIGATION_FILE"]
+sensors_filepath = os.path.normpath("repository/" + dotenv_values(".env")["DATA_FILE"])
+irrigation_filepath = os.path.normpath("repository/" + dotenv_values(".env")["IRRIGATION_FILE"])
 last_sensor_value = {}
 last_irrigation_value = {}
 lock_last_sensor_value = threading.Lock()
