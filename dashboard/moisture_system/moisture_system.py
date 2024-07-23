@@ -54,7 +54,7 @@ def receive():
                 lines = buffer.split('\n')
                 last_received = lines[-2]
                 buffer = lines[-1]
-                data = json.loads(last_received)
+                data = json.loads(last_received.strip())
                 values = data["data"]
                 formatted_values = []
                 for point in points:

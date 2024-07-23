@@ -61,8 +61,9 @@ def get_last_sensor_data(interpolate=False):
     lock_last_sensor_value.acquire()
     result = last_sensor_value
     lock_last_sensor_value.release()
-    if not interpolate:
-        result = filter_interpolated_data(result)
+    if result != {} :
+        if not interpolate:
+            result = filter_interpolated_data(result)
     return result
 
 def filter_interpolated_data(data):
