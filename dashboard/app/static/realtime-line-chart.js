@@ -68,7 +68,6 @@ function setupRealtimeLineChart() {
             }]
         },
         options: {
-
             responsive: true,
             maintainAspectRatio: false,
             scales: {

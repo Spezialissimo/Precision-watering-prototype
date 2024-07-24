@@ -72,7 +72,7 @@ $(document).ready(function () {
     });
 
     fetchData();
-    // fetchHistoryData();
+    //  fetchHistoryData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
     setInterval(fetchData, 1000);
