@@ -67,7 +67,7 @@
 
     <div class="container text-center p-3 w-100 m-0 mw-100">
         <div class="row mb-3 w-100">
-            <div class="col-6 content-center">
+            <div class="col-8 content-center">
                 <div class="row">
                     <h2 class="text-center fw-bold">Valori dei sensori in tempo reale negli ultimi 30 secondi</h2>
                 </div>
@@ -75,7 +75,7 @@
                     <canvas id="lineChart" height="400"></canvas>
                 </div>
             </div>
-            <div class="col-6 content-center">
+            <div class="col-4 content-center">
                 <div class="row">
                     <h2 class="text-center fw-bold">Valori del terreno in tempo reale</h2>
                 </div>
@@ -88,31 +88,33 @@
             </div>
         </div>
     </div>
-
-    <div class="container text-center p-3">
-        <div class="row mb-3">
-            <div class="col">
+    <div class="container text-center p-3 w-100 m-0 mw-100">
+        <div class="row mb-3 w-100">
+            <div class="col-8 content-center">
                 <div class="row">
                     <h2 class="text-center fw-bold">Gestione pompa</h2>
                 </div>
                 <div class="row">
                     <canvas id="irrigationLineChart" height="400"></canvas>
                 </div>
-                <div class="row">
-                    <div class="col-2">
-                        <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
-                    </div>
-                    <div class="col-4">
-                        <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span
-                                id="sliderValue">50</span></label>
-                        <input type="range" class="form-range" id="irrigationSlider">
-                    </div>
-                </div>
+            </div>
+            <div class="col-4">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
+            </div>
+            <div class="col-4">
+                <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span
+                        id="sliderValue">50</span></label>
+                <input type="range" class="form-range" id="irrigationSlider">
             </div>
         </div>
     </div>
 
-    <div class="container text-center p-3 w-100 m-0 mw-100">
+    <!-- <div class="container text-center p-3 w-100 m-0 mw-100">
         <div class="row mb-3">
             <div class="col">
                 <button class="btn btn-primary" id="refreshHistory">Refresh history</button>
@@ -127,7 +129,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </body>
 
 </html>

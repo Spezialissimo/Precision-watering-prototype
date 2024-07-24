@@ -10,40 +10,65 @@ function setupRealtimeLineChart() {
                 label: 'ms_10_10',
                 borderWidth: 2,
                 borderColor: 'blue',
-                fill: false
+                fill: false,
+                pointStyle: 'line',
+                pointRadius: 0,
+                tension: 0.4,  // Add this line
+                cubicInterpolationMode: 'monotone'
             },
             {
                 label: 'ms_10_30',
                 borderWidth: 2,
                 borderColor: 'green',
-                fill: false
+                fill: false,
+                pointStyle: 'line',
+                pointRadius: 0,
+                tension: 0.4,  // Add this line
+                cubicInterpolationMode: 'monotone'
             },
             {
                 label: 'ms_20_10',
                 borderWidth: 2,
                 borderColor: 'purple',
-                fill: false
+                fill: false,
+                pointStyle: 'line',
+                pointRadius: 0,
+                tension: 0.4,  // Add this line
+                cubicInterpolationMode: 'monotone'
             },
             {
                 label: 'ms_20_30',
                 borderWidth: 2,
                 borderColor: 'orange',
-                fill: false
+                fill: false,
+                pointStyle: 'line',
+                pointRadius: 0,
+                tension: 0.4,  // Add this line
+                cubicInterpolationMode: 'monotone'
             },
             {
                 label: 'ms_30_10',
                 borderWidth: 2,
                 borderColor: 'cyan',
-                fill: false
+                fill: false,
+                pointStyle: 'line',
+                pointRadius: 0,
+                tension: 0.4,  // Add this line
+                cubicInterpolationMode: 'monotone'
             },
             {
                 label: 'ms_30_30',
                 borderWidth: 2,
                 borderColor: 'magenta',
-                fill: false
+                fill: false,
+                pointStyle: 'line',
+                pointRadius: 0,
+                tension: 0.4,  // Add this line
+                cubicInterpolationMode: 'monotone'
             }]
         },
         options: {
+
             responsive: true,
             maintainAspectRatio: false,
             scales: {

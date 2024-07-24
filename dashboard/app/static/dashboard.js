@@ -44,7 +44,7 @@ $(document).ready(function () {
 
     async function fetchAllIrrigationData() {
         try {
-            const response = await fetch('/getIrrigationHistoryData');
+            const response = await fetch('/getIrrigationHistoryData?seconds=600');
             const data = await response.json();
             setupIrrigationLineChart(data);
             setInterval(fetchIrrigationData, 5000);
@@ -72,7 +72,7 @@ $(document).ready(function () {
     });
 
     fetchData();
-    fetchHistoryData();
+    // fetchHistoryData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
     setInterval(fetchData, 1000);
