@@ -117,5 +117,4 @@ function convertToMatrixData(data) {
     }));
 }
 
-window.setupMatrixChart = setupMatrixChart;
 window.updateMatrixChart = updateMatrixChart;

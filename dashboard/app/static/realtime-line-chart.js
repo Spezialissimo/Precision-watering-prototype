@@ -1,6 +1,6 @@
 let lastSensorData = {};
 
-function createDataSetConfig(x, y, color) {
+function createRealTimeDatasetConfig(x, y, color) {
     return {
         label: "Sensor (" + x + ", " + y + ")",
         data: [],
@@ -20,12 +20,12 @@ function setupRealtimeLineChart() {
         type: 'line',
         data: {
             datasets: [
-                createDataSetConfig('10', '5', 'blue'),
-                createDataSetConfig('10', '15', 'purple'),
-                createDataSetConfig('10', '25', 'cyan'),
-                createDataSetConfig('30', '5', 'green'),
-                createDataSetConfig('30', '15', 'orange'),
-                createDataSetConfig('30', '25', 'magenta'),
+                createRealTimeDatasetConfig('10', '5', 'blue'),
+                createRealTimeDatasetConfig('10', '15', 'purple'),
+                createRealTimeDatasetConfig('10', '25', 'cyan'),
+                createRealTimeDatasetConfig('30', '5', 'green'),
+                createRealTimeDatasetConfig('30', '15', 'orange'),
+                createRealTimeDatasetConfig('30', '25', 'magenta'),
             ]
         },
         options: {
@@ -40,16 +40,23 @@ function setupRealtimeLineChart() {
                         delay: 2000,
                         pause: false,
                         frameRate: 30,
-                        onRefresh: function (chart) {
+                        onRefresh: async function (chart) {
+                            try {
+                                const response = await fetch('/getLastReadings');
+                                lastSensorData = await response.json();
+                                $('#syncingModal').modal('hide');
+                            } catch (error) {
+                                $('#syncingModal').modal('show');
+                            }
                             if (lastSensorData == {} || lastSensorData.timestamp == undefined) {
                                 return;
                             }
-                            chart.data.datasets[0].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[0].v });
-                            chart.data.datasets[1].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[1].v });
-                            chart.data.datasets[2].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[2].v });
-                            chart.data.datasets[3].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[3].v });
-                            chart.data.datasets[4].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[4].v });
-                            chart.data.datasets[5].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[5].v });
+                            chart.data.datasets[0].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[0].v });
+                            chart.data.datasets[1].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[1].v });
+                            chart.data.datasets[2].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[2].v });
+                            chart.data.datasets[3].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[3].v });
+                            chart.data.datasets[4].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[4].v });
+                            chart.data.datasets[5].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[5].v });
                         }
                     },
                     title: {
@@ -72,9 +79,4 @@ function setupRealtimeLineChart() {
     });
 }
 
-function updateRealtimeLineChart(newData) {
-    lastSensorData = newData;
-}
-
 window.setupRealtimeLineChart = setupRealtimeLineChart;
-window.updateRealtimeLineChart = updateRealtimeLineChart;

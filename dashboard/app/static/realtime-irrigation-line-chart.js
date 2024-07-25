@@ -2,10 +2,6 @@ let irrigationLineChart;
 let lastIrrigationData;
 let didUsePreview = false;
 
-function convertTimestampToDate(timestamp) {
-    return (parseFloat(timestamp) * 1000);
-}
-
 function normalizeIrrigationValue(value, maxIrrigationValue) {
     return (value / maxIrrigationValue) * 100;
 }
@@ -19,7 +15,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             datasets: [
                 {
                     data: historyData.map(entry => ({
-                        x: convertTimestampToDate(entry.timestamp),
+                        x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: entry.optimal_m
                     })),
                     label: 'Optimal',
@@ -33,7 +29,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                 },
                 {
                     data: historyData.map(entry => ({
-                        x: convertTimestampToDate(entry.timestamp),
+                        x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: entry.current_m
                     })),
                     label: 'Current',
@@ -49,7 +45,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     type: 'bar',
                     label: 'Water output',
                     data: historyData.map(entry => ({
-                        x: convertTimestampToDate(entry.timestamp),
+                        x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: normalizeIrrigationValue(entry.irrigation, maxIrrigationValue),
                         rawValue: entry.irrigation
                     })),
@@ -95,7 +91,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                 $('#syncingModal').modal('show');
                             }
 
-                            const newTimestamp = convertTimestampToDate(lastIrrigationData.timestamp);
+                            const newTimestamp = convertTimestampToDateForRealtime(lastIrrigationData.timestamp);
                             const dataset = irrigationLineChart.data.datasets;
 
                             shouldUpdate = didUsePreview ? newTimestamp == dataset[0].data[dataset[0].data.length - 2].x : newTimestamp == dataset[0].data[dataset[0].data.length - 1].x;

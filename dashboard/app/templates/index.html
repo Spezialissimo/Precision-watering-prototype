@@ -23,8 +23,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
     <!-- Include your custom scripts after the libraries -->
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
     <script src="{{ url_for('static', filename='realtime-line-chart.js') }}"></script>
-    <script src="{{ url_for('static', filename='history-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='realtime-irrigation-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
@@ -35,22 +35,11 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
-
-        div.chartWrapper {
-            position: relative;
-            overflow: auto;
-            width: 100%;
-        }
-
-        div.chartContainer {
-            position: relative;
-            height: 300px;
-        }
     </style>
 </head>
 
 <body>
-    <h1 class="text-center fw-bold mt-3">Precision Gardening Dashboard</h1>
+
     <div class="modal fade" id="syncingModal" tabindex="-1" aria-labelledby="syncingModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -66,7 +55,12 @@
     </div>
 
     <div class="container text-center p-3 w-100 m-0 mw-100">
-        <div class="row mb-3 w-100">
+        <div class="row w-100">
+            <h1 class="text-center fw-bold mt-3">Precision Farming Dashboard</h1>
+        </div>
+
+        <!-- <div class="container text-center p-3 w-100 m-0 mw-100"> -->
+        <div class="row w-100">
             <div class="col-8 content-center">
                 <div class="row">
                     <h2 class="text-center fw-bold">Valori dei sensori in tempo reale negli ultimi 30 secondi</h2>
@@ -87,9 +81,9 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container text-center p-3 w-100 m-0 mw-100">
-        <div class="row mb-3 w-100">
+        <!-- </div> -->
+        <!-- <div class="container text-center p-3 w-100 m-0 mw-100"> -->
+        <div class="row w-100">
             <div class="col-8 content-center">
                 <div class="row">
                     <h2 class="text-center fw-bold">Gestione pompa</h2>
@@ -113,23 +107,6 @@
             </div>
         </div>
     </div>
-
-    <!-- <div class="container text-center p-3 w-100 m-0 mw-100">
-        <div class="row mb-3">
-            <div class="col">
-                <button class="btn btn-primary" id="refreshHistory">Refresh history</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col w-100">
-                <div class="chartWrapper">
-                    <div class="chartContainer">
-                        <canvas id="historyLineChart" height="400" width="1200"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
 </body>
 
 </html>

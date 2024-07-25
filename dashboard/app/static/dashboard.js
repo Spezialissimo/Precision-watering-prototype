@@ -71,10 +71,10 @@ $(document).ready(function () {
         $('#sliderValue').text(value);
     });
 
-    fetchData();
+    // fetchData();
     //  fetchHistoryData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
-    setInterval(fetchData, 1000);
+    // setInterval(fetchData, 1000);
     setInterval(fetchInterpolatedData, 500);
 });
