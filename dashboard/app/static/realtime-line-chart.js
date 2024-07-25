@@ -1,71 +1,32 @@
-let lastSensorMap = {};
-let lastUpdateTimeStamp = 0;
+let lastSensorData = {};
+
+function createDataSetConfig(x, y, color) {
+    return {
+        label: "Sensor (" + x + ", " + y + ")",
+        data: [],
+        borderWidth: 2,
+        borderColor: color,
+        fill: false,
+        pointStyle: 'line',
+        pointRadius: 0,
+        tension: 0.4,
+        cubicInterpolationMode: 'monotone'
+    }
+}
 
 function setupRealtimeLineChart() {
     let lineCtx = $('#lineChart')[0].getContext('2d');
     let lineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
-            datasets: [{
-                label: 'ms_10_10',
-                borderWidth: 2,
-                borderColor: 'blue',
-                fill: false,
-                pointStyle: 'line',
-                pointRadius: 0,
-                tension: 0.4,  // Add this line
-                cubicInterpolationMode: 'monotone'
-            },
-            {
-                label: 'ms_10_30',
-                borderWidth: 2,
-                borderColor: 'green',
-                fill: false,
-                pointStyle: 'line',
-                pointRadius: 0,
-                tension: 0.4,  // Add this line
-                cubicInterpolationMode: 'monotone'
-            },
-            {
-                label: 'ms_20_10',
-                borderWidth: 2,
-                borderColor: 'purple',
-                fill: false,
-                pointStyle: 'line',
-                pointRadius: 0,
-                tension: 0.4,  // Add this line
-                cubicInterpolationMode: 'monotone'
-            },
-            {
-                label: 'ms_20_30',
-                borderWidth: 2,
-                borderColor: 'orange',
-                fill: false,
-                pointStyle: 'line',
-                pointRadius: 0,
-                tension: 0.4,  // Add this line
-                cubicInterpolationMode: 'monotone'
-            },
-            {
-                label: 'ms_30_10',
-                borderWidth: 2,
-                borderColor: 'cyan',
-                fill: false,
-                pointStyle: 'line',
-                pointRadius: 0,
-                tension: 0.4,  // Add this line
-                cubicInterpolationMode: 'monotone'
-            },
-            {
-                label: 'ms_30_30',
-                borderWidth: 2,
-                borderColor: 'magenta',
-                fill: false,
-                pointStyle: 'line',
-                pointRadius: 0,
-                tension: 0.4,  // Add this line
-                cubicInterpolationMode: 'monotone'
-            }]
+            datasets: [
+                createDataSetConfig('10', '5', 'blue'),
+                createDataSetConfig('10', '15', 'purple'),
+                createDataSetConfig('10', '25', 'cyan'),
+                createDataSetConfig('30', '5', 'green'),
+                createDataSetConfig('30', '15', 'orange'),
+                createDataSetConfig('30', '25', 'magenta'),
+            ]
         },
         options: {
             responsive: true,
@@ -80,12 +41,15 @@ function setupRealtimeLineChart() {
                         pause: false,
                         frameRate: 30,
                         onRefresh: function (chart) {
-                            chart.data.datasets[0].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["10-5"] });
-                            chart.data.datasets[1].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["30-5"] });
-                            chart.data.datasets[2].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["10-15"] });
-                            chart.data.datasets[3].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["30-15"] });
-                            chart.data.datasets[4].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["10-25"] });
-                            chart.data.datasets[5].data.push({ x: lastUpdateTimeStamp, y: lastSensorMap["30-25"] });
+                            if (lastSensorData == {} || lastSensorData.timestamp == undefined) {
+                                return;
+                            }
+                            chart.data.datasets[0].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[0].v });
+                            chart.data.datasets[1].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[1].v });
+                            chart.data.datasets[2].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[2].v });
+                            chart.data.datasets[3].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[3].v });
+                            chart.data.datasets[4].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[4].v });
+                            chart.data.datasets[5].data.push({ x: convertTimestampToDate(lastSensorData.timestamp), y: lastSensorData.data[5].v });
                         }
                     },
                     title: {
@@ -109,13 +73,7 @@ function setupRealtimeLineChart() {
 }
 
 function updateRealtimeLineChart(newData) {
-    const sensorMap = {};
-    lastUpdateTimeStamp = (parseFloat(newData["timestamp"]) * 1000);
-    newData["data"].forEach(sensor => {
-        const key = `${sensor.x}-${sensor.y}`;
-        sensorMap[key] = sensor.v;
-    });
-    lastSensorMap = sensorMap;
+    lastSensorData = newData;
 }
 
 window.setupRealtimeLineChart = setupRealtimeLineChart;

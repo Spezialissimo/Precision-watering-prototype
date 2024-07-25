@@ -1,8 +1,9 @@
 let irrigationLineChart;
 let lastIrrigationData;
+let didUsePreview = false;
 
 function convertTimestampToDate(timestamp) {
-    return luxon.DateTime.fromSeconds(timestamp).toJSDate();
+    return (parseFloat(timestamp) * 1000);
 }
 
 function normalizeIrrigationValue(value, maxIrrigationValue) {
@@ -50,7 +51,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     data: historyData.map(entry => ({
                         x: convertTimestampToDate(entry.timestamp),
                         y: normalizeIrrigationValue(entry.irrigation, maxIrrigationValue),
-                        rawValue: entry.irrigation // Store the raw irrigation value
+                        rawValue: entry.irrigation
                     })),
                     backgroundColor: 'rgba(0, 0, 128, 0.2)',
                     datalabels: {
@@ -66,7 +67,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         color: 'black',
                         offset: -5
                     }
-                },
+                }
             ]
         },
         options: {
@@ -74,7 +75,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             maintainAspectRatio: false,
             plugins: {
                 datalabels: {
-                    display: false // Disable datalabels globally
+                    display: false
                 }
             },
             scales: {
@@ -82,17 +83,26 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     type: 'realtime',
                     realtime: {
                         duration: 120000,
-                        refresh: 15000,
-                        delay: 1000,
+                        refresh: 1000,
+                        delay: 500,
                         pause: false,
                         frameRate: 30,
-                        onRefresh: function (chart) {
+                        onRefresh: async function (chart) {
+                            try {
+                                const response = await fetch('/getIrrigationData');
+                                lastIrrigationData = await response.json();
+                            } catch (error) {
+                                $('#syncingModal').modal('show');
+                            }
+
                             const newTimestamp = convertTimestampToDate(lastIrrigationData.timestamp);
                             const dataset = irrigationLineChart.data.datasets;
 
-                            if (dataset[2].data.x == newTimestamp) {
+                            shouldUpdate = didUsePreview ? newTimestamp == dataset[0].data[dataset[0].data.length - 2].x : newTimestamp == dataset[0].data[dataset[0].data.length - 1].x;
+                            if (newTimestamp == dataset[0].data[dataset[0].data.length - 1].x) {
                                 return;
                             }
+
 
                             if (dataset[2].data.length === 0 || dataset[2].data[dataset[2].data.length - 1].x < newTimestamp) {
                                 dataset[2].data.push({
@@ -100,7 +110,13 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                     y: normalizeIrrigationValue(lastIrrigationData.irrigation, 15),
                                     rawValue: lastIrrigationData.irrigation
                                 });
-                                dataset[0].data.push({ x: newTimestamp, y: lastIrrigationData.optimal_m });
+
+                                if (!didUsePreview) {
+                                    dataset[0].data.push({ x: newTimestamp, y: lastIrrigationData.optimal_m });
+                                } else {
+                                    didUsePreview = false;
+                                }
+
                                 dataset[1].data.push({ x: newTimestamp, y: lastIrrigationData.current_m });
                                 irrigationLineChart.update();
                             }
@@ -123,28 +139,15 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             },
             animation: false
         },
-        plugins: [ChartDataLabels] // Register the plugin
+        plugins: [ChartDataLabels]
     });
 }
 
-// async function updateIrrigationLineChart(newData, maxIrrigationValue = 15) {
-//     const newTimestamp = convertTimestampToDate(newData.timestamp);
-//     const dataset = irrigationLineChart.data.datasets;
-//     if (dataset[0].data.length === 0 || dataset[0].data[dataset[0].data.length - 1].x < newTimestamp) {
-//         dataset[0].data.push({
-//             x: newTimestamp,
-//             y: normalizeIrrigationValue(newData.irrigation, maxIrrigationValue),
-//             rawValue: newData.irrigation // Store the raw irrigation value
-//         });
-//         dataset[1].data.push({ x: newTimestamp, y: newData.optimal_m });
-//         dataset[2].data.push({ x: newTimestamp, y: newData.current_m });
-//         irrigationLineChart.update();
-//     }
-// }
-
-function updateIrrigationLineChart(newData) {
-    lastIrrigationData = newData;
+function updateOptimalIrrigationLine(value) {
+    const lastDrawnData = irrigationLineChart.data.datasets[0].data[irrigationLineChart.data.datasets[0].data.length - 1];
+    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: value });
+    didUsePreview = true;
+    irrigationLineChart.update();
 }
 
 window.setupIrrigationLineChart = setupIrrigationLineChart;
-window.updateIrrigationLineChart = updateIrrigationLineChart;

@@ -32,22 +32,21 @@ $(document).ready(function () {
         }
     }
 
-    async function fetchIrrigationData() {
-        try {
-            const response = await fetch('/getIrrigationData');
-            const data = await response.json();
-            updateIrrigationLineChart(data);
-        } catch (error) {
-            $('#syncingModal').modal('show');
-        }
-    }
+    // async function fetchIrrigationData() {
+    //     try {
+    //         const response = await fetch('/getIrrigationData');
+    //         const data = await response.json();
+    //         updateIrrigationLineChart(data);
+    //     } catch (error) {
+    //         $('#syncingModal').modal('show');
+    //     }
+    // }
 
     async function fetchAllIrrigationData() {
         try {
             const response = await fetch('/getIrrigationHistoryData?seconds=600');
             const data = await response.json();
             setupIrrigationLineChart(data);
-            setInterval(fetchIrrigationData, 5000);
         } catch (error) {
             $('#syncingModal').modal('show');
         }
@@ -64,6 +63,7 @@ $(document).ready(function () {
     $('#irrigationSlider').on('change', function () {
         var value = $(this).val();
         fetch('/setIrrigation?value=' + value, { method: 'POST' });
+        updateOptimalIrrigationLine(value);
     });
 
     $('#irrigationSlider').on('input', function () {
