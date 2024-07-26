@@ -29,6 +29,7 @@
     <script src="{{ url_for('static', filename='realtime-irrigation-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='optimals.js') }}"></script>
+    <script src="{{ url_for('static', filename='irrigation-controls.js') }}"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
@@ -56,7 +57,7 @@
 
     <div class="modal fade" id="optimalSelectionModal" tabindex="-1" aria-labelledby="optimalSelectionModal"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg"  role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="syncingModalLabel">Select optimal</h5>
@@ -89,57 +90,62 @@
         </div>
     </div>
 
-    <div class="container text-center p-3 w-100 m-0 mw-100">
-        <div class="row w-100">
+    <div class="container text-center p-0 w-100 m-0 mw-100">
+
+        <div class="row w-100 m-0 p-0" style="height: 10%">
             <h1 class="text-center fw-bold mt-3">Precision Farming Dashboard</h1>
         </div>
-        <div class="row w-100">
+
+        <div class="row w-100 m-0 p-0" style="height: 10%">
             <div class="col-8 content-center">
-                <div class="row">
-                    <h2 class="text-center fw-bold">Valori dei sensori in tempo reale negli ultimi 30 secondi</h2>
-                </div>
-                <div class="row">
-                    <canvas id="lineChart" height="400"></canvas>
-                </div>
+                <h2 class="text-center fw-bold">Valori dei sensori in tempo reale negli ultimi 30 secondi</h2>
             </div>
             <div class="col-4 content-center">
-                <div class="row">
-                    <h2 class="text-center fw-bold">Valori del terreno in tempo reale</h2>
-                </div>
-                <div class="row">
-                    <div class="col-12 content-center w-100">
-                        <canvas id="matrixChart" height="400" width="400"
-                            style="max-height: 400px; max-width: 400px; display: initial;"></canvas>
-                    </div>
-                </div>
+                <h2 class="text-center fw-bold">Valori del terreno in tempo reale</h2>
             </div>
         </div>
-        <div class="row w-100">
+
+        <div class="row w-100 m-0 p-0" style="height: 35%">
+            <div class="col-8">
+                    <canvas id="lineChart" height="400" style="max-height: 400px; display: initial;"></canvas>
+            </div>
+            <div class="col-4 content-center">
+                    <canvas id="matrixChart" height="400" width="400"
+                        style="max-height: 400px; max-width: 400px; display: initial;"></canvas>
+
+            </div>
+        </div>
+
+        <div class="row w-100 m-0 p-0" style="height: 10%">
             <div class="col-8 content-center">
-                <div class="row">
-                    <h2 class="text-center fw-bold">Gestione pompa</h2>
-                </div>
-                <div class="row">
-                    <canvas id="irrigationLineChart" height="400"></canvas>
-                </div>
+                <h2 class="text-center fw-bold">Gestione pompa</h2>
             </div>
-            <div class="col-4" id="irrigationControlContainer">
-                <div class="col">
-                    <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span
-                            id="sliderValue">50</span></label>
-                    <input type="range" class="form-range" id="irrigationSlider">
+            <div class="col-4">
+                <h2 class="text-center fw-bold">Ottimo</h2>
+            </div>
+        </div>
+        <div class="row w-100" style="height: 35%">
+            <div class="col-8 content-center">
+                <canvas id="irrigationLineChart" height="400" style="max-height: 400px; display: initial;"></canvas>
+            </div>
+            <div class="col-4">
+                <div class="col content-center w-100 h-100" id="irrigationControlContainer">
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-4">
+
+        <div class="row m-0 p-0" style="height: 10%">
+            <div class="col-3" style="align-content: center;">
                 <p>Pump mode: <span id="pumpMode">Manual</span></p>
+                <p>Pump status: <span id="pumpStatus">Off</span></p>
+            </div>
+            <div class="col-3" style="align-content: center;">
                 <button class="btn btn-primary" id="toggleMode">Switch mode</button>
             </div>
-            <div class="col-4">
+            <div class="col-3" style="align-content: center;">
                 <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
             </div>
-            <div class="col-4">
+            <div class="col-3" style="align-content: center;">
                 <button class="btn btn-primary" id="chooseOptimal" disabled>Choose optimal</button>
             </div>
         </div>

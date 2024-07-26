@@ -13,8 +13,22 @@ $(document).ready(function () {
         }
     }
 
+    class PumpStatus {
+        static On = new PumpStatus('On');
+        static Off = new PumpStatus('Off');
+
+        constructor(name) {
+            this.name = name;
+        }
+
+        toString() {
+            return `PumpStatus.${this.name}`;
+        }
+    }
+
     let pumpMode = PumpMode.Manual;
     let selectedOptimal = Optimals.Slider;
+    upsertIrrigationControls(selectedOptimal);
 
     async function fetchData() {
         try {
@@ -33,7 +47,6 @@ $(document).ready(function () {
             const data = await response.json();
             updateMatrixChart(data);
             $('#syncingModal').modal('hide');
-            console.log(response);
         } catch (error) {
             $('#syncingModal').modal('show');
         }
@@ -100,6 +113,8 @@ $(document).ready(function () {
 
         Optimals.foreach(o => $('#' + o.name + 'Card').removeClass('border-primary').removeClass('border-secondary'));
         $('#' + selectedOptimal.name + 'Card').addClass('border-primary');
+
+        upsertIrrigationControls(selectedOptimal);
     })
 
     $('.card').hover( function (e) {
@@ -115,6 +130,8 @@ $(document).ready(function () {
             target.removeClass('border-secondary');
         }
     })
+
+
 
     fetchData();
     fetchInterpolatedData();

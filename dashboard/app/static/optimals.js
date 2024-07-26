@@ -7,8 +7,8 @@ class Optimals {
 
     constructor(name, description, image_uri, value_uri) {
         this.name = name;
-        this.image_url = base_uri + image_uri;
-        this.value_url = base_uri + value_uri;
+        this.image_uri = base_uri + image_uri;
+        this.value_uri = base_uri + value_uri;
         this.description = description;
     }
 
@@ -18,7 +18,7 @@ class Optimals {
 
     toHtml() {
         return `<div class="card"  id="${this.name}Card">
-                    <img src="${this.image_url}" class="card-img-top h-100" alt="...">
+                    <img src="${this.image_uri}" class="card-img-top h-100" alt="...">
                     <div class="card-body">
                         <p class="card-text">${this.description}</p>
                     </div>
