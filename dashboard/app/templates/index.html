@@ -28,6 +28,7 @@
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='realtime-irrigation-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='optimals.js') }}"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
@@ -45,10 +46,44 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="syncingModalLabel">Syncing data with Arduino</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     Syncing data, please wait...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="optimalSelectionModal" tabindex="-1" aria-labelledby="optimalSelectionModal"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="syncingModalLabel">Select optimal</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4" id="sliderContainer">
+
+                        </div>
+                        <div class="col-4" id="matrix1Container">
+
+                        </div>
+                        <div class="col-4" id="matrix2Container">
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+
+                        </div>
+                        <div class="col-4">
+
+                        </div>
+                        <div class="col-4">
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,8 +93,6 @@
         <div class="row w-100">
             <h1 class="text-center fw-bold mt-3">Precision Farming Dashboard</h1>
         </div>
-
-        <!-- <div class="container text-center p-3 w-100 m-0 mw-100"> -->
         <div class="row w-100">
             <div class="col-8 content-center">
                 <div class="row">
@@ -81,8 +114,6 @@
                 </div>
             </div>
         </div>
-        <!-- </div> -->
-        <!-- <div class="container text-center p-3 w-100 m-0 mw-100"> -->
         <div class="row w-100">
             <div class="col-8 content-center">
                 <div class="row">
@@ -92,18 +123,24 @@
                     <canvas id="irrigationLineChart" height="400"></canvas>
                 </div>
             </div>
-            <div class="col-4">
-
+            <div class="col-4" id="irrigationControlContainer">
+                <div class="col">
+                    <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span
+                            id="sliderValue">50</span></label>
+                    <input type="range" class="form-range" id="irrigationSlider">
+                </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-2">
+            <div class="col-4">
+                <p>Pump mode: <span id="pumpMode">Manual</span></p>
+                <button class="btn btn-primary" id="toggleMode">Switch mode</button>
+            </div>
+            <div class="col-4">
                 <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
             </div>
             <div class="col-4">
-                <label for="irrigationSlider" class="form-label">Media di irrigazione richiesta: <span
-                        id="sliderValue">50</span></label>
-                <input type="range" class="form-range" id="irrigationSlider">
+                <button class="btn btn-primary" id="chooseOptimal" disabled>Choose optimal</button>
             </div>
         </div>
     </div>

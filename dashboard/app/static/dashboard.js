@@ -1,11 +1,26 @@
+
 $(document).ready(function () {
-    setupRealtimeLineChart();
+
+    class PumpMode {
+        static Manual = new PumpMode('Manual');
+        static Auto = new PumpMode('Auto');
+
+        constructor(name) {
+            this.name = name;
+        }
+        toString() {
+            return `PumpMode.${this.name}`;
+        }
+    }
+
+    let pumpMode = PumpMode.Manual;
+    let selectedOptimal = Optimals.Slider;
 
     async function fetchData() {
         try {
             const response = await fetch('/getLastReadings');
             const data = await response.json();
-            updateRealtimeLineChart(data);
+            setupRealtimeLineChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {
             $('#syncingModal').modal('show');
@@ -17,36 +32,19 @@ $(document).ready(function () {
             const response = await fetch('/getLastReadingsWithInterpolation');
             const data = await response.json();
             updateMatrixChart(data);
+            $('#syncingModal').modal('hide');
+            console.log(response);
         } catch (error) {
             $('#syncingModal').modal('show');
         }
     }
-
-    async function fetchHistoryData() {
-        try {
-            const response = await fetch('/getHistory?seconds=600');
-            const data = await response.json();
-            updateHistoryLineChart(data);
-        } catch (error) {
-            $('#syncingModal').modal('show');
-        }
-    }
-
-    // async function fetchIrrigationData() {
-    //     try {
-    //         const response = await fetch('/getIrrigationData');
-    //         const data = await response.json();
-    //         updateIrrigationLineChart(data);
-    //     } catch (error) {
-    //         $('#syncingModal').modal('show');
-    //     }
-    // }
 
     async function fetchAllIrrigationData() {
         try {
             const response = await fetch('/getIrrigationHistoryData?seconds=600');
             const data = await response.json();
             setupIrrigationLineChart(data);
+            $('#syncingModal').modal('hide');
         } catch (error) {
             $('#syncingModal').modal('show');
         }
@@ -54,10 +52,6 @@ $(document).ready(function () {
 
     $('#togglePump').click(function () {
         fetch('/togglePump');
-    });
-
-    $('#refreshHistory').click(function () {
-        fetchHistoryData();
     });
 
     $('#irrigationSlider').on('change', function () {
@@ -71,10 +65,59 @@ $(document).ready(function () {
         $('#sliderValue').text(value);
     });
 
-    // fetchData();
-    //  fetchHistoryData();
+    $('#toggleMode').click(function () {
+        if (pumpMode == PumpMode.Manual) {
+            pumpMode = PumpMode.Auto;
+            $('#togglePump').prop('disabled', true);
+            $('#chooseOptimal').prop('disabled', false);
+            $('#pumpMode').text('Automatic');
+        } else {
+            pumpMode = PumpMode.Manual;
+            $('#togglePump').prop('disabled', false);
+            $('#chooseOptimal').prop('disabled', true);
+            $('#pumpMode').text('Manual');
+        }
+    });
+
+    $('#chooseOptimal').click(function () {
+        $('#optimalSelectionModal').modal('show');
+    });
+
+    $('#sliderContainer').append(Optimals.Slider.toHtml());
+    $('#matrix1Container').append(Optimals.Matrix1.toHtml());
+    $('#matrix2Container').append(Optimals.Matrix2.toHtml());
+
+    $('.card').click( function (e) {
+        target = e.currentTarget;
+
+        if (target.id.startsWith('slider')) {
+            selectedOptimal = Optimals.Slider;
+        } else if (target.id.startsWith('matrix1')) {
+            selectedOptimal = Optimals.Matrix1;
+        } else if (target.id.startsWith('matrix2')) {
+            selectedOptimal = Optimals.Matrix2;
+        }
+
+        Optimals.foreach(o => $('#' + o.name + 'Card').removeClass('border-primary').removeClass('border-secondary'));
+        $('#' + selectedOptimal.name + 'Card').addClass('border-primary');
+    })
+
+    $('.card').hover( function (e) {
+        target = $("#" + e.currentTarget.id);
+        if (!target.hasClass('border-primary')) {
+            target.addClass('border-secondary');
+        }
+    })
+
+    $('.card').on('mouseleave', function (e) {
+        target = $("#" + e.currentTarget.id);
+        if(target.hasClass('border-secondary')) {
+            target.removeClass('border-secondary');
+        }
+    })
+
+    fetchData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
-    // setInterval(fetchData, 1000);
     setInterval(fetchInterpolatedData, 500);
 });
