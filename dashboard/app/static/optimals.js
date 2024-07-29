@@ -2,6 +2,7 @@ const image_base_uri = 'static/assets/';
 const json_base_uri = 'static/assets/';
 
 class Optimals {
+    static Disabled = new Optimals('disabled', 'Disabled', null, null);
     static Slider = new Optimals('slider', 'Use slider', 'slider.png', null);
     static Matrix1 = new Optimals('matrix1', 'Use this optimal matrix', 'om_1.png', 'om_1.json');
     static Matrix2 = new Optimals('matrix2', 'Use this optimal matrix', 'om_2.png', 'om_2.json');

@@ -1,5 +1,12 @@
 function upsertIrrigationControls(optimal) {
-    if (optimal == Optimals.Slider) {
+    if(optimal == Optimals.Disabled) {
+        $('#irrigationControlContainer').empty().append(
+            `<div class="w-100 h-100 align-content-center">
+                <h2 class="text-center fw-bold">Disabled</h2>
+            </div>
+            `);
+        return;
+    } else if (optimal == Optimals.Slider) {
         setupOptimalSlider()
     } else {
         fetch(optimal.value_uri)

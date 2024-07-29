@@ -27,7 +27,7 @@ $(document).ready(function () {
     }
 
     let pumpMode = PumpMode.Manual;
-    let selectedOptimal = Optimals.Slider;
+    let selectedOptimal = Optimals.Disabled;
     upsertIrrigationControls(selectedOptimal);
 
     async function fetchData() {
@@ -84,11 +84,15 @@ $(document).ready(function () {
             $('#togglePump').prop('disabled', true);
             $('#chooseOptimal').prop('disabled', false);
             $('#pumpMode').text('Automatic');
+            selectedOptimal = Optimals.Slider;
+            upsertIrrigationControls(selectedOptimal);
         } else {
             pumpMode = PumpMode.Manual;
             $('#togglePump').prop('disabled', false);
             $('#chooseOptimal').prop('disabled', true);
             $('#pumpMode').text('Manual');
+            selectedOptimal = Optimals.Disabled;
+            upsertIrrigationControls(selectedOptimal);
         }
     });
 
@@ -121,6 +125,7 @@ $(document).ready(function () {
         } else{
             fetch('/setIrrigationOptimalMatrix?file=' + selectedOptimal.value_uri, { method: 'POST' })
         }
+
     })
 
     $('.card').hover( function (e) {
@@ -136,8 +141,6 @@ $(document).ready(function () {
             target.removeClass('border-secondary');
         }
     })
-
-
 
     fetchData();
     fetchInterpolatedData();
