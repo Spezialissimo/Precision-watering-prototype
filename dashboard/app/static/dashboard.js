@@ -69,7 +69,7 @@ $(document).ready(function () {
 
     $('#irrigationSlider').on('change', function () {
         var value = $(this).val();
-        fetch('/setIrrigation?value=' + value, { method: 'POST' });
+        fetch('/setIrrigationPercentage?value=' + value, { method: 'POST' });
         updateOptimalIrrigationLine(value);
     });
 
@@ -115,6 +115,12 @@ $(document).ready(function () {
         $('#' + selectedOptimal.name + 'Card').addClass('border-primary');
 
         upsertIrrigationControls(selectedOptimal);
+
+        if (selectedOptimal == Optimals.Slider) {
+            // if not set in the past, get last optimal value from backend
+        } else{
+            fetch('/setIrrigationOptimalMatrix?file=' + selectedOptimal.value_uri, { method: 'POST' })
+        }
     })
 
     $('.card').hover( function (e) {

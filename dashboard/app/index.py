@@ -1,6 +1,7 @@
-from flask import jsonify, render_template, request
+import json
+from flask import jsonify, render_template, request, Response
 from . import app
-from moisture_system.moisture_system import togglePump, set_moisture
+from moisture_system.moisture_system import togglePump, set_moisture, set_moisture_from_matrix
 from repository.data import get_last_sensor_data, get_all_sensor_data, get_last_irrigation_data, get_all_irrigation_data
 
 @app.route('/')
@@ -39,11 +40,34 @@ def get_irrigation_history_data():
 def get_irrigation_data():
     return jsonify(get_last_irrigation_data())
 
-@app.route('/setIrrigation', methods=['POST'])
+@app.route('/setIrrigationPercentage', methods=['POST'])
 def set_irrigation():
     value = request.args.get('value', default=None, type=int)
     set_moisture(value)
-    return jsonify({"value": value})
+    return Response(status=200)
+
+@app.route('/setIrrigationOptimalMatrix', methods=['POST'])
+def set_irrigation_optimal_matrix():
+    # Extract the URI of the JSON file from the request args
+    file_uri = request.args.get('file', default=None, type=str)
+    if not file_uri:
+        return jsonify({"error": "File URI is required"}), 400
+
+    try:
+        # Read the JSON file
+        with open('app/' + file_uri, 'r') as file:
+            data = json.load(file)
+        matrix = data.get('data', None)
+        if matrix is None:
+            return jsonify({"error": "Invalid file format"}), 400
+
+        set_moisture_from_matrix(matrix)
+        return Response(status=200)
+    except FileNotFoundError:
+        return jsonify({"error": "File not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Error decoding JSON"}), 400
+
 
 def start_flask(host, port):
     app.run(host=host, port=port, debug=False)

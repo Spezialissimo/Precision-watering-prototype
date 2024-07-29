@@ -1,4 +1,5 @@
-const base_uri = 'static/assets/';
+const image_base_uri = 'static/assets/';
+const json_base_uri = 'static/assets/';
 
 class Optimals {
     static Slider = new Optimals('slider', 'Use slider', 'slider.png', null);
@@ -7,8 +8,8 @@ class Optimals {
 
     constructor(name, description, image_uri, value_uri) {
         this.name = name;
-        this.image_uri = base_uri + image_uri;
-        this.value_uri = base_uri + value_uri;
+        this.image_uri = image_base_uri + image_uri;
+        this.value_uri = json_base_uri + value_uri;
         this.description = description;
     }
 
