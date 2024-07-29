@@ -109,10 +109,8 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
 
                                 if (!didUsePreview) {
                                     dataset[0].data.push({ x: newTimestamp, y: lastIrrigationData.optimal_m });
-                                } else {
-                                    didUsePreview = false;
                                 }
-
+                                didUsePreview = false;
                                 dataset[1].data.push({ x: newTimestamp, y: lastIrrigationData.current_m });
                                 irrigationLineChart.update();
                             }
@@ -140,6 +138,9 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
 }
 
 function updateOptimalIrrigationLine(value) {
+    if (didUsePreview) {
+        irrigationLineChart.data.datasets[0].data.pop();
+    }
     const lastDrawnData = irrigationLineChart.data.datasets[0].data[irrigationLineChart.data.datasets[0].data.length - 1];
     irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: value });
     didUsePreview = true;
