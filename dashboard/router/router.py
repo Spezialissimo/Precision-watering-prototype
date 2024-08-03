@@ -66,13 +66,11 @@ def get_optimal_matrix_image(imageId):
 def send_pump_state():
     while True:
         pump_state = dc.get_pump_state()
-        print(f"Sending pump state: {pump_state}")  # Aggiungi un log per verificare l'invio
         socketio.emit('pump_state_update', {'pump_state': pump_state.name})
         time.sleep(1)
 
 @socketio.on('connect')
 def handle_connect():
-    print("Client connected")  # Aggiungi un log per la connessione del client
     thread = threading.Thread(target=send_pump_state)
     thread.start()
 

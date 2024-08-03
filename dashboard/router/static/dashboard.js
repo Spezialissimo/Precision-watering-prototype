@@ -158,17 +158,8 @@ $(document).ready(function () {
 
     const socket = io('http://localhost:5000');
 
-    socket.on('connect', () => {
-        console.log('Connected to server');
-    });
-
     socket.on('pump_state_update', (data) => {
-        console.log('Received data:', data);
         $('#pumpStatus').text(data.pump_state);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Disconnected from server');
     });
 
     fetchData();
