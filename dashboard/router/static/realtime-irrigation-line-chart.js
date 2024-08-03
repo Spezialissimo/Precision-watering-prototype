@@ -55,7 +55,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         align: 'start',
                         anchor: 'end',
                         formatter: function (value) {
-                            if (value.rawValue == null) {
+                            if (value.rawValue == null || value.rawValue == "") {
                                 return '';
                             }
                             return value.rawValue.toFixed(1);
@@ -85,10 +85,14 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         frameRate: 30,
                         onRefresh: async function (chart) {
                             try {
-                                const response = await fetch('/getIrrigationData');
+                                const response = await fetch('/irrigation/');
                                 lastIrrigationData = await response.json();
                             } catch (error) {
                                 $('#syncingModal').modal('show');
+                            }
+
+                            if(lastIrrigationData == null) {
+                                return;
                             }
 
                             const newTimestamp = convertTimestampToDateForRealtime(lastIrrigationData.timestamp);

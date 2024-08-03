@@ -23,12 +23,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
     <!-- Include your custom scripts after the libraries -->
+    <script src="{{ url_for('static', filename='optimals.js') }}"></script>
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
     <script src="{{ url_for('static', filename='realtime-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='matrix-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='realtime-irrigation-line-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
-    <script src="{{ url_for('static', filename='optimals.js') }}"></script>
     <script src="{{ url_for('static', filename='irrigation-controls.js') }}"></script>
 
     <style>
@@ -62,29 +62,8 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="syncingModalLabel">Select optimal</h5>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-4" id="sliderContainer">
+                <div class="modal-body" id="optimalsContainer">
 
-                        </div>
-                        <div class="col-4" id="matrix1Container">
-
-                        </div>
-                        <div class="col-4" id="matrix2Container">
-
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-4">
-
-                        </div>
-                        <div class="col-4">
-
-                        </div>
-                        <div class="col-4">
-
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

@@ -3,7 +3,6 @@ from dotenv import dotenv_values
 import os
 import time
 import threading
-from collections import defaultdict
 from datetime import datetime
 
 sensors_filepath = os.path.normpath("repository/" + dotenv_values(".env")["DATA_FILE"])
@@ -78,7 +77,7 @@ def filter_interpolated_data(data):
     return result
 
 
-def get_all_sensor_data(seconds=None, aggregation_interval=10):
+def get_all_sensor_data(seconds=None):
     if not os.path.exists(sensors_filepath):
         return []
 
@@ -107,79 +106,12 @@ def get_all_sensor_data(seconds=None, aggregation_interval=10):
             if timestamp > current_time:
                 break
 
-        if aggregation_interval is not None:
-            return aggregate_sensor_data(all_data, aggregation_interval)
         return all_data
 
     else:
         all_data = [filter_interpolated_data(parse_sensor_data(row)) for row in raw_data]
-
-        if aggregation_interval is not None:
-            return aggregate_sensor_data(all_data, aggregation_interval)
         return all_data
 
-
-def aggregate_sensor_data(data, interval):
-    if not data:
-        return []
-
-    # Convert timestamp to float and sort data by timestamp
-    for entry in data:
-        entry["timestamp"] = float(entry["timestamp"])
-
-    data.sort(key=lambda x: x["timestamp"])
-
-    aggregated_data = []
-    interval_data = defaultdict(lambda: defaultdict(lambda: {'sum': 0, 'count': 0}))
-
-    start_time = data[0]["timestamp"]
-    end_time = start_time + interval
-
-    for entry in data:
-        timestamp = entry["timestamp"]
-        if timestamp < end_time:
-            for key, value in entry.items():
-                if key != "timestamp":
-                    if isinstance(value, list):  # Check if value is a list of dicts
-                        for item in value:
-                            # Extract the 'x', 'y', and 'v' fields from each dictionary
-                            x, y, v = item['x'], item['y'], item['v']
-                            interval_data[(x, y)][end_time]['sum'] += float(v)
-                            interval_data[(x, y)][end_time]['count'] += 1
-        else:
-            # Process the current interval
-            interval_aggregated_data = []
-            for (x, y), stats in interval_data.items():
-                for time_key, values in stats.items():
-                    if values['count'] > 0:
-                        avg_v = values['sum'] / values['count']
-                        interval_aggregated_data.append({'x': x, 'y': y, 'v': avg_v})
-            aggregated_data.append({'timestamp': start_time, 'data': interval_aggregated_data})
-
-            # Move to the next interval
-            start_time = end_time
-            end_time = start_time + interval
-            interval_data = defaultdict(lambda: defaultdict(lambda: {'sum': 0, 'count': 0}))
-
-            # Add the current entry to the new interval
-            for key, value in entry.items():
-                if key != "timestamp":
-                    if isinstance(value, list):
-                        for item in value:
-                            x, y, v = item['x'], item['y'], item['v']
-                            interval_data[(x, y)][end_time]['sum'] += float(v)
-                            interval_data[(x, y)][end_time]['count'] += 1
-
-    # Append the last interval data if available
-    interval_aggregated_data = []
-    for (x, y), stats in interval_data.items():
-        for time_key, values in stats.items():
-            if values['count'] > 0:
-                avg_v = values['sum'] / values['count']
-                interval_aggregated_data.append({'x': x, 'y': y, 'v': avg_v})
-    aggregated_data.append({'timestamp': start_time, 'data': interval_aggregated_data})
-
-    return aggregated_data
 
 def save_irrigation_data(data):
     global last_irrigation_value
@@ -218,7 +150,6 @@ def get_last_irrigation_data():
     global last_irrigation_value
     result = {}
 
-    # Leggi last_irrigation_value con lock
     lock_last_irrigation_value.acquire()
     result = last_irrigation_value
     lock_last_irrigation_value.release()
@@ -265,64 +196,13 @@ def get_all_irrigation_data(seconds=None, aggregation_interval=None):
         end_time = time.time()
         start_time = end_time - seconds
         all_data = [row for row in raw_data if start_time <= float(row["timestamp"]) <= end_time]
-
-        if aggregation_interval is not None:
-            all_data = aggregate_data(all_data, aggregation_interval)
         result = []
         for row in all_data:
             result.append(parse_irrigation_data(row))
         return result
     else:
         all_data = raw_data
-        if aggregation_interval is not None:
-            all_data = aggregate_data(raw_data, aggregation_interval)
         result = []
         for row in all_data:
             result.append(parse_irrigation_data(row))
         return result
-
-def aggregate_data(data, interval):
-    if not data:
-        return []
-
-    # Convert timestamp to float and sort data by timestamp
-    for entry in data:
-        entry["timestamp"] = float(entry["timestamp"])
-    data.sort(key=lambda x: x["timestamp"])
-
-    aggregated_data = []
-    interval_data = defaultdict(lambda: {'current_m': 0, 'optimal_m': 0, 'count': 0})
-
-    start_time = data[0]["timestamp"]
-    end_time = start_time + interval
-
-    for entry in data:
-        timestamp = entry["timestamp"]
-        if timestamp < end_time:
-            interval_data[end_time]['current_m'] += float(entry["current_m"])
-            interval_data[end_time]['optimal_m'] += float(entry["optimal_m"])
-            interval_data[end_time]['count'] += 1
-        else:
-            # Process the current interval
-            if interval_data[end_time]['count'] > 0:
-                aggregated_data.append({
-                    "timestamp": start_time,
-                    "current_m": interval_data[end_time]['current_m'] / interval_data[end_time]['count'],
-                    "optimal_m": interval_data[end_time]['optimal_m'] / interval_data[end_time]['count']
-                })
-            # Move to the next interval
-            start_time = end_time
-            end_time = start_time + interval
-            interval_data[end_time]['current_m'] = float(entry["current_m"])
-            interval_data[end_time]['optimal_m'] = float(entry["optimal_m"])
-            interval_data[end_time]['count'] = 1
-
-    # Append the last interval data if available
-    if interval_data[end_time]['count'] > 0:
-        aggregated_data.append({
-            "timestamp": start_time,
-            "current_m": interval_data[end_time]['current_m'] / interval_data[end_time]['count'],
-            "optimal_m": interval_data[end_time]['optimal_m'] / interval_data[end_time]['count']
-        })
-
-    return aggregated_data

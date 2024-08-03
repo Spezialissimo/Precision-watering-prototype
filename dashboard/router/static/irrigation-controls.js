@@ -1,10 +1,47 @@
-let matrixChart;
+function upsertIrrigationControls(optimal) {
+    if(optimal.id == get_optimal_from_name("disabled").id) {
+        $('#irrigationControlContainer').empty().append(
+            `<div class="w-100 h-100 align-content-center">
+                <h2 class="text-center fw-bold">Disabled</h2>
+            </div>
+            `);
+        return;
+    } else if (optimal.id == get_optimal_from_name("Slider").id) {
+        setupOptimalSlider()
+    } else {
+        setupOptimalMatrixChart(optimal.value);
+    }
+}
 
-function setupMatrixChart(data) {
+function setupOptimalSlider() {
+    $('#irrigationControlContainer').empty().append(
+        `<div class="w-100 h-100 align-content-center">
+        <label for="irrigationSlider" class="form-label w-100">Media di irrigazione richiesta: <span
+            id="sliderValue">50</span></label>
+        <input type="range" class="form-range w-50" id="irrigationSlider">
+        `);
+
+    $('#irrigationSlider').on('change', function () {
+        var value = $(this).val();
+        lastSliderValue = value;
+        fetch('/irrigation/slider?value=' + value, { method: 'POST' });
+        updateOptimalIrrigationLine(value);
+    });
+
+    $('#irrigationSlider').on('input', function () {
+        var value = $(this).val();
+        $('#sliderValue').text(value);
+    });
+}
+
+function setupOptimalMatrixChart(data) {
     const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
-    let matrixCtx = $('#matrixChart')[0].getContext('2d');
-    matrixChart = new Chart(matrixCtx, {
+
+    $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 400px; max-width: 400px; display: initial;"></canvas>');
+
+    let matrixCtx = $('#optimalMatrixChart')[0].getContext('2d');
+    new Chart(matrixCtx, {
         plugins: [ChartDataLabels],
         type: "matrix",
         data: {
@@ -90,31 +127,3 @@ function setupMatrixChart(data) {
         }
     });
 }
-
-function updateMatrixChart(data) {
-    if (matrixChart == null) {
-        setupMatrixChart(data);
-    } else {
-        matrixChart.data.datasets[0].data = convertToMatrixData(data);
-    }
-    matrixChart.update();
-}
-
-function getBackgroundColor(value) {
-    const startColor = { r: 178, g: 34, b: 34 };
-    const endColor = { r: 0, g: 0, b: 255 };
-    const r = startColor.r + (endColor.r - startColor.r) * (value / 100);
-    const g = startColor.g + (endColor.g - startColor.g) * (value / 100);
-    const b = startColor.b + (endColor.b - startColor.b) * (value / 100);
-    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-}
-
-function convertToMatrixData(data) {
-    return data["data"].map(obj => ({
-        x: String(obj.x),
-        y: String(obj.y),
-        v: obj.v
-    }));
-}
-
-window.updateMatrixChart = updateMatrixChart;

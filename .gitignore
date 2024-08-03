@@ -167,4 +167,5 @@ cython_debug/
 .vscode
 
 Roadmap.md
-*.csv
+data.csv
+irrigation.csv

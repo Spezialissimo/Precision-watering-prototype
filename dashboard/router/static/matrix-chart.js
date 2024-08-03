@@ -1,64 +1,10 @@
-function upsertIrrigationControls(optimal) {
-    if(optimal == Optimals.Disabled) {
-        $('#irrigationControlContainer').empty().append(
-            `<div class="w-100 h-100 align-content-center">
-                <h2 class="text-center fw-bold">Disabled</h2>
-            </div>
-            `);
-        return;
-    } else if (optimal == Optimals.Slider) {
-        setupOptimalSlider()
-    } else {
-        fetch(optimal.value_uri)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                setupOptimalMatrixChart(data);
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }
-}
+let matrixChart;
 
-function getBackgroundColor(value) {
-    const startColor = { r: 178, g: 34, b: 34 };
-    const endColor = { r: 0, g: 0, b: 255 };
-    const r = startColor.r + (endColor.r - startColor.r) * (value / 100);
-    const g = startColor.g + (endColor.g - startColor.g) * (value / 100);
-    const b = startColor.b + (endColor.b - startColor.b) * (value / 100);
-    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-}
-
-function convertToMatrixData(data) {
-    return data["data"].map(obj => ({
-        x: String(obj.x),
-        y: String(obj.y),
-        v: obj.v
-    }));
-}
-
-function setupOptimalSlider() {
-    $('#irrigationControlContainer').empty().append(
-        `<div class="w-100 h-100 align-content-center">
-        <label for="irrigationSlider" class="form-label w-100">Media di irrigazione richiesta: <span
-            id="sliderValue">50</span></label>
-        <input type="range" class="form-range w-50" id="irrigationSlider">
-        `);
-}
-
-function setupOptimalMatrixChart(data) {
+function setupMatrixChart(data) {
     const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
-
-    $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 400px; max-width: 400px; display: initial;"></canvas>');
-
-    let matrixCtx = $('#optimalMatrixChart')[0].getContext('2d');
-    new Chart(matrixCtx, {
+    let matrixCtx = $('#matrixChart')[0].getContext('2d');
+    matrixChart = new Chart(matrixCtx, {
         plugins: [ChartDataLabels],
         type: "matrix",
         data: {
@@ -120,7 +66,7 @@ function setupOptimalMatrixChart(data) {
                         },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
-                            return ["x: " + v.x, "y: " + v.y, "v: " + v.v];
+                            return ["x: " + v.x, "y: " + v.y, "v: " + v];
                         }
                     }
                 },
@@ -144,3 +90,14 @@ function setupOptimalMatrixChart(data) {
         }
     });
 }
+
+function updateMatrixChart(data) {
+    if (matrixChart == null) {
+        setupMatrixChart(data);
+    } else {
+        matrixChart.data.datasets[0].data = convertToMatrixData(data);
+    }
+    matrixChart.update();
+}
+
+window.updateMatrixChart = updateMatrixChart;

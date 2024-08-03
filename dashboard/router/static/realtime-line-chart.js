@@ -42,7 +42,7 @@ function setupRealtimeLineChart() {
                         frameRate: 30,
                         onRefresh: async function (chart) {
                             try {
-                                const response = await fetch('/getLastReadings');
+                                const response = await fetch('/sensors/');
                                 lastSensorData = await response.json();
                                 $('#syncingModal').modal('hide');
                             } catch (error) {
