@@ -1,5 +1,9 @@
 from flask import jsonify, render_template, request, Response, send_from_directory
+from flask_socketio import send
 from . import router
+from . import socketio
+import time
+import threading
 
 dc = None
 
@@ -42,14 +46,14 @@ def set_irrigation_mode():
     dc.set_irrigation_mode(mode)
     return Response(status=200)
 
-@router.route('/pump/state', methods=['GET'])
-def get_pump_state():
-    return jsonify(dc.get_pump_state())
+# @router.route('/pump/state', methods=['GET'])
+# def get_pump_state():
+#     return jsonify(dc.get_pump_state())
 
 @router.route('/pump/', methods=['POST'])
 def set_pump_state():
     dc.toggle_pump()
-    return Response(dc.get_pump_state())
+    return Response(status=200)
 
 @router.route('/irrigation/optimal/', methods=['GET'])
 def get_optimals():
@@ -59,7 +63,21 @@ def get_optimals():
 def get_optimal_matrix_image(imageId):
     return send_from_directory('../assets', imageId + '.png')
 
+def send_pump_state():
+    while True:
+        pump_state = dc.get_pump_state()
+        print(f"Sending pump state: {pump_state}")  # Aggiungi un log per verificare l'invio
+        socketio.emit('pump_state_update', {'pump_state': pump_state.name})
+        time.sleep(1)
+
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")  # Aggiungi un log per la connessione del client
+    thread = threading.Thread(target=send_pump_state)
+    thread.start()
+
 def start_flask(host, port, data_collector):
     global dc
     dc = data_collector
-    router.run(host=host, port=port, debug=False)
+    socketio.run(router, host=host, port=port, debug=False)
+    # router.run(host=host, port=port, debug=False)

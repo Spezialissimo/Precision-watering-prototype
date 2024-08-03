@@ -4,11 +4,17 @@ import sys
 print(sys.path)
 
 from flask import Flask
+from flask_socketio import SocketIO
+
+
+
 
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 router = Flask(__name__)
+socketio = SocketIO(router)
 
-import router.router  # Ensure routes and functions are loaded
+import router.router
+import socketio
