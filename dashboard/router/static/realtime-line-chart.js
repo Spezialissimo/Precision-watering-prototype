@@ -1,4 +1,6 @@
 let lastSensorData = {};
+let skippedCounter = 0;
+let lineChart
 
 function createRealTimeDatasetConfig(x, y, color) {
     return {
@@ -14,9 +16,22 @@ function createRealTimeDatasetConfig(x, y, color) {
     }
 }
 
+function drawNewPoint(sensor_data, datasetIndex) {
+    if (lineChart.data.datasets[datasetIndex].data.length > 2) {
+        const lastDrawnData = lineChart.data.datasets[datasetIndex].data[lineChart.data.datasets[datasetIndex].data.length - 1];
+        if (lastDrawnData.y != sensor_data.data[datasetIndex].v || skippedCounter >= 1) {
+            lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: sensor_data.data[datasetIndex].v });
+        } else {
+            skippedCounter++;
+        }
+    }else {
+        lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: sensor_data.data[datasetIndex].v });
+    }
+}
+
 function setupRealtimeLineChart() {
     let lineCtx = $('#lineChart')[0].getContext('2d');
-    let lineChart = new Chart(lineCtx, {
+    lineChart = new Chart(lineCtx, {
         type: 'line',
         data: {
             datasets: [
@@ -36,8 +51,8 @@ function setupRealtimeLineChart() {
                     type: 'realtime',
                     realtime: {
                         duration: 30000,
-                        refresh: 250,
-                        delay: 500,
+                        refresh: 1000,
+                        delay: 2000,
                         pause: false,
                         frameRate: 30,
                         onRefresh: async function (chart) {
@@ -51,12 +66,12 @@ function setupRealtimeLineChart() {
                             if (lastSensorData == {} || lastSensorData.timestamp == undefined) {
                                 return;
                             }
-                            chart.data.datasets[0].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[0].v });
-                            chart.data.datasets[1].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[1].v });
-                            chart.data.datasets[2].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[2].v });
-                            chart.data.datasets[3].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[3].v });
-                            chart.data.datasets[4].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[4].v });
-                            chart.data.datasets[5].data.push({ x: convertTimestampToDateForRealtime(lastSensorData.timestamp), y: lastSensorData.data[5].v });
+                            drawNewPoint(lastSensorData, 0);
+                            drawNewPoint(lastSensorData, 1);
+                            drawNewPoint(lastSensorData, 2);
+                            drawNewPoint(lastSensorData, 3);
+                            drawNewPoint(lastSensorData, 4);
+                            drawNewPoint(lastSensorData, 5);
                         }
                     },
                     title: {

@@ -65,7 +65,7 @@ $(document).ready(function () {
             upsertIrrigationControls(selectedOptimal);
             fetch('/irrigation/mode?mode=slider', { method: 'POST' })
             fetch('/irrigation/slider?value=' + getLastOptimalMoistureValue(), { method: 'POST' });
-        } else {
+        } else if (pumpMode == PumpMode.Auto) {
             pumpMode = PumpMode.Manual;
             $('#togglePump').prop('disabled', false);
             $('#chooseOptimal').prop('disabled', true);
