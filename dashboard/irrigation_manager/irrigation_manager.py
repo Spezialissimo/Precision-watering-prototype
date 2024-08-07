@@ -36,7 +36,7 @@ class IrrigationManager:
                 id = row['id']
                 title = row['title']
                 description = row['description']
-                value = json.loads(row['value'])
+                value = json.loads(row['value'].replace("'", '"'))
                 self.optimals[id] = {
                     'title': title,
                     'description': description,
@@ -130,8 +130,8 @@ class IrrigationManager:
                 }
 
             if self.mode != IrrigationMode.Manual:
-                kp=0.5
-                ki=0.3
+                kp=0.3
+                ki=0.5
                 new_irrigation = min(max(0, oldIrrigation + kp * (r - oldR) + ki * r), self.__maxIrrigationValue)
                 self.__open_pump_for(new_irrigation)
                 irrigation_data = {
