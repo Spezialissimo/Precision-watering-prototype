@@ -29,6 +29,9 @@ def read_last_lines(file_path, num_lines):
 
     return lines[-num_lines:]
 
+def file_is_empty():
+    return os.stat(__irrigation_filepath).st_size == 0
+
 def __last_is_too_old(data = { 'timestamp': time.time() }):
     last_line = read_last_lines(__irrigation_filepath, 1)
     if last_line and len(last_line) == 1 and "timestamp" not in last_line[0] and  last_line[0] != "":
@@ -36,13 +39,13 @@ def __last_is_too_old(data = { 'timestamp': time.time() }):
         current_timestamp = float(data['timestamp'])
         if current_timestamp - last_timestamp >= ((__irrigation_check_period * 3)):
             return True
-    return False
+    return not last_line
 
 def save_irrigation_data(data):
     global __last_irrigation_value
+    file_exists = os.path.exists(__irrigation_filepath)
 
     if not __last_irrigation_value:
-        file_exists = os.path.exists(__irrigation_filepath)
         if file_exists:
             last_lines = read_last_lines(__irrigation_filepath, 1)
             if last_lines and len(last_lines) == 1 and "timestamp" in last_lines[0]:
@@ -51,7 +54,6 @@ def save_irrigation_data(data):
     with __lock_last_irrigation_value:
         __last_irrigation_value = data
 
-    file_exists = os.path.exists(__irrigation_filepath)
     clear_file = False
 
     if file_exists:
@@ -64,7 +66,7 @@ def save_irrigation_data(data):
             fieldnames = list(data.keys())
             writer = csv.DictWriter(file, fieldnames=fieldnames)
 
-            if clear_file or not file_exists:
+            if clear_file or not file_exists or file_is_empty():
                 writer.writeheader()
 
             writer.writerow(data)

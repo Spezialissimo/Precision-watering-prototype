@@ -47,8 +47,6 @@ class IrrigationManager:
         self.data_collector = data_collector
 
     def __open_pump_for(self,seconds):
-        if (self.mode == IrrigationMode.Manual):
-            raise Exception("Pump is not in automatic mode")
         if seconds > 0 :
             self.pump.open_pump()
             sleep(seconds)
@@ -133,7 +131,6 @@ class IrrigationManager:
                 kp=0.3
                 ki=0.5
                 new_irrigation = min(max(0, oldIrrigation + kp * (r - oldR) + ki * r), self.__maxIrrigationValue)
-                self.__open_pump_for(new_irrigation)
                 irrigation_data = {
                     "timestamp": datetime.now().timestamp(),
                     "r": r,
@@ -141,10 +138,13 @@ class IrrigationManager:
                     "optimal_m": optimal_moisture,
                     "current_m": current_moisture
                 }
+            else:
+                new_irrigation = 0
 
             print(f"Irrigation data added: {irrigation_data}")
+            self.__open_pump_for(new_irrigation)
             self.data_collector.add_irrigation_data(irrigation_data)
-            sleep(self.__irrigationCheckPeriod)
+            sleep(self.__irrigationCheckPeriod - new_irrigation)
 
     def  get_optimals(self):
         return self.optimals
