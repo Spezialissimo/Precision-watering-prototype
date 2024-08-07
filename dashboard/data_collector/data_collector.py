@@ -1,6 +1,4 @@
-from hardware.hardware import Hardware
-from sensor_manager.sensor_manager import SensorManager
-from irrigation_manager.irrigation_manager import IrrigationManager
+from repository.data import get_all_irrigation_data, save_irrigation_data, should_restore_backup
 from interpolator.interpolator import interpolate_data
 import time
 
@@ -15,6 +13,9 @@ class DataCollector:
         self.irrigation_manager = irrigation_manager
         self.sensor_manager.add_data_collector(self)
         self.irrigation_manager.add_data_collector(self)
+        if should_restore_backup():
+            self.irrigation_data = get_all_irrigation_data()
+
 
     def get_all_sensor_data(self, seconds=None):
         if seconds is not None:
@@ -84,6 +85,7 @@ class DataCollector:
         self.sensor_data_with_interpolation.append({"timestamp": data["timestamp"], "data": interpolated_data})
 
     def add_irrigation_data(self, data):
+        save_irrigation_data(data)
         self.irrigation_data.append(data)
 
     def get_optimals(self):
