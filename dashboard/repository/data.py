@@ -76,7 +76,7 @@ def parse_irrigation_data(row):
     for key, value in row.items():
         try:
             new_dict[key] = float(value)
-        except ValueError:
+        except:
             return None
     return new_dict
 

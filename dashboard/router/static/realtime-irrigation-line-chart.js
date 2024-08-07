@@ -50,19 +50,6 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         rawValue: entry.irrigation
                     })),
                     backgroundColor: 'rgba(0, 0, 128, 0.2)',
-                    datalabels: {
-                        display: true,
-                        align: 'start',
-                        anchor: 'end',
-                        formatter: function (value) {
-                            if (value.rawValue == null || value.rawValue == "") {
-                                return '';
-                            }
-                            return value.rawValue.toFixed(1);
-                        },
-                        color: 'black',
-                        offset: -5
-                    }
                 }
             ]
         },
