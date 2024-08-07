@@ -77,8 +77,7 @@ def parse_irrigation_data(row):
         try:
             new_dict[key] = float(value)
         except ValueError:
-            if(key is not None):
-                new_dict[key] = value
+            return None
     return new_dict
 
 def should_restore_backup():
@@ -103,11 +102,33 @@ def get_all_irrigation_data(seconds=None):
     reader = csv.DictReader(lines)
     raw_data = list(reader)
 
+    result = []
+
     if seconds is not None:
         end_time = time.time()
         start_time = end_time - seconds
-        result = [parse_irrigation_data(row) for row in raw_data if start_time <= float(row["timestamp"]) <= end_time]
+
+        for row in raw_data:
+            if start_time <= float(row["timestamp"]) <= end_time:
+                value = parse_irrigation_data(row)
+                if value is None:
+                    reset_file()
+                else:
+                    result.append(parse_irrigation_data(row))
     else:
-        result = [parse_irrigation_data(row) for row in raw_data]
+        for row in raw_data:
+            value = parse_irrigation_data(row)
+            if value is None:
+                reset_file()
+            else:
+                result.append(parse_irrigation_data(row))
 
     return result
+
+def reset_file():
+    with __lock_irrigation_file:
+        mode = 'w'
+        with open(__irrigation_filepath, mode=mode, newline='') as file:
+            fieldnames = list(["timestamp", "r", "irrigation", "optimal_m", "current_m"])
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
