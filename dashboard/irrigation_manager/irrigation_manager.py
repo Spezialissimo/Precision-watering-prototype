@@ -139,12 +139,12 @@ class IrrigationManager:
                     "current_m": current_moisture
                 }
                 print(f"Irrigation data added: {irrigation_data}")
+                self.data_collector.add_irrigation_data(irrigation_data)
                 self.__open_pump_for(new_irrigation)
             else:
                 print(f"Irrigation data added: {irrigation_data}")
+                self.data_collector.add_irrigation_data(irrigation_data)
                 new_irrigation = 0
-
-            self.data_collector.add_irrigation_data(irrigation_data)
             sleep(self.__irrigationCheckPeriod - new_irrigation)
 
     def  get_optimals(self):

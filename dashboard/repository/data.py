@@ -120,6 +120,7 @@ def get_all_irrigation_data(seconds=None):
             value = parse_irrigation_data(row)
             if value is None:
                 reset_file()
+                break
             else:
                 result.append(parse_irrigation_data(row))
 
