@@ -1,4 +1,3 @@
-let lastSliderValue = 50;
 $(document).ready(function () {
 
     class PumpMode {
@@ -12,20 +11,6 @@ $(document).ready(function () {
             return `PumpMode.${this.name}`;
         }
     }
-
-    class PumpStatus {
-        static On = new PumpStatus('On');
-        static Off = new PumpStatus('Off');
-
-        constructor(name) {
-            this.name = name;
-        }
-
-        toString() {
-            return `PumpStatus.${this.name}`;
-        }
-    }
-
 
     let pumpMode = PumpMode.Manual;
     optimals.push(new Optimals('disabled', 'disabled', 'Disabled', null, null));
@@ -79,7 +64,7 @@ $(document).ready(function () {
             selectedOptimal = get_optimal_from_name("Slider");
             upsertIrrigationControls(selectedOptimal);
             fetch('/irrigation/mode?mode=slider', { method: 'POST' })
-            fetch('/irrigation/slider?value=' + lastSliderValue, { method: 'POST' });
+            fetch('/irrigation/slider?value=' + getLastOptimalMoistureValue(), { method: 'POST' });
         } else {
             pumpMode = PumpMode.Manual;
             $('#togglePump').prop('disabled', false);
@@ -123,10 +108,14 @@ $(document).ready(function () {
                 selectedOptimal = optimals.find(optimal => optimal.id == actualId);
                 if (target.id.startsWith('slider')) {
                     fetch('/irrigation/mode?mode=slider', { method: 'POST' })
-                    fetch('/irrigation/slider?value=' + lastSliderValue, { method: 'POST' });
+                    fetch('/irrigation/slider?value=' + getLastOptimalMoistureValue(), { method: 'POST' });
                 } else {
                     fetch('/irrigation/mode?mode=matrix', { method: 'POST' })
                     fetch('/irrigation/matrix?matrix=' + actualId, { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            updateOptimalIrrigationLine(data);
+                        });
                 }
 
                 optimals.forEach(o => $('#' + o.name + 'Card').removeClass('border-primary').removeClass('border-secondary'));

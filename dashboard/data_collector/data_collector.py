@@ -79,6 +79,14 @@ class DataCollector:
         average = total / len(sensors['data'])
         return average
 
+    def get_optimal_matrix_average(self):
+        optimal = self.irrigation_manager.get_optimal_matrix()
+        if not optimal:
+            return None
+        total = sum(sensor["v"] for sensor in optimal['value']['data'])
+        average = total / len(optimal['value']['data'])
+        return average
+
     def add_sensor_data(self, data):
         self.sensor_data.append(data)
         interpolated_data = interpolate_data(data["data"], [10, 30], [5, 15, 25])

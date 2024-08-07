@@ -151,4 +151,9 @@ function updateOptimalIrrigationLine(value) {
     irrigationLineChart.update();
 }
 
+function getLastOptimalMoistureValue() {
+    return lastIrrigationData.optimal_m;
+}
+
 window.setupIrrigationLineChart = setupIrrigationLineChart;
+window.getLastOptimalMoistureValue = getLastOptimalMoistureValue;

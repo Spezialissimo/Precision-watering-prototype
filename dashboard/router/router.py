@@ -38,17 +38,14 @@ def set_irrigation_value():
 def set_irrigation_matrix():
     matrixId = request.args.get('matrix', default=None, type=str)
     dc.set_new_optimal_matrix(matrixId)
-    return Response(status=200)
+    avarage = dc.get_optimal_matrix_average()
+    return jsonify(avarage)
 
 @router.route('/irrigation/mode', methods=['POST'])
 def set_irrigation_mode():
     mode = request.args.get('mode', default=None, type=str)
     dc.set_irrigation_mode(mode)
     return Response(status=200)
-
-# @router.route('/pump/state', methods=['GET'])
-# def get_pump_state():
-#     return jsonify(dc.get_pump_state())
 
 @router.route('/pump/', methods=['POST'])
 def set_pump_state():

@@ -31,7 +31,7 @@ def read_last_lines(file_path, num_lines):
 
 def __last_is_too_old(data = { 'timestamp': time.time() }):
     last_line = read_last_lines(__irrigation_filepath, 1)
-    if last_line and len(last_line) == 1 and "timestamp" not in last_line[0]:
+    if last_line and len(last_line) == 1 and "timestamp" not in last_line[0] and  last_line[0] != "":
         last_timestamp = float(last_line[0].split(',')[0])
         current_timestamp = float(data['timestamp'])
         if current_timestamp - last_timestamp >= ((__irrigation_check_period * 3)):

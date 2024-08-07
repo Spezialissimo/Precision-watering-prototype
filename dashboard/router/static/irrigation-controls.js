@@ -21,6 +21,10 @@ function setupOptimalSlider() {
         <input type="range" class="form-range w-50" id="irrigationSlider">
         `);
 
+    value = getLastOptimalMoistureValue();
+    $('#irrigationSlider').val(value);
+    $('#sliderValue').text(value);
+
     $('#irrigationSlider').on('change', function () {
         var value = $(this).val();
         lastSliderValue = value;

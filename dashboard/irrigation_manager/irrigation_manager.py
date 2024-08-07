@@ -118,8 +118,7 @@ class IrrigationManager:
                     diffs.append(optimal["v"] - measurement["v"])
 
                 r = sum(diffs) / len(diffs)
-                total = sum(measurement["v"] for measurement in self.optimal_matrix['value']['data'])
-                optimal_moisture = total / len(self.optimal_matrix['value']['data'])
+                optimal_moisture = self.data_collector.get_optimal_matrix_average()
 
             elif (self.mode == IrrigationMode.Manual):
                 irrigation_data = {
@@ -150,3 +149,5 @@ class IrrigationManager:
     def  get_optimals(self):
         return self.optimals
 
+    def get_optimal_matrix(self):
+        return self.optimal_matrix
