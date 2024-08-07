@@ -2,7 +2,7 @@ function upsertIrrigationControls(optimal) {
     if(optimal.id == get_optimal_from_name("disabled").id) {
         $('#irrigationControlContainer').empty().append(
             `<div class="w-100 h-100 align-content-center">
-                <h2 class="text-center fw-bold">Disabled</h2>
+                <p class="text-center fw-bold">Available only in automatic mode</p>
             </div>
             `);
         return;
@@ -38,7 +38,7 @@ function setupOptimalMatrixChart(data) {
     const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
 
-    $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 400px; max-width: 400px; display: initial;"></canvas>');
+    $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 410px; max-width: 400px; display: initial;"></canvas>');
 
     let matrixCtx = $('#optimalMatrixChart')[0].getContext('2d');
     new Chart(matrixCtx, {

@@ -75,13 +75,14 @@ def parse_irrigation_data(row):
         try:
             new_dict[key] = float(value)
         except ValueError:
-            new_dict[key] = value
+            if(key is not None):
+                new_dict[key] = value
     return new_dict
 
 def should_restore_backup():
     file_exists = os.path.exists(__irrigation_filepath)
     if file_exists:
-        return not __last_is_too_old
+        return not __last_is_too_old()
     return False
 
 def get_all_irrigation_data(seconds=None):

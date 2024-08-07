@@ -127,7 +127,7 @@ class IrrigationManager:
                     "r": 0,
                     "irrigation": 0,
                     "optimal_m": 0,
-                    "current_m": self.data_collector.get_last_sensor_data_average()
+                    "current_m": current_moisture if current_moisture is not None else 0.0
                 }
 
             if self.mode != IrrigationMode.Manual:

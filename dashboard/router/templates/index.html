@@ -38,6 +38,21 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
+
+        .blinking-element {
+            animation: blinkAnimation 4s ease-in-out infinite;
+            color: red;
+        }
+
+        @keyframes blinkAnimation {
+            0%, 50%, 100% {
+                opacity: 1;
+            }
+            25%, 75% {
+                opacity: 0;
+            }
+        }
+
     </style>
 </head>
 
@@ -78,35 +93,35 @@
 
         <div class="row w-100 m-0 p-0" style="height: 10%">
             <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Valori dei sensori in tempo reale negli ultimi 30 secondi</h2>
+                <h2 class="text-center fw-bold">Realtime sensor values</h2>
             </div>
             <div class="col-4 content-center">
-                <h2 class="text-center fw-bold">Valori del terreno in tempo reale</h2>
+                <h2 class="text-center fw-bold">Realtime moisture levels</h2>
             </div>
         </div>
 
-        <div class="row w-100 m-0 p-0" style="height: 35%">
+        <div class="row w-100 m-0 p-0" style="height: 30%">
             <div class="col-8">
-                    <canvas id="lineChart" height="400" style="max-height: 400px; display: initial;"></canvas>
+                    <canvas id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
             </div>
             <div class="col-4 content-center">
                     <canvas id="matrixChart" height="400" width="400"
-                        style="max-height: 400px; max-width: 400px; display: initial;"></canvas>
+                        style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
 
             </div>
         </div>
 
-        <div class="row w-100 m-0 p-0" style="height: 10%">
+        <div class="row w-100 m-0 p-0 pt-1" style="height: 10%">
             <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Gestione pompa</h2>
+                <h2 class="text-center fw-bold">Irrigation management</h2>
             </div>
             <div class="col-4">
-                <h2 class="text-center fw-bold">Ottimo</h2>
+                <h2 class="text-center fw-bold">Optimal rule</h2>
             </div>
         </div>
-        <div class="row w-100" style="height: 35%">
+        <div class="row w-100 m-0 p-0" style="height: 30%">
             <div class="col-8 content-center">
-                <canvas id="irrigationLineChart" height="400" style="max-height: 400px; display: initial;"></canvas>
+                <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
             </div>
             <div class="col-4">
                 <div class="col content-center w-100 h-100" id="irrigationControlContainer">
@@ -114,18 +129,19 @@
             </div>
         </div>
 
-        <div class="row m-0 p-0" style="height: 10%">
-            <div class="col-3" style="align-content: center;">
-                <p>Pump mode: <span id="pumpMode">Manual</span></p>
-                <p>Pump status: <span id="pumpStatus">Off</span></p>
+        <div class="row w-100 m-0 p-0" style="height: 10%">
+            <div class="col-2" style="align-content: center;">
+                <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
+                <p class="m-0 ms-2 text-start">Pump status: <span id="pumpStatus">Off</span>  <i class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
             </div>
-            <div class="col-3" style="align-content: center;">
+            <div class="col-2" style="align-content: center;">
                 <button class="btn btn-primary" id="toggleMode">Switch mode</button>
             </div>
-            <div class="col-3" style="align-content: center;">
+            <div class="col-2" style="align-content: center;">
                 <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
             </div>
-            <div class="col-3" style="align-content: center;">
+            <div class="col-2"></div>
+            <div class="col-4" style="align-content: center;">
                 <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose optimal</button>
             </div>
         </div>
