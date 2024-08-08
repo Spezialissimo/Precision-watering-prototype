@@ -123,10 +123,6 @@ $(document).ready(function () {
 
                 upsertIrrigationControls(selectedOptimal);
 
-                if (selectedOptimal == get_optimal_from_name("slider")) {
-                    // if not set in the past, get last optimal value from backend
-                }
-
                 $('#optimalSelectionModal').modal('hide');
             })
 
@@ -155,4 +151,6 @@ $(document).ready(function () {
     fetchInterpolatedData();
     fetchAllIrrigationData();
     setInterval(fetchInterpolatedData, 500);
+
+    $('#chooseOptimal').prop('disabled', true);
 });

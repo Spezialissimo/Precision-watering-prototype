@@ -4,8 +4,6 @@ from dotenv import dotenv_values
 from time import sleep
 from enum import Enum
 
-#TODO: corsa critica?
-
 class PumpState(Enum):
     Off = "off"
     On = "on"
