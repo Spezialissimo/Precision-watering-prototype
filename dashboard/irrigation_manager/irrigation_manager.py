@@ -1,10 +1,14 @@
-from dotenv import dotenv_values
+import serial
+import json
+import os
+import csv
+from dotenv import load_dotenv
 from time import sleep
 from datetime import datetime
 from hardware.hardware import PumpState
-import os
-import json
-import csv
+
+# Carica il file .env, se non è già stato caricato
+load_dotenv()
 
 class IrrigationMode:
     Manual = 'manual'
@@ -22,14 +26,26 @@ class IrrigationManager:
     def __init__(self, hardware):
         self.mode = IrrigationMode.Manual
         self.pump = hardware
-        self.__maxIrrigationValue = int(dotenv_values(".env")["IRRIGATION_CHECK_PERIOD"])
-        self.__irrigationCheckPeriod = int(dotenv_values(".env")["IRRIGATION_CHECK_PERIOD"])
+
+        # Usa os.getenv per ottenere le variabili d'ambiente
+        self.__maxIrrigationValue = int(os.getenv("MAX_IRRIGATION_VALUE", 10))
+        self.__irrigationCheckPeriod = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.optimals = {}
         self.load_optimals()
 
     def load_optimals(self):
-        asset_folder = 'assets'
-        csv_file_path = os.path.join(asset_folder, 'values.csv')
+        # Usa __file__ per ottenere la directory di lavoro del file corrente
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        asset_folder = '../assets'  # Il percorso corretto relativo alla directory corrente
+        csv_file_name = 'values.csv'
+        csv_file_path = os.path.join(base_dir, asset_folder, csv_file_name)
+
+        # Stampa per debug
+        print(f"Percorso del file CSV: {csv_file_path}")
+
+        if not os.path.exists(csv_file_path):
+            raise FileNotFoundError(f"Il file CSV non è stato trovato: {csv_file_path}")
+
         with open(csv_file_path, newline='') as csvfile:
             csv_reader = csv.DictReader(csvfile)
             for row in csv_reader:
@@ -46,13 +62,12 @@ class IrrigationManager:
     def add_data_collector(self, data_collector):
         self.data_collector = data_collector
 
-    def __open_pump_for(self,seconds):
+    def __open_pump_for(self, seconds):
         if seconds > 0 :
             self.pump.open_pump()
             sleep(seconds)
         if seconds < self.__maxIrrigationValue:
             self.pump.close_pump()
-
 
     def toggle_pump(self):
         if (self.mode != IrrigationMode.Manual):
@@ -147,7 +162,7 @@ class IrrigationManager:
                 new_irrigation = 0
             sleep(self.__irrigationCheckPeriod - new_irrigation)
 
-    def  get_optimals(self):
+    def get_optimals(self):
         return self.optimals
 
     def get_optimal_matrix(self):

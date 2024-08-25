@@ -1,15 +1,24 @@
 import serial
 import json
-from dotenv import dotenv_values
+import os
+from dotenv import load_dotenv
 from time import sleep
 from enum import Enum
+
+# Carica il file .env
+load_dotenv()
 
 class PumpState(Enum):
     Off = "off"
     On = "on"
 
 class Hardware:
-    __ser = serial.Serial(dotenv_values(".env")["SERIAL_PORT"], int(dotenv_values(".env")["SERIAL_BAUDRATE"]), timeout=1)
+    # Utilizza os.getenv per leggere le variabili d'ambiente
+    __ser = serial.Serial(
+        os.getenv("SERIAL_PORT"),
+        int(os.getenv("SERIAL_BAUDRATE")),
+        timeout=1
+    )
 
     def __init__(self) -> None:
         self.pump_state = PumpState.Off
@@ -33,8 +42,8 @@ class Hardware:
                 if bytes_to_read > 0:
                     read = self.__ser.read(bytes_to_read)
                     read_string = read.decode('utf-8')
-                    if(read_string.find('\x00') != -1):
-                        print("ERRORE read: "+ read + " read_string: " + read_string)
+                    if read_string.find('\x00') != -1:
+                        print("ERRORE read: "+ str(read) + " read_string: " + read_string)
                     buffer += read_string
 
                 if '\n' in buffer:
