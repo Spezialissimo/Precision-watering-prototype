@@ -75,4 +75,3 @@ def start_flask(host, port, data_collector):
     global dc
     dc = data_collector
     socketio.run(router, host=host, port=port, debug=False)
-    # router.run(host=host, port=port, debug=False)

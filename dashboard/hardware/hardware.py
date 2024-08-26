@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from time import sleep
 from enum import Enum
 
-# Carica il file .env
 load_dotenv()
 
 class PumpState(Enum):
@@ -13,7 +12,6 @@ class PumpState(Enum):
     On = "on"
 
 class Hardware:
-    # Utilizza os.getenv per leggere le variabili d'ambiente
     __ser = serial.Serial(
         os.getenv("SERIAL_PORT"),
         int(os.getenv("SERIAL_BAUDRATE")),
@@ -40,7 +38,7 @@ class Hardware:
             try:
                 bytes_to_read = self.__ser.inWaiting()
                 if bytes_to_read > 0:
-                    read = self.__ser.read(bytes_to_read)
+                    read = self.__ser.read()
                     read_string = read.decode('utf-8')
                     if read_string.find('\x00') != -1:
                         print("ERRORE read: "+ str(read) + " read_string: " + read_string)

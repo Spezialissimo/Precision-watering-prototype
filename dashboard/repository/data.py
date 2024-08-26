@@ -4,15 +4,12 @@ import os
 import threading
 import time
 
-# Carica le variabili d'ambiente dal file .env
 load_dotenv()
 
-# Recupera le variabili d'ambiente con valori di default se non definite
 irrigation_file = os.getenv("IRRIGATION_FILE", "default_file.csv")
 irrigation_check_period = int(os.getenv("IRRIGATION_CHECK_PERIOD", 60))
 
-# Determina la directory base e costruisce il percorso completo
-base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory del file corrente
+base_dir = os.path.dirname(os.path.abspath(__file__))
 __irrigation_filepath = os.path.normpath(os.path.join(base_dir, '..', 'repository', irrigation_file))
 __irrigation_check_period = irrigation_check_period
 __lock_last_irrigation_value = threading.Lock()

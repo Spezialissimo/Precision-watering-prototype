@@ -7,7 +7,6 @@ from time import sleep
 from datetime import datetime
 from hardware.hardware import PumpState
 
-# Carica il file .env, se non è già stato caricato
 load_dotenv()
 
 class IrrigationMode:
@@ -27,21 +26,16 @@ class IrrigationManager:
         self.mode = IrrigationMode.Manual
         self.pump = hardware
 
-        # Usa os.getenv per ottenere le variabili d'ambiente
         self.__maxIrrigationValue = int(os.getenv("MAX_IRRIGATION_VALUE", 10))
         self.__irrigationCheckPeriod = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.optimals = {}
         self.load_optimals()
 
     def load_optimals(self):
-        # Usa __file__ per ottenere la directory di lavoro del file corrente
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        asset_folder = '../assets'  # Il percorso corretto relativo alla directory corrente
+        asset_folder = '../assets'
         csv_file_name = 'values.csv'
         csv_file_path = os.path.join(base_dir, asset_folder, csv_file_name)
-
-        # Stampa per debug
-        print(f"Percorso del file CSV: {csv_file_path}")
 
         if not os.path.exists(csv_file_path):
             raise FileNotFoundError(f"Il file CSV non è stato trovato: {csv_file_path}")
