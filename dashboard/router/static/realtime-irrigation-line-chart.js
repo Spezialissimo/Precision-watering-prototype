@@ -18,7 +18,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: entry.optimal_m
                     })),
-                    label: 'Optimal',
+                    label: 'Umidità ottimale',
                     borderWidth: 3,
                     borderColor: 'blue',
                     fill: false,
@@ -32,7 +32,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: entry.current_m
                     })),
-                    label: 'Current',
+                    label: 'Umidità attuale',
                     borderWidth: 3,
                     borderColor: 'cyan',
                     fill: false,
@@ -43,7 +43,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                 },
                 {
                     type: 'bar',
-                    label: 'Water output',
+                    label: 'Consiglio irriguo',
                     data: historyData.map(entry => ({
                         x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: normalizeIrrigationValue(entry.irrigation, maxIrrigationValue),
@@ -109,7 +109,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     },
                     title: {
                         display: true,
-                        text: 'Time (seconds)'
+                        text: 'Tempo (secondi)'
                     }
                 },
                 y: {
@@ -118,7 +118,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     max: 100,
                     title: {
                         display: true,
-                        text: 'Humidity level'
+                        text: 'Livello di umidità'
                     }
                 }
             },

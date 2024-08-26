@@ -2,7 +2,7 @@ function upsertIrrigationControls(optimal) {
     if(optimal.id == get_optimal_from_name("disabled").id) {
         $('#irrigationControlContainer').empty().append(
             `<div class="w-100 h-100 align-content-center">
-                <p class="text-center fw-bold">Available only in automatic mode</p>
+                <p class="text-center fw-bold">Disponibile solo in modalità automatica</p>
             </div>
             `);
         return;
@@ -107,7 +107,7 @@ function setupOptimalMatrixChart(data) {
                         },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
-                            return ["x: " + v.x, "y: " + v.y, "v: " + v.v];
+                            return ["x: " + v.x, "y: " + v.y, "valore: " + v.v];
                         }
                     }
                 },

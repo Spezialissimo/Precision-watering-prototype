@@ -60,7 +60,7 @@ $(document).ready(function () {
             pumpMode = PumpMode.Auto;
             $('#togglePump').prop('disabled', true);
             $('#chooseOptimal').prop('disabled', false);
-            $('#pumpMode').text('Automatic');
+            $('#pumpMode').text('Automatico');
             selectedOptimal = get_optimal_from_name("Slider");
             upsertIrrigationControls(selectedOptimal);
             fetch('/irrigation/mode?mode=slider', { method: 'POST' })
@@ -69,7 +69,7 @@ $(document).ready(function () {
             pumpMode = PumpMode.Manual;
             $('#togglePump').prop('disabled', false);
             $('#chooseOptimal').prop('disabled', true);
-            $('#pumpMode').text('Manual');
+            $('#pumpMode').text('Manuale');
             selectedOptimal = get_optimal_from_name("disabled");
             upsertIrrigationControls(selectedOptimal);
             fetch('/irrigation/mode?mode=manual', { method: 'POST' })
