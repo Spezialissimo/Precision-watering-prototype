@@ -3,7 +3,7 @@ let lastIrrigationData;
 let didUsePreview = false;
 
 function normalizeIrrigationValue(value, maxIrrigationValue) {
-    return (value / maxIrrigationValue) * 100;
+    return (putMoistureValueInRange(value) / maxIrrigationValue) * maxMoisture;
 }
 
 function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
@@ -99,10 +99,10 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                 });
 
                                 if (!didUsePreview) {
-                                    dataset[0].data.push({ x: newTimestamp, y: lastIrrigationData.optimal_m });
+                                    dataset[0].data.push({ x: newTimestamp, y: (putMoistureValueInRange(lastIrrigationData.optimal_m)) });
                                 }
                                 didUsePreview = false;
-                                dataset[1].data.push({ x: newTimestamp, y: lastIrrigationData.current_m });
+                                dataset[1].data.push({ x: newTimestamp, y: putMoistureValueInRange(lastIrrigationData.current_m) });
                                 irrigationLineChart.update();
                             }
                         }
@@ -142,5 +142,10 @@ function getLastOptimalMoistureValue() {
     return lastIrrigationData.optimal_m;
 }
 
+function setIrrigationLineChartMoinstureRange() {
+    irrigationLineChart.update();
+}
+
+window.setIrrigationLineChartMoinstureRange = setIrrigationLineChartMoinstureRange;
 window.setupIrrigationLineChart = setupIrrigationLineChart;
 window.getLastOptimalMoistureValue = getLastOptimalMoistureValue;

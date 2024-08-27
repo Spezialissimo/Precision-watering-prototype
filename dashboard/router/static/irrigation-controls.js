@@ -1,5 +1,9 @@
+let currentMatrixChart;
+let currentOptimal;
+
 function upsertIrrigationControls(optimal) {
-    if(optimal.id == get_optimal_from_name("disabled").id) {
+    currentOptimal = optimal;
+    if (optimal.id == get_optimal_from_name("disabled").id) {
         $('#irrigationControlContainer').empty().append(
             `<div class="w-100 h-100 align-content-center">
                 <p class="text-center fw-bold">Disponibile solo in modalità automatica</p>
@@ -26,10 +30,7 @@ function setupOptimalSlider() {
     $('#sliderValue').text(value);
 
     $('#irrigationSlider').on('change', function () {
-        var value = $(this).val();
-        lastSliderValue = value;
-        fetch('/irrigation/slider?value=' + value, { method: 'POST' });
-        updateOptimalIrrigationLine(value);
+        updateSliderValue($(this).val());
     });
 
     $('#irrigationSlider').on('input', function () {
@@ -45,7 +46,7 @@ function setupOptimalMatrixChart(data) {
     $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 410px; max-width: 400px; display: initial;"></canvas>');
 
     let matrixCtx = $('#optimalMatrixChart')[0].getContext('2d');
-    new Chart(matrixCtx, {
+    currentMatrixChart = new Chart(matrixCtx, {
         plugins: [ChartDataLabels],
         type: "matrix",
         data: {
@@ -131,3 +132,12 @@ function setupOptimalMatrixChart(data) {
         }
     });
 }
+
+
+function setControlsMatrixChartMoinstureRange() {
+    if (currentMatrixChart != null) {
+        currentMatrixChart.update();
+    }
+}
+
+window.setControlsMatrixChartMoinstureRange = setControlsMatrixChartMoinstureRange;

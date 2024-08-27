@@ -94,9 +94,7 @@ function setupRealtimeLineChart() {
     });
 }
 
-function setRealtimeLineChartMoinstureRange(minMoisture, maxMoisture) {
-    lineChart.options.scales.y.min = minMoisture;
-    lineChart.options.scales.y.max = maxMoisture;
+function setRealtimeLineChartMoinstureRange() {
     lineChart.update();
 }
 

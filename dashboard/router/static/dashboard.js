@@ -1,5 +1,6 @@
 let minMoisture = 0;
 let maxMoisture = 100;
+let lastSliderValue = 0;
 
 $(document).ready(function () {
 
@@ -21,7 +22,13 @@ $(document).ready(function () {
     $('#moistureRangeSelectionModalConfirm').click(function () {
         minMoisture = Number($('#minMoisture').val());
         maxMoisture = Number($('#maxMoisture').val());
-        setRealtimeLineChartMoinstureRange(minMoisture, maxMoisture);
+        setRealtimeLineChartMoinstureRange();
+        setMatrixChartMoinstureRange();
+        setControlsMatrixChartMoinstureRange();
+        setIrrigationLineChartMoinstureRange();
+        if (currentOptimal.id == get_optimal_from_name("Slider").id) {
+            updateSliderValue(lastSliderValue);
+        }
         $('#moistureRangeSelectionModal').modal('hide');
     });
 
