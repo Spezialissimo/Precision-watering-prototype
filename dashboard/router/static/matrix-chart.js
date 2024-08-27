@@ -5,7 +5,6 @@ function setupMatrixChart(data) {
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
     let matrixCtx = $('#matrixChart')[0].getContext('2d');
     matrixChart = new Chart(matrixCtx, {
-        plugins: [ChartDataLabels],
         type: "matrix",
         data: {
             datasets: [
@@ -70,21 +69,6 @@ function setupMatrixChart(data) {
                         }
                     }
                 },
-                datalabels: {
-                    labels: {
-                        value: {
-                            color() {
-                                return 'black';
-                            },
-                            font() {
-                                return { weight: 'bold' };
-                            },
-                            formatter(value) {
-                                return value.v;
-                            }
-                        }
-                    }
-                }
             },
             animation: false
         }
