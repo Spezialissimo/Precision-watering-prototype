@@ -26,7 +26,7 @@ class IrrigationManager:
         self.mode = IrrigationMode.Manual
         self.pump = hardware
 
-        self.__maxIrrigationValue = int(os.getenv("MAX_IRRIGATION_VALUE", 10))
+        self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.__irrigationCheckPeriod = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.optimals = {}
         self.load_optimals()
@@ -75,6 +75,7 @@ class IrrigationManager:
     def set_irrigation_mode(self, mode):
         if (mode == IrrigationMode.Manual):
             self.mode = IrrigationMode.Manual
+            self.pump.close_pump()
         elif (mode == IrrigationMode.Slider):
             self.mode = IrrigationMode.Slider
         elif (mode == IrrigationMode.Matrix):

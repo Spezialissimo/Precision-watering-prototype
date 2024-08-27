@@ -20,12 +20,12 @@ function drawNewPoint(sensor_data, datasetIndex) {
     if (lineChart.data.datasets[datasetIndex].data.length > 2) {
         const lastDrawnData = lineChart.data.datasets[datasetIndex].data[lineChart.data.datasets[datasetIndex].data.length - 1];
         if (lastDrawnData.y != sensor_data.data[datasetIndex].v || skippedCounter >= 1) {
-            lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: sensor_data.data[datasetIndex].v });
+            lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: putMoistureValueInRange(sensor_data.data[datasetIndex].v) });
         } else {
             skippedCounter++;
         }
     }else {
-        lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: sensor_data.data[datasetIndex].v });
+        lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: putMoistureValueInRange(sensor_data.data[datasetIndex].v) });
     }
 }
 
@@ -94,4 +94,11 @@ function setupRealtimeLineChart() {
     });
 }
 
+function setRealtimeLineChartMoinstureRange(minMoisture, maxMoisture) {
+    lineChart.options.scales.y.min = minMoisture;
+    lineChart.options.scales.y.max = maxMoisture;
+    lineChart.update();
+}
+
+window.setRealtimeLineChartMoinstureRange = setRealtimeLineChartMoinstureRange;
 window.setupRealtimeLineChart = setupRealtimeLineChart;

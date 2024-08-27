@@ -18,3 +18,13 @@ function getBackgroundColor(value) {
     const b = startColor.b + (endColor.b - startColor.b) * (value / 100);
     return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 }
+
+function putMoistureValueInRange(value) {
+    if (value < minMoisture) {
+        return minMoisture;
+    }
+    if (value > maxMoisture) {
+        return maxMoisture;
+    }
+    return value;
+}

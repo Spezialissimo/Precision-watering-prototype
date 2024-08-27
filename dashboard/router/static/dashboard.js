@@ -1,4 +1,29 @@
+let minMoisture = 0;
+let maxMoisture = 100;
+
 $(document).ready(function () {
+
+    $('#settingsButton').click(function () {
+        $('#moistureRangeSelectionModal').modal('show');
+    });
+
+    $('#minMoisture').val(minMoisture);
+    $('#maxMoisture').val(maxMoisture);
+
+    $('#minMoisture').on('input', function () {
+        $('#maxMoisture').attr('min', minMoisture + 1);
+    });
+
+    $('#maxMoisture').on('input', function () {
+        $('#minMoisture').attr('max', maxMoisture - 1);
+    });
+
+    $('#moistureRangeSelectionModalConfirm').click(function () {
+        minMoisture = Number($('#minMoisture').val());
+        maxMoisture = Number($('#maxMoisture').val());
+        setRealtimeLineChartMoinstureRange(minMoisture, maxMoisture);
+        $('#moistureRangeSelectionModal').modal('hide');
+    });
 
     class PumpMode {
         static Manual = new PumpMode('Manual');
