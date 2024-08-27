@@ -17,6 +17,11 @@ void TimerHandler(void)
 	retrieveSensorsDataAndSend = true;
 }
 
+double mapf(double val, double in_min, double in_max, double out_min, double out_max)
+{
+	return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 #define TIMER_INTERVAL_MS 100
 
 void setup()
@@ -47,7 +52,7 @@ void loop()
 			for (int j = 0; j < 2; j++)
 			{
 				int sensorValue = analogRead(Sensors[i][j]);
-				int mappedValue = map(sensorValue, minADC, maxADC, 0, 100);
+				float mappedValue = mapf(sensorValue, minADC, maxADC, 0, 100);
 
 				JsonObject sensorData = data.createNestedObject();
 				sensorData["y"] = 5 + 5 * (i) * 2;
