@@ -11,14 +11,26 @@ function convertToMatrixData(data) {
 }
 
 function getBackgroundColor(value) {
-    const valueInRange = putMoistureValueInRange(value);
-    const startColor = { r: 178, g: 34, b: 34 };
-    const endColor = { r: 0, g: 0, b: 255 };
+    var valueInRange = value;
+
+    let startColor, endColor;
+    if (valueInRange <= 50) {
+        startColor = { r: 215, g: 48, b: 39 };
+        endColor = { r: 241, g: 163, b: 133 };
+        valueInRange = valueInRange * 2;
+    } else {
+        startColor = { r: 241, g: 163, b: 133 };
+        endColor = { r: 69, g: 117, b: 180 };
+        valueInRange = (valueInRange - 50) * 2;
+    }
+
     const r = startColor.r + (endColor.r - startColor.r) * (valueInRange / 100);
     const g = startColor.g + (endColor.g - startColor.g) * (valueInRange / 100);
     const b = startColor.b + (endColor.b - startColor.b) * (valueInRange / 100);
+
     return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 }
+
 
 function putMoistureValueInRange(value) {
     return Math.max(Math.min(Math.round(((value - minMoisture)/(maxMoisture - minMoisture)) * 100), 100), 0);
