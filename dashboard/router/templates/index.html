@@ -73,7 +73,7 @@
 
     <div class="modal fade" id="optimalSelectionModal" tabindex="-1" aria-labelledby="optimalSelectionModal"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="width: 80%; max-width: 80%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="optimalSelectionModalLabel">Scegli regola</h5>
@@ -86,7 +86,7 @@
 
     <div class="modal fade" id="moistureRangeSelectionModal" tabindex="-1" aria-labelledby="moistureRangeSelectionModal"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moistureRangeSelectionModalLabel">Scegli l'intervallo di umidità</h5>
@@ -94,19 +94,19 @@
                 </div>
                 <div class="modal-body" id="moistureRangeContainer">
                     <div class="row">
-                        <div class="col-2">
+                        <div class="col-3">
                             <label for="minMoisture" class="form-label">Minimo</label>
                         </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <input min="0" max="100" type="number" id="minMoisture" class="form-control" />
                         </div>
 
                     </div>
                     <div class="row">
-                        <div class="col-2">
+                        <div class="col-3">
                             <label for="maxMoisture" class="form-label">Massimo</label>
                         </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <input min="0" max="100" type="number" id="maxMoisture" class="form-control" />
                         </div>
                     </div>

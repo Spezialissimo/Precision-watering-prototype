@@ -3,7 +3,7 @@ let lastIrrigationData;
 let didUsePreview = false;
 
 function normalizeIrrigationValue(value, maxIrrigationValue) {
-    return (putMoistureValueInRange(value) / maxIrrigationValue) * maxMoisture;
+    return ((value) / maxIrrigationValue) * maxMoisture;
 }
 
 function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {

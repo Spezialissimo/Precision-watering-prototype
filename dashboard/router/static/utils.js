@@ -44,19 +44,23 @@ function updateSliderValue(value) {
 }
 
 function updateMatrixValues(matrix) {
+    let copy = []
     matrix.forEach(element => {
-        element.v = (element.v / 100) * (maxMoisture - minMoisture) + minMoisture;
+        copy.push({
+            'x': element.x,
+            'y': element.y,
+            'v': (element.v / 100) * (maxMoisture - minMoisture) + minMoisture
+        })
     });
     fetch('/irrigation/matrix', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-        body: JSON.stringify({ matrix: matrix })
+        body: JSON.stringify({ matrix: copy })
         })
         .then(response => response.json())
         .then(data => {
             updateOptimalIrrigationLine(data);
         });
-    return matrix;
 }

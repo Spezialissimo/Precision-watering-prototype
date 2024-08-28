@@ -24,7 +24,6 @@ $(document).ready(function () {
         maxMoisture = Number($('#maxMoisture').val());
         setRealtimeLineChartMoinstureRange();
         setMatrixChartMoinstureRange();
-        setControlsMatrixChartMoinstureRange();
         setIrrigationLineChartMoinstureRange();
         if (currentOptimal.id == get_optimal_from_name("Slider").id) {
             updateSliderValue(lastSliderValue);
@@ -123,13 +122,13 @@ $(document).ready(function () {
             for (const [key, value] of Object.entries(data)) {
                 optimals.push(new Optimals(key, value.title, value.description, '/irrigation/optimal/image/' + key, value.value));
 
-                if (count % 3 === 0) {
+                if (count % 5 === 0) {
                     row = $('<div class="row"></div>');
                     $('#optimalsContainer').append(row);
                 }
 
                 row.append(`
-                <div class="col-4" id="${key}Container">
+                <div class="col" id="${key}Container">
                     ${optimals[optimals.length - 1].toHtml()}
                 </div>
             `);
