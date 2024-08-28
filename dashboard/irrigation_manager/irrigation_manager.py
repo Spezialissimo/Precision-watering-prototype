@@ -28,6 +28,7 @@ class IrrigationManager:
 
         self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.__irrigationCheckPeriod = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
+        self.__PumpOpeningThreshold = float(os.getenv("PUMP_OPENING_THRESHOLD", 10))
         self.deafualt_optimals = {}
         self.load_optimals()
 
@@ -57,15 +58,15 @@ class IrrigationManager:
         self.data_collector = data_collector
 
     def __open_pump_for(self, seconds):
-        if seconds > 0 :
+        if seconds >  self.__PumpOpeningThreshold:
             self.pump.open_pump()
             sleep(seconds)
-        if seconds < self.__maxIrrigationValue:
+        if seconds < self.__maxIrrigationValue - self.__PumpOpeningThreshold:
             self.pump.close_pump()
 
+
+
     def toggle_pump(self):
-        if (self.mode != IrrigationMode.Manual):
-            raise Exception("Pump can be toggled only in manual mode")
         state = self.pump.get_pump_state()
         self.pump.close_pump() if state == PumpState.On else self.pump.open_pump()
 
@@ -84,13 +85,9 @@ class IrrigationManager:
             raise Exception("Invalid irrigation mode")
 
     def set_new_optimal_value(self, value):
-        if (self.mode != IrrigationMode.Slider):
-            raise Exception("Optimal value can be set only in slider mode")
         self.optimal_value = value
 
     def set_new_optimal_matrix(self, matrix):
-        if (self.mode != IrrigationMode.Matrix):
-            raise Exception("Optimal matrix can be set only in matrix mode")
         self.optimal_matrix = {
                     'title': "",
                     'description': "",
@@ -102,10 +99,7 @@ class IrrigationManager:
             current_moisture = self.data_collector.get_last_sensor_data_average()
             if (self.mode == IrrigationMode.Slider and self.optimal_value != None):
                 lastIrrigationData = self.data_collector.get_last_irrigation_data()
-                if(lastIrrigationData == None or lastIrrigationData["irrigation"] == "" or lastIrrigationData["r"] == ""):
-                    oldIrrigation = 0
-                    oldR = 0
-                else:
+                if(lastIrrigationData != None and lastIrrigationData["irrigation"] != "" and lastIrrigationData["r"] != ""):
                     oldIrrigation = lastIrrigationData["irrigation"]
                     oldR = lastIrrigationData["r"]
 
@@ -113,10 +107,7 @@ class IrrigationManager:
                 optimal_moisture = self.optimal_value
             elif (self.mode == IrrigationMode.Matrix and self.optimal_matrix != None):
                 lastIrrigationData = self.data_collector.get_last_irrigation_data()
-                if(lastIrrigationData == None or lastIrrigationData["irrigation"] == "" or lastIrrigationData["r"] == ""):
-                    oldIrrigation = 0
-                    oldR = 0
-                else:
+                if(lastIrrigationData != None and lastIrrigationData["irrigation"] != "" and lastIrrigationData["r"] != ""):
                     oldIrrigation = lastIrrigationData["irrigation"]
                     oldR = lastIrrigationData["r"]
 
