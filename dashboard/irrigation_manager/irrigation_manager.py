@@ -28,7 +28,7 @@ class IrrigationManager:
 
         self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.__irrigationCheckPeriod = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
-        self.optimals = {}
+        self.deafualt_optimals = {}
         self.load_optimals()
 
     def load_optimals(self):
@@ -47,7 +47,7 @@ class IrrigationManager:
                 title = row['title']
                 description = row['description']
                 value = json.loads(row['value'].replace("'", '"'))
-                self.optimals[id] = {
+                self.deafualt_optimals[id] = {
                     'title': title,
                     'description': description,
                     'value': value
@@ -91,7 +91,11 @@ class IrrigationManager:
     def set_new_optimal_matrix(self, matrix):
         if (self.mode != IrrigationMode.Matrix):
             raise Exception("Optimal matrix can be set only in matrix mode")
-        self.optimal_matrix = self.optimals[matrix]
+        self.optimal_matrix = {
+                    'title': "",
+                    'description': "",
+                    'value': matrix
+                }
 
     def compute_irrigation_thread(self):
         while True:
@@ -119,7 +123,7 @@ class IrrigationManager:
                 lastSensorData = self.data_collector.get_last_sensor_data()
                 diffs = []
                 for measurement in lastSensorData["data"]:
-                    for o_m in self.optimal_matrix['value']['data']:
+                    for o_m in self.optimal_matrix['value']:
                         if o_m['x'] == measurement['x'] and o_m['y'] == measurement['y']:
                             optimal = o_m
                             break
@@ -158,7 +162,7 @@ class IrrigationManager:
             sleep(self.__irrigationCheckPeriod - new_irrigation)
 
     def get_optimals(self):
-        return self.optimals
+        return self.deafualt_optimals
 
     def get_optimal_matrix(self):
         return self.optimal_matrix

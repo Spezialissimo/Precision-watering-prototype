@@ -83,8 +83,8 @@ class DataCollector:
         optimal = self.irrigation_manager.get_optimal_matrix()
         if not optimal:
             return None
-        total = sum(sensor["v"] for sensor in optimal['value']['data'])
-        average = total / len(optimal['value']['data'])
+        total = sum(sensor["v"] for sensor in optimal['value'])
+        average = total / len(optimal['value'])
         return average
 
     def add_sensor_data(self, data):

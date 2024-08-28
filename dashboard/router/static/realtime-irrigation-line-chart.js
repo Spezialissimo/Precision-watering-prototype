@@ -133,13 +133,13 @@ function updateOptimalIrrigationLine(value) {
         irrigationLineChart.data.datasets[0].data.pop();
     }
     const lastDrawnData = irrigationLineChart.data.datasets[0].data[irrigationLineChart.data.datasets[0].data.length - 1];
-    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: value });
+    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: putMoistureValueInRange(value) });
     didUsePreview = true;
     irrigationLineChart.update();
 }
 
 function getLastOptimalMoistureValue() {
-    return lastIrrigationData.optimal_m;
+    return putMoistureValueInRange(lastIrrigationData.optimal_m);
 }
 
 function setIrrigationLineChartMoinstureRange() {

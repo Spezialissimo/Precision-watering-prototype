@@ -42,3 +42,21 @@ function updateSliderValue(value) {
     fetch('/irrigation/slider?value=' + deNormValue, { method: 'POST' });
     updateOptimalIrrigationLine(value);
 }
+
+function updateMatrixValues(matrix) {
+    matrix.forEach(element => {
+        element.v = (element.v / 100) * (maxMoisture - minMoisture) + minMoisture;
+    });
+    fetch('/irrigation/matrix', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        body: JSON.stringify({ matrix: matrix })
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateOptimalIrrigationLine(data);
+        });
+    return matrix;
+}

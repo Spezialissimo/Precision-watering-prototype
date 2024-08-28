@@ -47,7 +47,6 @@ function setupOptimalMatrixChart(data) {
 
     let matrixCtx = $('#optimalMatrixChart')[0].getContext('2d');
     currentMatrixChart = new Chart(matrixCtx, {
-        plugins: [ChartDataLabels],
         type: "matrix",
         data: {
             datasets: [
@@ -111,28 +110,12 @@ function setupOptimalMatrixChart(data) {
                             return ["x: " + v.x, "y: " + v.y, "valore: " + v.v];
                         }
                     }
-                },
-                datalabels: {
-                    labels: {
-                        value: {
-                            color() {
-                                return 'black';
-                            },
-                            font() {
-                                return { weight: 'bold' };
-                            },
-                            formatter(value) {
-                                return value.v;
-                            }
-                        }
-                    }
                 }
             },
             animation: false
         }
     });
 }
-
 
 function setControlsMatrixChartMoinstureRange() {
     if (currentMatrixChart != null) {

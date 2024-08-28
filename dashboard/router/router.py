@@ -36,8 +36,9 @@ def set_irrigation_value():
 
 @router.route('/irrigation/matrix', methods=['POST'])
 def set_irrigation_matrix():
-    matrixId = request.args.get('matrix', default=None, type=str)
-    dc.set_new_optimal_matrix(matrixId)
+    data = request.get_json()
+    matrix = data.get('matrix', None)
+    dc.set_new_optimal_matrix(matrix)
     avarage = dc.get_optimal_matrix_average()
     return jsonify(avarage)
 
