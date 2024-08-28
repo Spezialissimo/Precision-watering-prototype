@@ -47,21 +47,22 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     data: historyData.map(entry => ({
                         x: convertTimestampToDateForRealtime(entry.timestamp),
                         y: normalizeIrrigationValue(entry.irrigation, maxIrrigationValue),
-                        rawValue: entry.irrigation
+                        rawValue: 0.03 * entry.irrigation
                     })),
                     backgroundColor: 'rgba(0, 0, 128, 0.2)',
                     datalabels: {
                         display: true,
                         align: 'start',
                         anchor: 'end',
+                        clamp: true,
                         formatter: function (value) {
                             if (value.rawValue == null || value.rawValue == "") {
                                 return '';
                             }
-                            return value.rawValue.toFixed(1);
+                            return value.rawValue.toFixed(2);
                         },
                         color: 'black',
-                        offset: -5
+                        offset: 0
                     }
                 }
             ]
@@ -108,7 +109,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                 dataset[2].data.push({
                                     x: newTimestamp,
                                     y: normalizeIrrigationValue(lastIrrigationData.irrigation, 15),
-                                    rawValue: lastIrrigationData.irrigation
+                                    rawValue: 0.03 * lastIrrigationData.irrigation
                                 });
 
                                 if (!didUsePreview) {
@@ -133,7 +134,20 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         display: true,
                         text: 'Livello di umidità'
                     }
-                }
+                },
+                y1: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 0.45,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Consiglio irriguo (litri)'
+                    },
+                    grid: {
+                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    },
+                },
             },
             animation: false
         },
