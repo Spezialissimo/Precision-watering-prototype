@@ -2,14 +2,6 @@ function convertTimestampToDateForRealtime(timestamp) {
     return (parseFloat(timestamp) * 1000);
 }
 
-function convertToMatrixData(data) {
-    return data["data"].map(obj => ({
-        x: String(obj.x),
-        y: String(obj.y),
-        v: putMoistureValueInRange(Math.round(obj.v))
-    }));
-}
-
 function getBackgroundColor(value) {
     var valueInRange = value;
 

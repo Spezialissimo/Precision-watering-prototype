@@ -1,6 +1,7 @@
 let currentMatrixChart;
 let currentOptimal;
 
+
 function upsertIrrigationControls(optimal) {
     currentOptimal = optimal;
     if (optimal.id == get_optimal_from_name("disabled").id) {
@@ -51,7 +52,11 @@ function setupOptimalMatrixChart(data) {
         data: {
             datasets: [
                 {
-                    data: convertToMatrixData(data),
+                    data: data["data"].map(obj => ({
+                        x: String(obj.x),
+                        y: String(obj.y),
+                        v: Math.round(obj.v)
+                    })),
                     backgroundColor: function (context) {
                         if (!context.dataset || !context.dataset.data.length || context.dataset.data[context.dataIndex].v == null) return "lightgrey";
                         const value = context.dataset.data[context.dataIndex].v;

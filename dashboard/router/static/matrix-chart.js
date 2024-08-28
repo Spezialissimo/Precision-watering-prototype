@@ -1,5 +1,13 @@
 let matrixChart;
 
+function convertToMatrixData(data) {
+    return data["data"].map(obj => ({
+        x: String(obj.x),
+        y: String(obj.y),
+        v: putMoistureValueInRange(Math.round(obj.v))
+    }));
+}
+
 function setupMatrixChart(data) {
     const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
