@@ -3,7 +3,7 @@ let lastIrrigationData;
 let didUsePreview = false;
 
 function normalizeIrrigationValue(value, maxIrrigationValue) {
-    return ((value) / maxIrrigationValue) * maxMoisture;
+    return ((value) / maxIrrigationValue) * 100;
 }
 
 function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
@@ -50,6 +50,19 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         rawValue: entry.irrigation
                     })),
                     backgroundColor: 'rgba(0, 0, 128, 0.2)',
+                    datalabels: {
+                        display: true,
+                        align: 'start',
+                        anchor: 'end',
+                        formatter: function (value) {
+                            if (value.rawValue == null || value.rawValue == "") {
+                                return '';
+                            }
+                            return value.rawValue.toFixed(1);
+                        },
+                        color: 'black',
+                        offset: -5
+                    }
                 }
             ]
         },
@@ -99,7 +112,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                 });
 
                                 if (!didUsePreview) {
-                                    dataset[0].data.push({ x: newTimestamp, y: (putMoistureValueInRange(lastIrrigationData.optimal_m)) });
+                                    dataset[0].data.push({ x: newTimestamp, y: putMoistureValueInRange(lastIrrigationData.optimal_m) });
                                 }
                                 didUsePreview = false;
                                 dataset[1].data.push({ x: newTimestamp, y: putMoistureValueInRange(lastIrrigationData.current_m) });
@@ -133,7 +146,7 @@ function updateOptimalIrrigationLine(value) {
         irrigationLineChart.data.datasets[0].data.pop();
     }
     const lastDrawnData = irrigationLineChart.data.datasets[0].data[irrigationLineChart.data.datasets[0].data.length - 1];
-    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: putMoistureValueInRange(value) });
+    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: value });
     didUsePreview = true;
     irrigationLineChart.update();
 }
