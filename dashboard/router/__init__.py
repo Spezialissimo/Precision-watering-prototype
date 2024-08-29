@@ -1,7 +1,6 @@
 # app/__init__.py
 import sys
 
-print(sys.path)
 
 from flask import Flask
 from flask_socketio import SocketIO

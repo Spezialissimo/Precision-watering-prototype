@@ -4,14 +4,15 @@ from . import router
 from . import SocketIO
 import time
 import threading
+import os
 
 socketio = SocketIO(router, cors_allowed_origins="*")
 dc = None
-list_of_clients = []
 
 @router.route('/')
 def index():
-    return render_template('index.html')
+    server_ip = os.getenv('SOCKET_SERVER_IP', 'http://localhost:5000')
+    return render_template('index.html', server_ip=server_ip)
 
 @router.route('/sensors/interpolated', methods=['GET'])
 def get_last_sensor_data_with_interpolation():
@@ -71,10 +72,6 @@ def send_pump_state():
 
 @socketio.on('connect')
 def handle_connect():
-    # Ricevi da cliente l'indirizzo IP
-    global list_of_clients
-    list_of_clients.append(request.remote_addr)
-    print(f"Client connesso: {request.remote_addr}")
     thread = threading.Thread(target=send_pump_state)
     thread.start()
 

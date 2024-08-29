@@ -40,8 +40,6 @@ class Hardware:
                 if bytes_to_read > 0:
                     read = self.__ser.read()
                     read_string = read.decode('utf-8')
-                    if read_string.find('\x00') != -1:
-                        print("ERRORE read: "+ str(read) + " read_string: " + read_string)
                     buffer += read_string
 
                 if '\n' in buffer:
@@ -51,4 +49,4 @@ class Hardware:
                     data = json.loads(last_received.strip())
                     return data
             except Exception as e:
-                print("Error reading data:", e)
+                pass

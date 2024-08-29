@@ -171,7 +171,7 @@ $(document).ready(function () {
             })
         });
 
-    const socket = io('http://localhost:5000');
+    const socket = io(window.config.serverIp);
 
     socket.on('pump_state_update', (data) => {
         $('#pumpStatus').text(data.pump_state);
