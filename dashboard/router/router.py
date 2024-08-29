@@ -6,6 +6,7 @@ import time
 import threading
 
 dc = None
+list_of_clients = []
 
 @router.route('/')
 def index():
@@ -69,6 +70,10 @@ def send_pump_state():
 
 @socketio.on('connect')
 def handle_connect():
+    # Ricevi da cliente l'indirizzo IP
+    global list_of_clients
+    list_of_clients.append(request.remote_addr)
+    print(f"Client connesso: {request.remote_addr}")
     thread = threading.Thread(target=send_pump_state)
     thread.start()
 

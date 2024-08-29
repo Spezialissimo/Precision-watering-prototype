@@ -38,13 +38,16 @@ def file_is_empty():
     return os.stat(__irrigation_filepath).st_size == 0
 
 def __last_is_too_old(data = { 'timestamp': time.time() }):
-    last_line = read_last_lines(__irrigation_filepath, 1)
-    if last_line and len(last_line) == 1 and "timestamp" not in last_line[0] and  last_line[0] != "":
-        last_timestamp = float(last_line[0].split(',')[0])
-        current_timestamp = float(data['timestamp'])
-        if current_timestamp - last_timestamp >= ((__irrigation_check_period * 3)):
-            return True
-    return not last_line
+    try:
+        last_line = read_last_lines(__irrigation_filepath, 1)
+        if last_line and len(last_line) == 1 and "timestamp" not in last_line[0] and  last_line[0] != "":
+            last_timestamp = float(last_line[0].split(',')[0])
+            current_timestamp = float(data['timestamp'])
+            if current_timestamp - last_timestamp >= ((__irrigation_check_period * 3)):
+                return True
+        return not last_line
+    except:
+        return True
 
 def save_irrigation_data(data):
     global __last_irrigation_value
@@ -92,44 +95,46 @@ def should_restore_backup():
     return False
 
 def get_all_irrigation_data(seconds=None):
-    if not os.path.exists(__irrigation_filepath):
-        return []
+    try:
+        if not os.path.exists(__irrigation_filepath):
+            return []
 
-    avg_line_interval = 15
-    num_lines = (seconds // avg_line_interval) + 1 if seconds else 100
+        avg_line_interval = 15
+        num_lines = (seconds // avg_line_interval) + 1 if seconds else 100
 
-    with __lock_irrigation_file:
-        lines = read_last_lines(__irrigation_filepath, num_lines)
+        with __lock_irrigation_file:
+            lines = read_last_lines(__irrigation_filepath, num_lines)
 
-    if not lines:
-        return []
+        if not lines:
+            return []
 
-    reader = csv.DictReader(lines)
-    raw_data = list(reader)
+        reader = csv.DictReader(lines)
+        raw_data = list(reader)
 
-    result = []
+        result = []
 
-    if seconds is not None:
-        end_time = time.time()
-        start_time = end_time - seconds
+        if seconds is not None:
+            end_time = time.time()
+            start_time = end_time - seconds
 
-        for row in raw_data:
-            if start_time <= float(row["timestamp"]) <= end_time:
+            for row in raw_data:
+                if start_time <= float(row["timestamp"]) <= end_time:
+                    value = parse_irrigation_data(row)
+                    if value is None:
+                        reset_file()
+                    else:
+                        result.append(parse_irrigation_data(row))
+        else:
+            for row in raw_data:
                 value = parse_irrigation_data(row)
                 if value is None:
                     reset_file()
+                    break
                 else:
                     result.append(parse_irrigation_data(row))
-    else:
-        for row in raw_data:
-            value = parse_irrigation_data(row)
-            if value is None:
-                reset_file()
-                break
-            else:
-                result.append(parse_irrigation_data(row))
-
-    return result
+        return result
+    except:
+        return []
 
 def reset_file():
     with __lock_irrigation_file:
