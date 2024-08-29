@@ -5,7 +5,7 @@ from . import SocketIO
 import time
 import threading
 
-
+socketio = SocketIO(router, cors_allowed_origins="*")
 dc = None
 list_of_clients = []
 
@@ -81,6 +81,4 @@ def handle_connect():
 def start_flask(host, port, data_collector):
     global dc
     dc = data_collector
-
-    socketio = SocketIO(router, cors_allowed_origins="*")
     socketio.run(router, host=host, port=port, debug=False)
