@@ -1,6 +1,7 @@
 let minMoisture = 0;
 let maxMoisture = 100;
 let lastSliderValue = 0;
+Chart.defaults.font.size = 16;
 
 $(document).ready(function () {
 

@@ -42,7 +42,8 @@ function setupMatrixChart(data) {
                     reverse: false,
                     offset: true,
                     ticks: {
-                        autoSkip: false
+                        stepSize: 5
+                        // autoSkip: false
                     },
                     grid: {
                         display: false,
@@ -55,7 +56,7 @@ function setupMatrixChart(data) {
                     offset: true,
                     position: "bottom",
                     ticks: {
-                        autoSkip: false,
+                        stepSize: 5,
                         maxRotation: 0,
                     },
                     grid: {
