@@ -11,7 +11,9 @@ dc = None
 
 @router.route('/')
 def index():
-    server_ip = os.getenv('SOCKET_SERVER_IP', 'http://localhost:5000')
+    ip = os.getenv('HOST', '127.0.0.1')
+    port = int(os.getenv('PORT', 5000))
+    server_ip = f"http://{ip}:{port}"
     return render_template('index.html', server_ip=server_ip)
 
 @router.route('/sensors/interpolated', methods=['GET'])
