@@ -1,5 +1,5 @@
-let minMoisture = 0;
-let maxMoisture = 100;
+let minMoisture = 30;
+let maxMoisture = 60;
 let lastSliderValue = 0;
 Chart.defaults.font.size = 16;
 
@@ -123,13 +123,13 @@ $(document).ready(function () {
             for (const [key, value] of Object.entries(data)) {
                 optimals.push(new Optimals(key, value.title, value.description, '/irrigation/optimal/image/' + key, value.value));
 
-                if (count % 5 === 0) {
-                    row = $('<div class="row"></div>');
+                if (count % 3 === 0) {
+                    row = $('<div class="row my-3"></div>');
                     $('#optimalsContainer').append(row);
                 }
 
                 row.append(`
-                <div class="col" id="${key}Container">
+                <div class="col rounded" id="${key}Container">
                     ${optimals[optimals.length - 1].toHtml()}
                 </div>
             `);

@@ -81,7 +81,7 @@ function setupOptimalMatrixChart(data) {
                     reverse: false,
                     offset: true,
                     ticks: {
-                        autoSkip: false
+                        stepsize: 5,
                     },
                     grid: {
                         display: false,
@@ -94,12 +94,13 @@ function setupOptimalMatrixChart(data) {
                     offset: true,
                     position: "bottom",
                     ticks: {
-                        autoSkip: false,
+                        stepsize: 5,
                         maxRotation: 0,
                     },
                     grid: {
                         display: false,
-                        drawBorder: false
+                        drawBorder: false,
+                        dispaly: false,
                     }
                 }
             },
