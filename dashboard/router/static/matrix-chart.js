@@ -9,7 +9,7 @@ function convertToMatrixData(data) {
 }
 
 function setupMatrixChart(data) {
-    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
+    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(b) - Number(a));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
     let matrixCtx = $('#matrixChart')[0].getContext('2d');
     matrixChart = new Chart(matrixCtx, {

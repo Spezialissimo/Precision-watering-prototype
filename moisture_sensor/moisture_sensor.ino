@@ -4,7 +4,7 @@
 #include <TimerInterrupt.h>
 #include <ArduinoJson.h>
 
-const int Sensors[3][2] = {{A0, A1}, {A2, A3}, {A4, A5}};
+const int Sensors[3][2] = {{A1, A0}, {A3, A2}, {A5, A4}};
 const int PumpPin = 2;
 
 int minADC = 0;
