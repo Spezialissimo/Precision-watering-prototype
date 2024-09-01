@@ -68,6 +68,7 @@ function setupRealtimeLineChart() {
                             if (lastSensorData == {} || lastSensorData.timestamp == undefined) {
                                 return;
                             }
+                            lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
                             drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 5), datasets["10_5"], lastSensorData.timestamp);
                             drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 15), datasets["10_15"], lastSensorData.timestamp);
                             drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 25), datasets["10_25"], lastSensorData.timestamp);

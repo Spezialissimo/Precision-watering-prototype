@@ -56,6 +56,7 @@ $(document).ready(function () {
         try {
             const response = await fetch('/sensors/');
             const data = await response.json();
+            data.timestamp = correctTimestamp(data.timestamp);
             setupRealtimeLineChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {
@@ -67,6 +68,7 @@ $(document).ready(function () {
         try {
             const response = await fetch('/sensors/interpolated');
             const data = await response.json();
+            data.timestamp = correctTimestamp(data.timestamp);
             updateMatrixChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {
@@ -78,6 +80,7 @@ $(document).ready(function () {
         try {
             const response = await fetch('/irrigation/history?seconds=600');
             const data = await response.json();
+            data.forEach(entry => entry.timestamp = correctTimestamp(entry.timestamp)*1000);
             setupIrrigationLineChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {

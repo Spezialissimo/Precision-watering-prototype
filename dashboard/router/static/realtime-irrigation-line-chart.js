@@ -56,10 +56,10 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         anchor: 'end',
                         clamp: true,
                         formatter: function (value) {
-                            if (value.rawValue == null || value.rawValue == "") {
-                                return '';
+                            if (value == null || value == "") {
+                                return ''; // Qui value rappresenta il dato stesso, quindi controlliamo value, non value.rawValue
                             }
-                            return value.rawValue.toFixed(2);
+                            return value.rawValue.toFixed(2); // Usa direttamente value.rawValue
                         },
                         color: 'black',
                         offset: 0
@@ -80,7 +80,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     type: 'realtime',
                     realtime: {
                         duration: 120000,
-                        refresh: 1000,
+                        refresh: 4000,
                         delay: 0,
                         pause: false,
                         frameRate: 30,
@@ -92,31 +92,30 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                 $('#syncingModal').modal('show');
                             }
 
-                            if(lastIrrigationData == null) {
+                            if (lastIrrigationData == null) {
                                 return;
                             }
+                            lastIrrigationData.timestamp = correctTimestamp(lastIrrigationData.timestamp)*1000;
 
-                            const newTimestamp = convertTimestampToDateForRealtime(lastIrrigationData.timestamp);
                             const dataset = irrigationLineChart.data.datasets;
 
-                            shouldUpdate = didUsePreview ? newTimestamp == dataset[0].data[dataset[0].data.length - 2].x : newTimestamp == dataset[0].data[dataset[0].data.length - 1].x;
-                            if (newTimestamp == dataset[0].data[dataset[0].data.length - 1].x) {
+                            if (dataset[0].data.length != 0 && lastIrrigationData.timestamp == dataset[0].data[dataset[0].data.length - 1].x) {
                                 return;
                             }
 
-
-                            if (dataset[2].data.length === 0 || dataset[2].data[dataset[2].data.length - 1].x < newTimestamp) {
+                            if (dataset[2].data.length === 0 || dataset[2].data[dataset[2].data.length - 1].x < lastIrrigationData.timestamp) {
                                 dataset[2].data.push({
-                                    x: newTimestamp,
+                                    x: lastIrrigationData.timestamp,
                                     y: normalizeIrrigationValue(lastIrrigationData.irrigation, 15),
                                     rawValue: 0.03 * lastIrrigationData.irrigation
                                 });
 
                                 if (!didUsePreview) {
-                                    dataset[0].data.push({ x: newTimestamp, y: putMoistureValueInRange(lastIrrigationData.optimal_m) });
+                                    dataset[0].data.push({ x: lastIrrigationData.timestamp, y: putMoistureValueInRange(lastIrrigationData.optimal_m) });
                                 }
                                 didUsePreview = false;
-                                dataset[1].data.push({ x: newTimestamp, y: putMoistureValueInRange(lastIrrigationData.current_m) });
+
+                                dataset[1].data.push({ x: lastIrrigationData.timestamp, y: putMoistureValueInRange(lastIrrigationData.current_m) });
                                 irrigationLineChart.update();
                             }
                         }
@@ -145,7 +144,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         text: 'Consiglio irriguo (litri)'
                     },
                     grid: {
-                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        drawOnChartArea: false,
                     },
                 },
             },
@@ -160,7 +159,7 @@ function updateOptimalIrrigationLine(value) {
         irrigationLineChart.data.datasets[0].data.pop();
     }
     const lastDrawnData = irrigationLineChart.data.datasets[0].data[irrigationLineChart.data.datasets[0].data.length - 1];
-    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: putMoistureValueInRange(value) });
+    irrigationLineChart.data.datasets[0].data.push({ x: lastDrawnData.x + 15000, y: (value) });
     didUsePreview = true;
     irrigationLineChart.update();
 }
