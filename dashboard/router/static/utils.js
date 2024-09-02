@@ -3,30 +3,31 @@ function correctTimestamp(timestamp) {
     if(timestampDelta === null) {
         timestampDelta = (Date.now()/1000 - timestamp);
     }
-    return timestamp + timestampDelta;
-}
-
-function convertTimestampToDateForRealtime(timestamp) {
-    return (parseFloat(timestamp) * 1000);
+    return (timestamp + timestampDelta)*1000;
 }
 
 function getBackgroundColor(value) {
-    var valueInRange = value;
-
+    let valueInRange = value;
     let startColor, endColor;
-    if (valueInRange <= 50) {
-        startColor = { r: 215, g: 48, b: 39 };
-        endColor = { r: 241, g: 163, b: 133 };
-        valueInRange = valueInRange * 2;
-    } else {
-        startColor = { r: 241, g: 163, b: 133 };
-        endColor = { r: 69, g: 117, b: 180 };
-        valueInRange = (valueInRange - 50) * 2;
+    let relativeValue;
+
+    if (valueInRange <= 33) {
+        startColor = { r: 208, g: 0, b: 0 };
+        endColor = { r: 255, g: 188, b: 163 };
+        relativeValue = valueInRange / 33; // Relative value within the range 0-33
+    } else if (valueInRange > 33 && valueInRange <= 66) {
+        startColor = { r: 255, g: 188, b: 163 };
+        endColor = { r: 63, g: 182, b: 255 };
+        relativeValue = (valueInRange - 33) / 33; // Relative value within the range 34-66
+    } else if (valueInRange > 66 && valueInRange <= 100) {
+        startColor = { r: 63, g: 182, b: 255 };
+        endColor = { r: 30, g: 11, b: 126 };
+        relativeValue = (valueInRange - 66) / 34; // Relative value within the range 67-100
     }
 
-    const r = startColor.r + (endColor.r - startColor.r) * (valueInRange / 100);
-    const g = startColor.g + (endColor.g - startColor.g) * (valueInRange / 100);
-    const b = startColor.b + (endColor.b - startColor.b) * (valueInRange / 100);
+    const r = startColor.r + (endColor.r - startColor.r) * relativeValue;
+    const g = startColor.g + (endColor.g - startColor.g) * relativeValue;
+    const b = startColor.b + (endColor.b - startColor.b) * relativeValue;
 
     return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 }

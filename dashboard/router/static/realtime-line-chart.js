@@ -22,12 +22,12 @@ function drawNewPoint(sensor_data, dataset, timestamp) {
     if (dataset.data.length > 2) {
         const lastDrawnData = dataset.data[dataset.data.length - 1];
         if (lastDrawnData.y != sensor_data.v || skippedCounter >= 1) {
-            dataset.data.push({ x: convertTimestampToDateForRealtime(timestamp), y: putMoistureValueInRange(sensor_data.v) });
+            dataset.data.push({ x: timestamp, y: putMoistureValueInRange(sensor_data.v) });
         } else {
             skippedCounter++;
         }
     }else {
-        dataset.data.push({ x: convertTimestampToDateForRealtime(timestamp), y: putMoistureValueInRange(sensor_data.v) });
+        dataset.data.push({ x: timestamp, y: putMoistureValueInRange(sensor_data.v) });
     }
 }
 

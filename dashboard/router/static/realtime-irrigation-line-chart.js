@@ -15,7 +15,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             datasets: [
                 {
                     data: historyData.map(entry => ({
-                        x: convertTimestampToDateForRealtime(entry.timestamp),
+                        x: entry.timestamp,
                         y: entry.optimal_m
                     })),
                     label: 'Umidità ottimale',
@@ -29,7 +29,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                 },
                 {
                     data: historyData.map(entry => ({
-                        x: convertTimestampToDateForRealtime(entry.timestamp),
+                        x: entry.timestamp,
                         y: entry.current_m
                     })),
                     label: 'Umidità attuale',
@@ -45,7 +45,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     type: 'bar',
                     label: 'Consiglio irriguo',
                     data: historyData.map(entry => ({
-                        x: convertTimestampToDateForRealtime(entry.timestamp),
+                        x: entry.timestamp,
                         y: normalizeIrrigationValue(entry.irrigation, maxIrrigationValue),
                         rawValue: 0.03 * entry.irrigation
                     })),
@@ -56,10 +56,10 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         anchor: 'end',
                         clamp: true,
                         formatter: function (value) {
-                            if (value == null || value == "") {
-                                return ''; // Qui value rappresenta il dato stesso, quindi controlliamo value, non value.rawValue
+                            if (value == null || value == "" || value.rawValue == 0.0) {
+                                return '';
                             }
-                            return value.rawValue.toFixed(2); // Usa direttamente value.rawValue
+                            return value.rawValue.toFixed(2);
                         },
                         color: 'black',
                         offset: 0
@@ -95,7 +95,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                             if (lastIrrigationData == null) {
                                 return;
                             }
-                            lastIrrigationData.timestamp = correctTimestamp(lastIrrigationData.timestamp)*1000;
+                            lastIrrigationData.timestamp = correctTimestamp(lastIrrigationData.timestamp);
 
                             const dataset = irrigationLineChart.data.datasets;
 
@@ -109,6 +109,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                                     y: normalizeIrrigationValue(lastIrrigationData.irrigation, 15),
                                     rawValue: 0.03 * lastIrrigationData.irrigation
                                 });
+
 
                                 if (!didUsePreview) {
                                     dataset[0].data.push({ x: lastIrrigationData.timestamp, y: putMoistureValueInRange(lastIrrigationData.optimal_m) });
