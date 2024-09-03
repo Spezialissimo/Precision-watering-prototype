@@ -8,7 +8,7 @@ class SensorManager:
     def add_data_collector(self, data_collector):
         self.data_collector = data_collector
 
-    def receivig_thread(self):
+    def receiving_thread(self):
         while True:
             values = self.hardware.read_sensor_data()
             values["timestamp"] = datetime.now().timestamp()

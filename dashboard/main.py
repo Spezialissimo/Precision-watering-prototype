@@ -16,7 +16,7 @@ if __name__ == '__main__':
     im = IrrigationManager(hw)
     dc = DataCollector(sensor_manager=sm, irrigation_manager=im, hardware=hw)
 
-    sensor_thread = Thread(target=sm.receivig_thread, args=())
+    sensor_thread = Thread(target=sm.receiving_thread, args=())
     sensor_thread.start()
 
     irrigation_thread = Thread(target=im.compute_irrigation_thread, args=())
