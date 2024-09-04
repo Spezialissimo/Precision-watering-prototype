@@ -1,12 +1,9 @@
 from flask import jsonify, render_template, request, Response, send_from_directory
-from flask_socketio import send
 from . import router
-from . import SocketIO
 import time
 import threading
 import os
 
-socketio = SocketIO(router, cors_allowed_origins="*")
 dc = None
 
 @router.route('/')
@@ -56,7 +53,13 @@ def set_irrigation_mode():
 @router.route('/pump/', methods=['POST'])
 def set_pump_state():
     dc.toggle_pump()
-    return Response(status=200)
+    pump_state = dc.get_pump_state()
+    return jsonify(pump_state.name)
+
+@router.route('/pump/state', methods=['GET'])
+def get_pump_state():
+    pump_state = dc.get_pump_state()
+    return jsonify(pump_state.name)
 
 @router.route('/irrigation/optimal/', methods=['GET'])
 def get_optimals():
@@ -66,18 +69,7 @@ def get_optimals():
 def get_optimal_matrix_image(imageId):
     return send_from_directory('../assets', imageId + '.png')
 
-def send_pump_state():
-    while True:
-        pump_state = dc.get_pump_state()
-        socketio.emit('pump_state_update', {'pump_state': pump_state.name})
-        time.sleep(1)
-
-@socketio.on('connect')
-def handle_connect():
-    thread = threading.Thread(target=send_pump_state)
-    thread.start()
-
 def start_flask(host, port, data_collector):
     global dc
     dc = data_collector
-    socketio.run(router, host=host, port=port, debug=False)
+    router.run(host=host, port=port, debug=False)

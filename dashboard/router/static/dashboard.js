@@ -88,8 +88,20 @@ $(document).ready(function () {
         }
     }
 
-    $('#togglePump').click(function () {
-        fetch('/pump/', { method: 'POST' });
+    async function fetchPumpState() {
+        try {
+            const response = await fetch('/pump/state');
+            const data = await response.json();
+            $('#pumpStatus').text(data);
+        } catch (error) {
+            $('#syncingModal').modal('show');
+        }
+    }
+
+    $('#togglePump').click(function () {        
+        fetch('/pump/', { method: 'POST' }).then(response => response.json()).then(data => {
+            $('#pumpStatus').text(data.pump_state);
+        });
     });
 
     $('#toggleMode').click(function () {
@@ -173,17 +185,12 @@ $(document).ready(function () {
                 }
             })
         });
-
-    const socket = io(window.config.serverIp);
-
-    socket.on('pump_state_update', (data) => {
-        $('#pumpStatus').text(data.pump_state);
-    });
-
+    
     fetchData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
     setInterval(fetchInterpolatedData, 500);
+    setInterval(fetchPumpState, 1000);
 
     $('#chooseOptimal').prop('disabled', true);
 });
