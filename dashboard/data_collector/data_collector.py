@@ -16,7 +16,6 @@ class DataCollector:
         if should_restore_backup():
             self.irrigation_data = get_all_irrigation_data()
 
-
     def get_all_sensor_data(self, seconds=None):
         if seconds is not None:
             end_time = time.time()
@@ -88,14 +87,20 @@ class DataCollector:
         return average
 
     def add_sensor_data(self, data):
+        if len(self.sensor_data) >= 50:
+            self.sensor_data.pop(0)
         self.sensor_data.append(data)
+
+        if len(self.sensor_data_with_interpolation) >= 50:
+            self.sensor_data_with_interpolation.pop(0)
         interpolated_data = interpolate_data(data["data"], [10, 30], [5, 15, 25])
         self.sensor_data_with_interpolation.append({"timestamp": data["timestamp"], "data": interpolated_data})
 
     def add_irrigation_data(self, data):
+        if len(self.irrigation_data) >= 50:
+            self.irrigation_data.pop(0)
         save_irrigation_data(data)
         self.irrigation_data.append(data)
 
     def get_optimals(self):
         return self.irrigation_manager.get_optimals()
-
