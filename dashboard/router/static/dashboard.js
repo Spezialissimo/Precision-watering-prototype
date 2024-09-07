@@ -9,6 +9,8 @@ $(document).ready(function () {
         $('#moistureRangeSelectionModal').modal('show');
     });
 
+    $('#blinkingCircle').addClass('blinking-element-off');
+
     $('#minMoisture').val(minMoisture);
     $('#maxMoisture').val(maxMoisture);
 
@@ -41,6 +43,7 @@ $(document).ready(function () {
         constructor(name) {
             this.name = name;
         }
+
         toString() {
             return `PumpMode.${this.name}`;
         }
@@ -93,6 +96,13 @@ $(document).ready(function () {
             const response = await fetch('/pump/state');
             const data = await response.json();
             $('#pumpStatus').text(data);
+            if (data == 'On') {
+                $('#blinkingCircle').removeClass('blinking-element-off');
+                $('#blinkingCircle').addClass('blinking-element-on');
+            } else {
+                $('#blinkingCircle').removeClass('blinking-element-on');
+                $('#blinkingCircle').addClass('blinking-element-off');
+            }
         } catch (error) {
             $('#syncingModal').modal('show');
         }
