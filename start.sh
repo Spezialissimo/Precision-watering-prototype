@@ -15,18 +15,18 @@ done
 echo "socat è pronto."
 
 # Caricare manualmente le variabili d'ambiente dal file .env
-export $(grep -v '^#' ~/arduino/small_watering/dashboard/.env | xargs)
+export $(grep -v '^#' ~/Work/small_watering/dashboard/.env | xargs)
 
 # Verifica che le variabili siano state caricate (opzionale)
 echo "SERIAL_PORT=$SERIAL_PORT"
 echo "SERIAL_BAUDRATE=$SERIAL_BAUDRATE"
 
 # Entrare nella directory del simulatore e avviarlo in background
-cd ~/arduino/small_watering/moisture_sensor_simulator/.venv/bin
+cd ~/Work/small_watering/moisture_sensor_simulator/.venv/bin
 ./python ../../moisture_sensor_simulator.py &
 echo "Simulatore avviato in background"
 
 # Entrare nella directory del dashboard e avviarlo
-cd ~/arduino/small_watering/dashboard/.venv/bin
+cd ~/Work/small_watering/dashboard/.venv/bin
 ./python ../../main.py
 

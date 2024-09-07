@@ -24,22 +24,22 @@ class HardwareSimulator:
 
         self.sliders = []
         self.slider_values = [
+            {"x": 30, "y": 5, "v": 0},
             {"x": 10, "y": 5, "v": 0},
             {"x": 10, "y": 15, "v": 0},
-            {"x": 10, "y": 25, "v": 0},
-            {"x": 30, "y": 5, "v": 0},
+            {"x": 30, "y": 25, "v": 0},
             {"x": 30, "y": 15, "v": 0},
-            {"x": 30, "y": 25, "v": 0}
+            {"x": 10, "y": 25, "v": 0},
         ]
 
         for i in range(6):
             slider = ttk.Scale(self.root, from_=0, to=100, orient='horizontal', command=lambda v, idx=i: self.update_value(v, idx))
-            slider.grid(row=i%3, column=i % 2, padx=10, pady=5)
+            slider.grid(row=i, column=0, padx=10, pady=5)
             self.sliders.append(slider)
 
         self.led_status = False
         self.led_label = tk.Label(self.root, text="LED", width=10, height=2, bg="red")
-        self.led_label.grid(row=4, column=0, rowspan=6, padx=10, pady=5)
+        self.led_label.grid(row=7, column=0, rowspan=6, padx=10, pady=5)
 
         self.serial_thread = threading.Thread(target=self.read_serial)
         self.serial_thread.daemon = True

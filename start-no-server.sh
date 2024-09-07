@@ -15,6 +15,6 @@ done
 echo "socat è pronto."
 
 # Entrare nella directory del simulatore e avviarlo in background
-cd ~/arduino/small_watering/moisture_sensor_simulator/.venv/bin
+cd ~/Work/small_watering/moisture_sensor_simulator/.venv/bin
 ./python ../../moisture_sensor_simulator.py &
 echo "Simulatore avviato in background"
