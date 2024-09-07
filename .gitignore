@@ -1,4 +1,5 @@
 /arduino_venv
+sensors.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

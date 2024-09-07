@@ -1,41 +1,38 @@
 from repository.data import get_all_irrigation_data, save_irrigation_data, should_restore_backup
 from interpolator.interpolator import interpolate_data
 import time
+from time import sleep
 
 class DataCollector:
 
     def __init__(self, sensor_manager, irrigation_manager, hardware):
-        self.sensor_data = []
+        self.last_sensor_data = None
         self.sensor_data_with_interpolation = []
         self.irrigation_data = []
         self.hardware = hardware
         self.sensor_manager = sensor_manager
         self.irrigation_manager = irrigation_manager
         self.sensor_manager.add_data_collector(self)
-        self.irrigation_manager.add_data_collector(self)
+        self.irrigation_manager.add_data_collector(self)    
         if should_restore_backup():
             self.irrigation_data = get_all_irrigation_data()
 
-    def get_all_sensor_data(self, seconds=None):
-        if seconds is not None:
-            end_time = time.time()
-            start_time = end_time - seconds
-            result = [row for row in self.sensor_data if start_time <= float(row["timestamp"]) <= end_time]
-        else:
-            result = self.sensor_data
-        return result
+    def  empty_sensor_data(self):
+        self.sensor_data_with_interpolation = []
 
     def get_all_sensor_data_with_interpolation(self, seconds=None):
+        print("chiamato get_all_sensor_data_with_interpolation")        
         if seconds is not None:
             end_time = time.time()
             start_time = end_time - seconds
             result = [row for row in self.sensor_data_with_interpolation if start_time <= float(row["timestamp"]) <= end_time]
         else:
             result = self.sensor_data_with_interpolation
+        self.empty_sensor_data()
         return result
 
     def get_last_sensor_data(self):
-        return self.sensor_data[-1] if self.sensor_data else None
+        return self.last_sensor_data if self.last_sensor_data else None
 
     def get_last_sensor_data_with_interpolation(self):
         return self.sensor_data_with_interpolation[-1] if self.sensor_data_with_interpolation else None
@@ -87,12 +84,7 @@ class DataCollector:
         return average
 
     def add_sensor_data(self, data):
-        if len(self.sensor_data) >= 50:
-            self.sensor_data.pop(0)
-        self.sensor_data.append(data)
-
-        if len(self.sensor_data_with_interpolation) >= 50:
-            self.sensor_data_with_interpolation.pop(0)
+        self.last_sensor_data = data        
         interpolated_data = interpolate_data(data["data"], [10, 30], [5, 15, 25])
         self.sensor_data_with_interpolation.append({"timestamp": data["timestamp"], "data": interpolated_data})
 
@@ -103,4 +95,4 @@ class DataCollector:
         self.irrigation_data.append(data)
 
     def get_optimals(self):
-        return self.irrigation_manager.get_optimals()
+        return self.irrigation_manager.get_optimals()    

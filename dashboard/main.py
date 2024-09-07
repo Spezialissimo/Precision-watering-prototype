@@ -5,6 +5,7 @@ from sensor_manager.sensor_manager import SensorManager
 from irrigation_manager.irrigation_manager import IrrigationManager
 from hardware.hardware import Hardware
 from data_collector.data_collector import DataCollector
+from data_controller.data_controller import DataController
 
 if __name__ == '__main__':
     config = dotenv_values(".env")
@@ -13,8 +14,9 @@ if __name__ == '__main__':
 
     hw = Hardware()
     sm = SensorManager(hw)
-    im = IrrigationManager(hw)
-    dc = DataCollector(sensor_manager=sm, irrigation_manager=im, hardware=hw)
+    im = IrrigationManager(hw)    
+    dcol = DataCollector(sensor_manager=sm, irrigation_manager=im, hardware=hw)
+    dcon = DataController(dcol)
 
     sensor_thread = Thread(target=sm.receiving_thread, args=())
     sensor_thread.start()
@@ -22,7 +24,10 @@ if __name__ == '__main__':
     irrigation_thread = Thread(target=im.compute_irrigation_thread, args=())
     irrigation_thread.start()
 
-    flask_thread = Thread(target=start_flask, args=(host, port, dc))
+    update_dbs_thread = Thread(target=dcon.update_dbs, args=())
+    update_dbs_thread.start()
+    
+    flask_thread = Thread(target=start_flask, args=(host, port, dcol))
     flask_thread.start()
 
 
