@@ -71,9 +71,8 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                datalabels: {
-                    display: false
-                }
+                datalabels: { display: false},
+                tooltip: { enabled: false}
             },
             scales: {
                 x: {
@@ -158,7 +157,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             },
             animation: false
         },
-        plugins: [ChartDataLabels]
+        plugins: [ChartDataLabels] 
     });
 }
 

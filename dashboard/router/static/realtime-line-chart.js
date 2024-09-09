@@ -46,6 +46,7 @@ function setupRealtimeLineChart() {
             ]
         },
         options: {
+            plugins: {tooltip: {enabled: false}},
             responsive: true,
             maintainAspectRatio: false,
             scales: {
