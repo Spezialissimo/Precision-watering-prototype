@@ -97,20 +97,14 @@ class IrrigationManager:
     def compute_irrigation_thread(self):
         while True:
             current_moisture = self.data_collector.get_last_sensor_data_average()
-            if (self.mode == IrrigationMode.Slider and self.optimal_value != None):
-                lastIrrigationData = self.data_collector.get_last_irrigation_data()
-                if(lastIrrigationData != None and lastIrrigationData["irrigation"] != "" and lastIrrigationData["r"] != ""):
-                    oldIrrigation = lastIrrigationData["irrigation"]
-                    oldR = lastIrrigationData["r"]
-
+            lastIrrigationData = self.data_collector.get_last_irrigation_data()                
+            oldIrrigation = lastIrrigationData["irrigation"]
+            oldR = lastIrrigationData["r"]
+            
+            if (self.mode == IrrigationMode.Slider and self.optimal_value != None):                
                 r = self.optimal_value - current_moisture
                 optimal_moisture = self.optimal_value
             elif (self.mode == IrrigationMode.Matrix and self.optimal_matrix != None):
-                lastIrrigationData = self.data_collector.get_last_irrigation_data()
-                if(lastIrrigationData != None and lastIrrigationData["irrigation"] != "" and lastIrrigationData["r"] != ""):
-                    oldIrrigation = lastIrrigationData["irrigation"]
-                    oldR = lastIrrigationData["r"]
-
                 lastSensorData = self.data_collector.get_last_sensor_data()
                 diffs = []
                 for measurement in lastSensorData["data"]:
@@ -119,17 +113,15 @@ class IrrigationManager:
                             optimal = o_m
                             break
                     diffs.append(optimal["v"] - measurement["v"])
-
                 r = sum(diffs) / len(diffs)
                 optimal_moisture = self.data_collector.get_optimal_matrix_average()
-
             elif (self.mode == IrrigationMode.Manual):
                 irrigation_data = {
                     "timestamp": datetime.now().timestamp(),
                     "r": 0,
                     "irrigation": 0,
                     "optimal_m": 0,
-                    "current_m": current_moisture if current_moisture is not None else 0.0
+                    "current_m": current_moisture
                 }
 
             if self.mode != IrrigationMode.Manual:
