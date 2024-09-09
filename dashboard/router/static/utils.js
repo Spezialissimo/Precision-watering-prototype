@@ -1,8 +1,4 @@
-let timestampDelta = null;
 function correctTimestamp(timestamp) {
-    if(timestampDelta === null) {
-        timestampDelta = (Date.now()/1000 - timestamp);
-    }
     return (timestamp + timestampDelta)*1000;
 }
 

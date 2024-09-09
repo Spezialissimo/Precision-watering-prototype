@@ -25,7 +25,7 @@ class IrrigationManager:
     def __init__(self, hardware):
         self.mode = IrrigationMode.Manual
         self.pump = hardware
-
+        self.optimal_value = None
         self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.__irrigationCheckPeriod = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.__PumpOpeningThreshold = float(os.getenv("PUMP_OPENING_THRESHOLD", 10))
@@ -100,11 +100,11 @@ class IrrigationManager:
             lastIrrigationData = self.data_collector.get_last_irrigation_data()                
             oldIrrigation = lastIrrigationData["irrigation"]
             oldR = lastIrrigationData["r"]
-            
-            if (self.mode == IrrigationMode.Slider and self.optimal_value != None):                
+            mode = self.mode
+            if (mode == IrrigationMode.Slider and self.optimal_value != None):                
                 r = self.optimal_value - current_moisture
                 optimal_moisture = self.optimal_value
-            elif (self.mode == IrrigationMode.Matrix and self.optimal_matrix != None):
+            elif (mode == IrrigationMode.Matrix and self.optimal_matrix != None):
                 lastSensorData = self.data_collector.get_last_sensor_data()
                 diffs = []
                 for measurement in lastSensorData["data"]:
@@ -115,7 +115,7 @@ class IrrigationManager:
                     diffs.append(optimal["v"] - measurement["v"])
                 r = sum(diffs) / len(diffs)
                 optimal_moisture = self.data_collector.get_optimal_matrix_average()
-            elif (self.mode == IrrigationMode.Manual):
+            elif (mode == IrrigationMode.Manual):
                 irrigation_data = {
                     "timestamp": datetime.now().timestamp(),
                     "r": 0,
@@ -124,7 +124,7 @@ class IrrigationManager:
                     "current_m": current_moisture
                 }
 
-            if self.mode != IrrigationMode.Manual:
+            if mode != IrrigationMode.Manual:
                 kp=0.3
                 ki=0.5
                 new_irrigation = min(max(0, oldIrrigation + kp * (r - oldR) + ki * r), self.__maxIrrigationValue)

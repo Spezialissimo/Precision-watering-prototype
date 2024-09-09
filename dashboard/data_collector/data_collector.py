@@ -1,6 +1,8 @@
 from interpolator.interpolator import interpolate_data
 import time
 from time import sleep
+from datetime import datetime
+import os
 
 class DataCollector:
 
@@ -18,7 +20,8 @@ class DataCollector:
         self.sensor_data = []
         
     def empty_irrigation_data(self):
-        self.irrigation_data = []
+        to_keep = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
+        self.irrigation_data = self.irrigation_data[:to_keep]
 
     def get_all_sensor_data(self, seconds=None):
         print("chiamato get_all_sensor_data")        
@@ -39,7 +42,7 @@ class DataCollector:
 
     def get_all_irrigation_data(self, seconds=None):
         if len(self.irrigation_data) == 0:
-            return []
+            return [self.__get_empty_irrigation_data()]
 
         if seconds is not None:
             end_time = time.time()
@@ -51,7 +54,10 @@ class DataCollector:
         return result
 
     def get_last_irrigation_data(self):
-        return self.irrigation_data[-1] if self.irrigation_data else {"timestamp": 0, "r": 0, "irrigation": 0, "optimal_m": 0, "current_m": 0}
+        return self.irrigation_data[-1] if self.irrigation_data else self.__get_empty_irrigation_data()
+
+    def __get_empty_irrigation_data(self):
+        return {"timestamp": datetime.now().timestamp(), "r": 0, "irrigation": 0, "optimal_m": 0, "current_m": 0}
 
     def get_pump_state(self):
         return self.irrigation_manager.get_pump_state()
@@ -71,7 +77,7 @@ class DataCollector:
     def get_last_sensor_data_average(self):
         sensors = self.get_last_sensor_data()
         if not sensors:
-            return None
+            return 0
         total = sum(sensor["v"] for sensor in sensors['data'])
         average = total / len(sensors['data'])
         return average

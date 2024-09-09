@@ -1,5 +1,6 @@
-let minMoisture = 30;
-let maxMoisture = 60;
+let minMoisture = parseInt(window.config.moistureScaleMin, 10);
+let maxMoisture = parseInt(window.config.moistureScaleMax, 10);
+let timestampDelta = (Date.now()/1000) - parseInt(window.config.timestamp, 10);
 let lastSliderValue = 0;
 Chart.defaults.font.size = 16;
 

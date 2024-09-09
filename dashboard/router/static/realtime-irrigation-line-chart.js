@@ -16,7 +16,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                 {
                     data: historyData.map(entry => ({
                         x: entry.timestamp,
-                        y: entry.optimal_m
+                        y: putMoistureValueInRange(entry.optimal_m)
                     })),
                     label: 'Umidità ottimale',
                     borderWidth: 3,
@@ -30,7 +30,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                 {
                     data: historyData.map(entry => ({
                         x: entry.timestamp,
-                        y: entry.current_m
+                        y: putMoistureValueInRange(entry.current_m)
                     })),
                     label: 'Umidità attuale',
                     borderWidth: 3,
@@ -85,16 +85,23 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         pause: false,
                         frameRate: 30,
                         onRefresh: async function (chart) {
+                            let IrrigationData;
                             try {
                                 const response = await fetch('/irrigation/');
-                                lastIrrigationData = await response.json();
+                                IrrigationData = await response.json();
                             } catch (error) {
                                 $('#syncingModal').modal('show');
                             }
 
-                            if (lastIrrigationData == null) {
+                            if (IrrigationData == null) {
                                 return;
                             }
+
+                            if (lastIrrigationData.timestamp == IrrigationData.timestamp) {
+                                return;
+                            }
+                            lastIrrigationData = IrrigationData;
+
                             lastIrrigationData.timestamp = correctTimestamp(lastIrrigationData.timestamp);
 
                             const dataset = irrigationLineChart.data.datasets;

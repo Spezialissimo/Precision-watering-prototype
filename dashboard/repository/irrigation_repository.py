@@ -10,6 +10,6 @@ class Irrigation_repository:
         for irrigation_data in batch:
             try:
                 self.con.execute("INSERT INTO irrigation VALUES (?, ?, ?, ?, ?)", (irrigation_data["timestamp"], irrigation_data["r"], irrigation_data["irrigation"], irrigation_data["optimal_m"], irrigation_data["current_m"]))
-            except ex:                    
+            except:                    
                 pass
         self.con.commit()

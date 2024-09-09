@@ -2,6 +2,7 @@ import requests
 from repository.sensor_repository import Sensor_repository
 from repository.irrigation_repository import Irrigation_repository
 from time import sleep
+import os
 
 from datetime import datetime
 fiware_api_datetime_format = "%Y-%m-%dT%H:%M:%S"
@@ -12,16 +13,18 @@ class DataController:
         self.sensor_repository = Sensor_repository()
         self.irrigation_repository = Irrigation_repository()
         while True:
+            sleep(60)
             last_sensor_data = self.data_collector.get_all_sensor_data()
             if(last_sensor_data != None and len(last_sensor_data) > 0):
                 data = self.aggregate_sensor_data(last_sensor_data)
                 self.send_sensor_data_to_db(data)
                 self.send_sensor_data_to_FIWARE(data)
-            last_irrigation_data = self.data_collector.get_all_irrigation_data()
+                
+            to_skip = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
+            last_irrigation_data = self.data_collector.get_all_irrigation_data()[to_skip:]
             if(last_irrigation_data != None and len(last_irrigation_data) > 0):
                 self.send_irrigation_data_to_db(last_irrigation_data)
                 self.send_irrigation_data_to_FIWARE(last_irrigation_data)
-            sleep(60)
 
     def __init__(self, data_collector):
         self.data_collector = data_collector

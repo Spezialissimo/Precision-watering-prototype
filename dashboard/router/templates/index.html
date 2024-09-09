@@ -9,7 +9,10 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script type="text/javascript">
        window.config = {
-            serverIp: "{{ server_ip }}"
+            serverIp: "{{ server_ip }}",
+            moistureScaleMin: "{{ moisture_scale_min }}",
+            moistureScaleMax: "{{ moisture_scale_max }}",
+            timestamp: "{{ timestamp }}"
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -111,7 +114,7 @@
                             <label for="minMoisture" class="form-label">Minimo</label>
                         </div>
                         <div class="col-3">
-                            <input min="0" max="100" type="number" id="minMoisture" class="form-control" />
+                            <input min="{{ moisture_scale_min }}" max="{{ moisture_scale_max }}" type="number" id="minMoisture" class="form-control" />
                         </div>
 
                     </div>
