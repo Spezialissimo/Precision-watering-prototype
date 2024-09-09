@@ -1,6 +1,6 @@
 {
-    "id":"urn:ngsi-ld:Device:unibo:33b784aa-d8ed-444a-9da7-ab7e38a56fd4",
-    "name":"Pinotech Soil Moisture 10_5",
+    "id":"urn:ngsi-ld:Device:unibo:6fba17ce-4957-4aed-92e0-fc2543504bb7",
+    "name":"Pinotech Soil Moisture 30_5",
     "description": "Researcher night simulation sensor",
     "type":"Device",
     "category":[
@@ -18,4 +18,4 @@
        "type": "Point",
        "coordinates": [12.235930, 44.147788]
     }
-}
+   }

@@ -1,0 +1,23 @@
+{
+    "id":"urn:ngsi-ld:Device:unibo:56945b53-06f6-4251-a079-8e6d9564b523",
+    "name":"UniBO Dripper NDR",
+    "description": "Researcher night simulation dripper",
+    "type":"Device",
+    "category":[
+     "sensor"
+    ],
+    "function": [
+        "sensing"
+    ],
+    "controlledProperty":[
+     "waterConsumption"
+    ],
+    "supportedUnits": ["LTR"],
+    "value": [0],
+    "dateObserved": "2023-09-06T11:19:00Z",
+    "namespace": "unibo.ndr",
+    "location":{
+       "type": "Point",
+       "coordinates": [12.235930, 44.147788]
+    }
+}
