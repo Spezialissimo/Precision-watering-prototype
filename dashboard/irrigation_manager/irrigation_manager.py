@@ -97,11 +97,11 @@ class IrrigationManager:
     def compute_irrigation_thread(self):
         while True:
             current_moisture = self.data_collector.get_last_sensor_data_average()
-            lastIrrigationData = self.data_collector.get_last_irrigation_data()                
+            lastIrrigationData = self.data_collector.get_last_irrigation_data()
             oldIrrigation = lastIrrigationData["irrigation"]
             oldR = lastIrrigationData["r"]
             mode = self.mode
-            if (mode == IrrigationMode.Slider and self.optimal_value != None):                
+            if (mode == IrrigationMode.Slider and self.optimal_value != None):
                 r = self.optimal_value - current_moisture
                 optimal_moisture = self.optimal_value
             elif (mode == IrrigationMode.Matrix and self.optimal_matrix != None):

@@ -3,9 +3,12 @@ from repository.sensor_repository import Sensor_repository
 from repository.irrigation_repository import Irrigation_repository
 from time import sleep
 import os
-
 from datetime import datetime
 fiware_api_datetime_format = "%Y-%m-%dT%H:%M:%S"
+endpoint_url_update_entity = os.getenv("FIWARE_UPDATE_ENTITY_URL")
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class DataController:
 
@@ -39,6 +42,8 @@ class DataController:
     def __init__(self, data_collector):
         self.data_collector = data_collector
         self.stop_uploading = True
+        if endpoint_url_update_entity is None:
+            raise ValueError("Environment variable 'ENDPOINT_URL_UPDATE_ENTITY' is not set")
 
     def aggregate_sensor_data(self, data):
         new_data = []
@@ -48,26 +53,34 @@ class DataController:
         return new_data
 
     def send_sensor_data_to_db(self, data):
+        print("Sensors data sent to DB")
         self.sensor_repository.insert_sensor_values(data)
 
     def send_irrigation_data_to_db(self, data):
+        print("Irrigation data sent to DB")
         self.irrigation_repository.insert_irrigation_values(data)
 
 
     def send_sensor_data_to_FIWARE(self, batch):
+        fiware_batch = []
         for data in batch:
             for sensor in data["data"]:
                 sensor_pos = str(sensor["x"]) + "_" + str(sensor["y"])
                 sensor_value = sensor["v"]
                 measurement_date = datetime.fromtimestamp(data["timestamp"]).strftime(fiware_api_datetime_format)
                 output_data = self.build_fiware_sensor_update(sensor_pos, sensor_value, measurement_date)
-                print(output_data)
+                fiware_batch.append(output_data)
+        print("Sensors data sent to FIWARE")
+        self.send_to_FIWARE(fiware_batch)
 
     def send_irrigation_data_to_FIWARE(self, batch):
+        fiware_batch = []
         for irrigation_data in batch:
             irrigation_data["timestamp"] = datetime.fromtimestamp(irrigation_data["timestamp"]).strftime(fiware_api_datetime_format)
             output_data = self.build_fiware_irrigation_update(irrigation_data)
-            print(output_data)
+            fiware_batch.append(output_data)
+        print("Irrigation data sent to FIWARE")
+        self.send_to_FIWARE(fiware_batch)
 
     def send_to_FIWARE(self, data):
         try:
