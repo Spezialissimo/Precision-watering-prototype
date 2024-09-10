@@ -4,7 +4,7 @@ let lineChart
 let datasets = {}
 
 function createRealTimeDatasetConfig(x, y, color) {
-    datasets[x + "_" + y] =  {
+    datasets[x + "_" + y] = {
         label: "Sensore (" + x + ", " + y + ")",
         data: [],
         borderWidth: 2,
@@ -26,7 +26,7 @@ function drawNewPoint(sensor_data, dataset, timestamp) {
         } else {
             skippedCounter++;
         }
-    }else {
+    } else {
         dataset.data.push({ x: timestamp, y: putMoistureValueInRange(sensor_data.v) });
     }
 }
@@ -46,7 +46,7 @@ function setupRealtimeLineChart() {
             ]
         },
         options: {
-            plugins: {tooltip: {enabled: false}},
+            plugins: { tooltip: { enabled: false } },
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -67,10 +67,18 @@ function setupRealtimeLineChart() {
                                 $('#syncingModal').modal('show');
                                 lastSensorData = null;
                             }
-                            if (lastSensorData == undefined || lastSensorData == null) {
+                            if (lastSensorData == undefined || lastSensorData == null || lastSensorData.timestamp == undefined) {
                                 return;
                             }
-                            lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
+
+                            if (lineChart.data.datasets[0].data.length > 0) {
+                                lastTimeStamp = lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1].x
+                                lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
+                                if(lastTimeStamp == lastSensorData.timestamp) {
+                                    return;
+                                }
+                            }
+
                             drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 5), datasets["10_5"], lastSensorData.timestamp);
                             drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 15), datasets["10_15"], lastSensorData.timestamp);
                             drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 25), datasets["10_25"], lastSensorData.timestamp);
