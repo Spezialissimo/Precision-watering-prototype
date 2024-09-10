@@ -1,47 +1,21 @@
-# Tesi small watering
+# Prototype of an automatic irrigation system
+## About the project
+I've made this project for my bachelor's degree thesis. It is a small scale rendition of an automated irrigation system, with a frontend for monitoring the moisure values (in real time*)[find out how to link text] and set the irrigation rules.
 
-## Hardware
-1. Provare sensori (verificare che non si influenzano a vicenda)
-2. Predisporre "impianto elettrico" breadboard
-3. Comunicazione bidirezionale Raspberry - Arduino.
+This fork contains a simple demo that is not actually connected to any real hardware system. The actual project, that does need hardware components to work, can be found (here)[link]
 
+You can visit the demo live (here)[link].
+Otherwise, if you want to self host it, you can do it with this (instruction)[link]
 
-## Software
+\* It's not actually real time, but it is gatering data every 500ms
+## Self host
+### Install
+It is a simple a simple Flask application, i'll need python installed on you machine.
 
-### Collection (Arduino)
-1. Sampling sensori (<b>definire frequenza  di campionamento</b>)
-2. Invio dati Arduino -> Raspberry
-    - JSON
-            - {timestamp: 1720684942,
-            ges_10_10: 56,
-            ...,
-            ges_30_30: 100
-           }
+On linux, just run `./install.sh`.
+<!-- Add macos and linux -->
 
-### Processing (Raspberry)g
-1. Per ogni .JSON, salvarlo su storage
-2. Per ogni .JSON effettuare interpolazione bilineare con <b>granularità 5 cm</b> e salvare dati su storage.
-
-#### Nice to have
- - Salvare i dati su un DB
-
-### Exploitation
-
-#### Interfaccia grafica
-
-Applicazione in Java/Python
-<b>Due</b> grafici:
-1. Valori singoli sensori
-2. Matrice interpolata
-
-#### Prescrittivo
-
-<b>TO BE DEFINED</b>
-
-Considerazioni su algoritmo prescrittivo as-is:
-- Senza rilevare la quantità irrigata in questo scenario, il PID non funzia;
-- Semplice sistema a soglia?
+### Test
+Go to http://localhost:5000/ .
 
 
-# TODOLIST
-- Compra relè
