@@ -65,8 +65,9 @@ function setupRealtimeLineChart() {
                                 $('#syncingModal').modal('hide');
                             } catch (error) {
                                 $('#syncingModal').modal('show');
+                                lastSensorData = null;
                             }
-                            if (lastSensorData == {} || lastSensorData.timestamp == undefined) {
+                            if (lastSensorData == null) {
                                 return;
                             }
                             lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
