@@ -28,7 +28,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
     <!-- Include your custom scripts after the libraries -->
     <script src="{{ url_for('static', filename='optimals.js') }}"></script>
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
@@ -104,10 +104,13 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="moistureRangeSelectionModalLabel">Scegli l'intervallo di umidità</h5>
+                    <h5 class="modal-title" id="moistureRangeSelectionModalLabel">Preferenze</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="moistureRangeContainer">
+                    <div class="row">
+                        <span class="fs-4 text pb-1">Scegli l'intervallo di umidità</span>
+                    </div>
                     <div class="row">
                         <div class="col-3">
                             <label for="minMoisture" class="form-label">Minimo</label>
@@ -123,6 +126,15 @@
                         </div>
                         <div class="col-3">
                             <input min="0" max="100" type="number" id="maxMoisture" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row pt-2 pb-1">
+                        <div class="row">
+                            <span class="fs-4 text">Salvataggio dati</span>
+                        </div>
+                        <div class="form-check form-switch">
+                            <label for="persistency" class="form-label">Persistenza</label>
+                            <input class="form-check-input" type="checkbox" role="switch" id="persistency" checked>
                         </div>
                     </div>
                 </div>

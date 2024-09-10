@@ -6,6 +6,14 @@ Chart.defaults.font.size = 16;
 
 $(document).ready(function () {
 
+    $('#persistency').on('change', function () {
+        if ($(this).is(':checked')) {
+            fetch('/start_upload', { method: 'POST' });
+        } else {
+            fetch('/stop_upload', { method: 'POST' });
+        }
+    });
+
     $('#settingsButton').click(function () {
         $('#moistureRangeSelectionModal').modal('show');
     });
@@ -109,7 +117,7 @@ $(document).ready(function () {
         }
     }
 
-    $('#togglePump').click(function () {        
+    $('#togglePump').click(function () {
         fetch('/pump/', { method: 'POST' }).then(response => response.json()).then(data => {
             $('#pumpStatus').text(data.pump_state);
         });
@@ -196,7 +204,7 @@ $(document).ready(function () {
                 }
             })
         });
-    
+
     fetchData();
     fetchInterpolatedData();
     fetchAllIrrigationData();

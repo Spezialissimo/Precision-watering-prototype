@@ -14,20 +14,28 @@ class DataController:
         self.irrigation_repository = Irrigation_repository()
         while True:
             sleep(60)
-            last_sensor_data = self.data_collector.get_all_sensor_data()[1:]
-            if(last_sensor_data != None and len(last_sensor_data) > 0):
-                data = self.aggregate_sensor_data(last_sensor_data)
-                self.send_sensor_data_to_db(data)
-                self.send_sensor_data_to_FIWARE(data)
+            if self.stop_uploading == False:
+                last_sensor_data = self.data_collector.get_all_sensor_data()[1:]
+                if(last_sensor_data != None and len(last_sensor_data) > 0):
+                    data = self.aggregate_sensor_data(last_sensor_data)
+                    self.send_sensor_data_to_db(data)
+                    self.send_sensor_data_to_FIWARE(data)
 
-            to_skip = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
-            last_irrigation_data = self.data_collector.get_all_irrigation_data()[to_skip:]
-            if(last_irrigation_data != None and len(last_irrigation_data) > 0):
-                self.send_irrigation_data_to_db(last_irrigation_data)
-                self.send_irrigation_data_to_FIWARE(last_irrigation_data)
+                to_skip = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
+                last_irrigation_data = self.data_collector.get_all_irrigation_data()[to_skip:]
+                if(last_irrigation_data != None and len(last_irrigation_data) > 0):
+                    self.send_irrigation_data_to_db(last_irrigation_data)
+                    self.send_irrigation_data_to_FIWARE(last_irrigation_data)
+
+    def stop_upload(self):
+        self.stop_uploading = True
+
+    def start_upload(self):
+        self.stop_uploading = False
 
     def __init__(self, data_collector):
         self.data_collector = data_collector
+        self.stop_uploading = True
 
     def aggregate_sensor_data(self, data):
         new_data = []

@@ -74,7 +74,7 @@ function setupRealtimeLineChart() {
                             if (lineChart.data.datasets[0].data.length > 0) {
                                 lastTimeStamp = lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1].x
                                 lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
-                                if(lastTimeStamp == lastSensorData.timestamp) {
+                                if(lastTimeStamp >= lastSensorData.timestamp) {
                                     return;
                                 }
                             }

@@ -12,22 +12,22 @@ if __name__ == '__main__':
     host = config.get("HOST", "0.0.0.0")
     port = int(config.get("PORT", 5000))
 
-    hw = Hardware()
-    sm = SensorManager(hw)
-    im = IrrigationManager(hw)    
-    dcol = DataCollector(sensor_manager=sm, irrigation_manager=im, hardware=hw)
-    dcon = DataController(dcol)
+    hardware = Hardware()
+    sensor_manager = SensorManager(hardware)
+    irrigation_manager = IrrigationManager(hardware)
+    data_collector = DataCollector(sensor_manager=sensor_manager, irrigation_manager=irrigation_manager, hardware=hardware)
+    data_conntroller = DataController(data_collector)
 
-    sensor_thread = Thread(target=sm.receiving_thread, args=())
+    sensor_thread = Thread(target=sensor_manager.receiving_thread, args=())
     sensor_thread.start()
 
-    irrigation_thread = Thread(target=im.compute_irrigation_thread, args=())
+    irrigation_thread = Thread(target=irrigation_manager.compute_irrigation_thread, args=())
     irrigation_thread.start()
 
-    update_dbs_thread = Thread(target=dcon.update_dbs, args=())
+    update_dbs_thread = Thread(target=data_conntroller.update_dbs, args=())
     update_dbs_thread.start()
-    
-    flask_thread = Thread(target=start_flask, args=(host, port, dcol))
+
+    flask_thread = Thread(target=start_flask, args=(host, port, data_collector, data_conntroller))
     flask_thread.start()
 
 
