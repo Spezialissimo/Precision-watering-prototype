@@ -1,4 +1,4 @@
-let lastSensorData = {};
+let lastSensorData;
 let skippedCounter = 0;
 let lineChart
 let datasets = {}
@@ -67,7 +67,7 @@ function setupRealtimeLineChart() {
                                 $('#syncingModal').modal('show');
                                 lastSensorData = null;
                             }
-                            if (lastSensorData == null) {
+                            if (lastSensorData == undefined || lastSensorData == null) {
                                 return;
                             }
                             lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
