@@ -9,17 +9,17 @@ fiware_api_datetime_format = "%Y-%m-%dT%H:%M:%S"
 
 class DataController:
 
-    def update_dbs(self):    
+    def update_dbs(self):
         self.sensor_repository = Sensor_repository()
         self.irrigation_repository = Irrigation_repository()
         while True:
             sleep(60)
-            last_sensor_data = self.data_collector.get_all_sensor_data()
+            last_sensor_data = self.data_collector.get_all_sensor_data()[1:]
             if(last_sensor_data != None and len(last_sensor_data) > 0):
                 data = self.aggregate_sensor_data(last_sensor_data)
                 self.send_sensor_data_to_db(data)
                 self.send_sensor_data_to_FIWARE(data)
-                
+
             to_skip = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
             last_irrigation_data = self.data_collector.get_all_irrigation_data()[to_skip:]
             if(last_irrigation_data != None and len(last_irrigation_data) > 0):
@@ -28,7 +28,7 @@ class DataController:
 
     def __init__(self, data_collector):
         self.data_collector = data_collector
-        
+
     def aggregate_sensor_data(self, data):
         new_data = []
         for i in range(len(data)):
@@ -38,7 +38,7 @@ class DataController:
 
     def send_sensor_data_to_db(self, data):
         self.sensor_repository.insert_sensor_values(data)
-    
+
     def send_irrigation_data_to_db(self, data):
         self.irrigation_repository.insert_irrigation_values(data)
 
@@ -86,7 +86,7 @@ class DataController:
             "value": [f"{irrigation_data['irrigation']}"],
             "dateObserved": f"{irrigation_data['timestamp']}",
             "namespace": "unibo.ndr",
-            "location":{ "type": "Point", "coordinates": [12.235930, 44.147788] },  
+            "location":{ "type": "Point", "coordinates": [12.235930, 44.147788] },
         }
 
     def build_fiware_sensor_update(self, sensor_pos, sensor_value, measurement_date):
@@ -103,5 +103,4 @@ class DataController:
             "dateObserved": f"{measurement_date}",
             "location": {"type": "Point", "coordinates": [44.138811, 12.244149]},
         }
-    
-    
+

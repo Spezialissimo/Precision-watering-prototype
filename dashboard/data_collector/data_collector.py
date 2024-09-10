@@ -17,14 +17,14 @@ class DataCollector:
         self.irrigation_manager.add_data_collector(self)
 
     def empty_sensor_data(self):
-        self.sensor_data = []
-        
+        self.sensor_data = self.sensor_data[:1]
+
     def empty_irrigation_data(self):
         to_keep = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
         self.irrigation_data = self.irrigation_data[:to_keep]
 
     def get_all_sensor_data(self, seconds=None):
-        print("chiamato get_all_sensor_data")        
+        print("chiamato get_all_sensor_data")
         if seconds is not None:
             end_time = time.time()
             start_time = end_time - seconds
@@ -99,4 +99,4 @@ class DataCollector:
         self.irrigation_data.append(data)
 
     def get_optimals(self):
-        return self.irrigation_manager.get_optimals()    
+        return self.irrigation_manager.get_optimals()
