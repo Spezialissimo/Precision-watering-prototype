@@ -5,6 +5,7 @@ let lastSliderValue = 0;
 Chart.defaults.font.size = 16;
 
 $(document).ready(function () {
+    $('#persistency').prop('checked', window.config.uploadStatus == "True");
 
     $('#persistency').on('change', function () {
         if ($(this).is(':checked')) {

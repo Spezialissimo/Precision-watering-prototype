@@ -8,13 +8,14 @@ __data_collector = None
 
 @router.route('/')
 def index():
+    upload_status = __data_controller.is_upload_on()
     ip = os.getenv('HOST', '127.0.0.1')
     port = int(os.getenv('PORT', 5000))
     server_ip = f"http://{ip}:{port}"
     moisture_scale_min = int(os.getenv("MOISTURE_IN_FRONTEND_MIN", 0))
     moisture_scale_max = int(os.getenv("MOISTURE_IN_FRONTEND_MAX", 100))
     timestamp = datetime.now().timestamp()
-    return render_template('index.html', server_ip=server_ip, moisture_scale_min=moisture_scale_min, moisture_scale_max=moisture_scale_max, timestamp=timestamp)
+    return render_template('index.html', server_ip=server_ip, moisture_scale_min=moisture_scale_min, moisture_scale_max=moisture_scale_max, timestamp=timestamp, upload_status=upload_status)
 
 @router.route('/sensors/interpolated', methods=['GET'])
 def get_last_sensor_data_with_interpolation():

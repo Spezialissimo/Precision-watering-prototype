@@ -33,6 +33,9 @@ class DataController:
     def start_upload(self):
         self.stop_uploading = False
 
+    def is_upload_on(self):
+        return self.stop_uploading == False
+
     def __init__(self, data_collector):
         self.data_collector = data_collector
         self.stop_uploading = True
