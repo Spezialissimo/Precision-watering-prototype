@@ -85,7 +85,7 @@ class DataController:
     def send_to_FIWARE(self, data):
         try:
             params = {"options": "keyValues"}
-            update_body = {"actionType": "append", "entities": [data]}
+            update_body = {"actionType": "append", "entities": data}
 
             response = requests.post(
                 endpoint_url_update_entity, params=params, json=update_body
