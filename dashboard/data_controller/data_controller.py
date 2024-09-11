@@ -18,7 +18,7 @@ class DataController:
         while True:
             sleep(60)
             if self.stop_uploading == False:
-                last_sensor_data = self.data_collector.get_all_sensor_data()[1:]
+                last_sensor_data = self.data_collector.get_all_sensor_data()[:2]
                 if(last_sensor_data != None and len(last_sensor_data) > 0):
                     data = self.aggregate_sensor_data(last_sensor_data)
                     self.send_sensor_data_to_db(data)
