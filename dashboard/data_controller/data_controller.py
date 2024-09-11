@@ -114,8 +114,17 @@ class DataController:
         }
 
     def build_fiware_sensor_update(self, sensor_pos, sensor_value, measurement_date):
+        sensor_pos_to_fiware_ids = {
+            "10_5" : "urn:ngsi-ld:Device:unibo:33b784aa-d8ed-444a-9da7-ab7e38a56fd4",
+            "10_15" : "urn:ngsi-ld:Device:unibo:2f187cc9-265d-4750-888a-cc36066eba51",
+            "10_25" : "urn:ngsi-ld:Device:unibo:7ac4e2e2-14cd-4394-975d-0beb6049b87f",
+            "30_5" : "urn:ngsi-ld:Device:unibo:6fba17ce-4957-4aed-92e0-fc2543504bb7",
+            "30_15" : "urn:ngsi-ld:Device:unibo:656abfa3-95f6-4af2-8dfa-4ad927d3d738",
+            "30_25" : "urn:ngsi-ld:Device:unibo:9d9a9a02-6c5a-476a-9edf-067a18706bf4",
+        }
+
         return {
-            "id": f"urn:ngsi-ld:Device:unibo:ndr_pinotech__{sensor_pos}",
+            "id": sensor_pos_to_fiware_ids[sensor_pos],
             "name": f"Pinotech Soil Moisture {sensor_pos}",
             "description": "Researcher night simulation sensor",
             "type": "Device",
@@ -125,6 +134,6 @@ class DataController:
             "value": [f"{sensor_value}"],
             "refDeviceModel": "urn:ngsi-ld:DeviceModel:unibo:f757454d-66a4-41c5-8abf-a5848ab41191",
             "dateObserved": f"{measurement_date}",
-            "location": {"type": "Point", "coordinates": [44.138811, 12.244149]},
+            "location": {"type": "Point", "coordinates": [12.244149, 44.138811]},
         }
 
