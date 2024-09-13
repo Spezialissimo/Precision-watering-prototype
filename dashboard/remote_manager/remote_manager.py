@@ -17,7 +17,7 @@ class RemoteManager:
         self.irrigation_repository = IrrigationRepository()
         self.__irrigationDataToKeep = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
         if endpoint_url_update_entity is None:
-            raise ValueError("Environment variable 'ENDPOINT_URL_UPDATE_ENTITY' is not set")
+            raise ValueError("Environment variable 'FIWARE_UPDATE_ENTITY_URL' is not set")
 
     def upload_data(self, sensor_data, irrigation_data):
         sensor_batch = sensor_data[:-1]
@@ -39,11 +39,11 @@ class RemoteManager:
         return new_data
 
     def send_sensor_data_to_db(self, data):
-        # print("Sensors data sent to DB")
+        print("Sensors data sent to DB")
         self.sensor_repository.insert_sensor_values(data)
 
     def send_irrigation_data_to_db(self, data):
-        # print("Irrigation data sent to DB")
+        print("Irrigation data sent to DB")
         self.irrigation_repository.insert_irrigation_values(data)
 
 
