@@ -157,7 +157,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
             },
             animation: false
         },
-        plugins: [ChartDataLabels] 
+        plugins: [ChartDataLabels]
     });
 }
 
@@ -175,10 +175,5 @@ function getLastOptimalMoistureValue() {
     return putMoistureValueInRange(lastIrrigationData.optimal_m);
 }
 
-function setIrrigationLineChartMoinstureRange() {
-    irrigationLineChart.update();
-}
-
-window.setIrrigationLineChartMoinstureRange = setIrrigationLineChartMoinstureRange;
 window.setupIrrigationLineChart = setupIrrigationLineChart;
 window.getLastOptimalMoistureValue = getLastOptimalMoistureValue;

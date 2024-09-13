@@ -1,6 +1,6 @@
 import requests
-from repository.sensor_repository import Sensor_repository
-from repository.irrigation_repository import Irrigation_repository
+from repository.sensor_repository import SensorRepository
+from repository.irrigation_repository import IrrigationRepository
 from time import sleep
 import os
 from datetime import datetime
@@ -10,40 +10,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class DataController:
+class RemoteManager:
 
-    def update_dbs(self):
-        self.sensor_repository = Sensor_repository()
-        self.irrigation_repository = Irrigation_repository()
-        while True:
-            sleep(60)
-            if self.stop_uploading == False:
-                last_sensor_data = self.data_collector.get_all_sensor_data()[1:]
-                if(last_sensor_data != None and len(last_sensor_data) > 0):
-                    data = self.aggregate_sensor_data(last_sensor_data)
-                    self.send_sensor_data_to_db(data)
-                    self.send_sensor_data_to_FIWARE(data)
-
-                to_skip = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
-                last_irrigation_data = self.data_collector.get_all_irrigation_data()[to_skip:]
-                if(last_irrigation_data != None and len(last_irrigation_data) > 0):
-                    self.send_irrigation_data_to_db(last_irrigation_data)
-                    self.send_irrigation_data_to_FIWARE(last_irrigation_data)
-
-    def stop_upload(self):
-        self.stop_uploading = True
-
-    def start_upload(self):
-        self.stop_uploading = False
-
-    def is_upload_on(self):
-        return self.stop_uploading == False
-
-    def __init__(self, data_collector):
-        self.data_collector = data_collector
-        self.stop_uploading = True
+    def __init__(self):
+        self.sensor_repository = SensorRepository()
+        self.irrigation_repository = IrrigationRepository()
+        self.__irrigationDataToKeep = int(os.getenv("NUMBER_OF_IRRIGATION_DATA_TO_KEEP_IN_MEMORY", 10))
         if endpoint_url_update_entity is None:
             raise ValueError("Environment variable 'ENDPOINT_URL_UPDATE_ENTITY' is not set")
+
+    def upload_data(self, sensor_data, irrigation_data):
+        sensor_batch = sensor_data[:-1]
+        if(sensor_batch != None and len(sensor_batch) > 0):
+            data = self.aggregate_sensor_data(sensor_batch)
+            self.send_sensor_data_to_db(data)
+            self.send_sensor_data_to_FIWARE(data)
+
+        irrigation_batch = irrigation_data[:-self.__irrigationDataToKeep]
+        if(irrigation_batch != None and len(irrigation_batch) > 0):
+            self.send_irrigation_data_to_db(irrigation_batch)
+            self.send_irrigation_data_to_FIWARE(irrigation_batch)
 
     def aggregate_sensor_data(self, data):
         new_data = []
@@ -53,11 +39,11 @@ class DataController:
         return new_data
 
     def send_sensor_data_to_db(self, data):
-        print("Sensors data sent to DB")
+        # print("Sensors data sent to DB")
         self.sensor_repository.insert_sensor_values(data)
 
     def send_irrigation_data_to_db(self, data):
-        print("Irrigation data sent to DB")
+        # print("Irrigation data sent to DB")
         self.irrigation_repository.insert_irrigation_values(data)
 
 
@@ -76,8 +62,9 @@ class DataController:
     def send_irrigation_data_to_FIWARE(self, batch):
         fiware_batch = []
         for irrigation_data in batch:
-            irrigation_data["timestamp"] = datetime.fromtimestamp(irrigation_data["timestamp"]).strftime(fiware_api_datetime_format)
-            output_data = self.build_fiware_irrigation_update(irrigation_data)
+            new_irrigation_data = irrigation_data.copy()
+            new_irrigation_data["timestamp"] = datetime.fromtimestamp(irrigation_data["timestamp"]).strftime(fiware_api_datetime_format)
+            output_data = self.build_fiware_irrigation_update(new_irrigation_data)
             fiware_batch.append(output_data)
         print("Irrigation data sent to FIWARE")
         self.send_to_FIWARE(fiware_batch)

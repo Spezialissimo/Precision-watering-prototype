@@ -40,7 +40,7 @@ function updateSliderValue(value) {
     updateOptimalIrrigationLine(value);
 }
 
-function updateMatrixValues(matrix) {
+function updateControlMatrixValues(matrix, shouldUpdateChart = true) {
     let copy = []
     matrix.forEach(element => {
         copy.push({
@@ -50,14 +50,16 @@ function updateMatrixValues(matrix) {
         })
     });
     fetch('/irrigation/matrix', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        body: JSON.stringify({ matrix: copy })
-        })
-        .then(response => response.json())
-        .then(data => {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    body: JSON.stringify({ matrix: copy })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(shouldUpdateChart) {
             updateOptimalIrrigationLine(data);
-        });
+        }
+    });
 }

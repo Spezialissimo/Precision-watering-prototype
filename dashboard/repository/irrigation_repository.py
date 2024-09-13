@@ -1,6 +1,6 @@
 import sqlite3
 
-class Irrigation_repository:
+class IrrigationRepository:
 
     def __init__(self):
         self.con = sqlite3.connect("precision_watering.db")

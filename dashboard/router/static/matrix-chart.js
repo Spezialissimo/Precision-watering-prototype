@@ -93,10 +93,4 @@ function updateMatrixChart(data) {
     matrixChart.update();
 }
 
-
-function setMatrixChartMoinstureRange() {
-    matrixChart.update();
-}
-
-window.setMatrixChartMoinstureRange = setMatrixChartMoinstureRange;
 window.updateMatrixChart = updateMatrixChart;

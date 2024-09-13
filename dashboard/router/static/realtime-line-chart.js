@@ -107,9 +107,4 @@ function setupRealtimeLineChart() {
     });
 }
 
-function setRealtimeLineChartMoinstureRange() {
-    lineChart.update();
-}
-
-window.setRealtimeLineChartMoinstureRange = setRealtimeLineChartMoinstureRange;
 window.setupRealtimeLineChart = setupRealtimeLineChart;
