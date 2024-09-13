@@ -4,11 +4,11 @@ from repository.irrigation_repository import IrrigationRepository
 from time import sleep
 import os
 from datetime import datetime
-fiware_api_datetime_format = "%Y-%m-%dT%H:%M:%S"
-endpoint_url_update_entity = os.getenv("FIWARE_UPDATE_ENTITY_URL")
 from dotenv import load_dotenv
 
 load_dotenv()
+fiware_api_datetime_format = "%Y-%m-%dT%H:%M:%S"
+endpoint_url_update_entity = os.getenv("FIWARE_UPDATE_ENTITY_URL")
 
 class RemoteManager:
 
