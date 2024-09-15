@@ -77,7 +77,6 @@ class RemoteManager:
             response = requests.post(
                 endpoint_url_update_entity, params=params, json=update_body
             )
-            print(response.body)
             response.raise_for_status()
             if response.status_code >= 200 and response.status_code < 300:
                 print("Successfully updated FIWARE entity")
