@@ -52,14 +52,14 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     backgroundColor: 'rgba(0, 0, 128, 0.2)',
                     datalabels: {
                         display: true,
-                        align: 'start',
+                        align: function (context) {
+                            const value = context.dataset.data[context.dataIndex].rawValue;
+                            return value == 0 ? 'top' : 'start';
+                        },
                         anchor: 'end',
                         clamp: true,
                         formatter: function (value) {
-                            if (value == null || value == "" || value.rawValue == 0.0) {
-                                return '';
-                            }
-                            return value.rawValue.toFixed(2);
+                            return (value == null || value === "") ? '' : value.rawValue.toFixed(2);
                         },
                         color: 'black',
                         offset: 0
