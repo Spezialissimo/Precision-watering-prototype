@@ -35,13 +35,8 @@ $(document).ready(function () {
     $('#moistureRangeSelectionModalConfirm').click(function () {
         minMoisture = Number($('#minMoisture').val());
         maxMoisture = Number($('#maxMoisture').val());
-        setRealtimeLineChartMoinstureRange();
-        setMatrixChartMoinstureRange();
-        setIrrigationLineChartMoinstureRange();
-        if (currentOptimal.id == get_optimal_from_name("Slider").id) {
-            updateSliderValue(lastSliderValue);
-        } else if (currentOptimal.id != get_optimal_from_name("disabled").id) {
-            updateMatrixValues(currentOptimal.value.data);
+        if (currentOptimal.id == "Matrix") {
+            updateControlMatrixValues(currentOptimal.value.data, false);
         }
         $('#moistureRangeSelectionModal').modal('hide');
     });
@@ -180,7 +175,7 @@ $(document).ready(function () {
                     fetch('/irrigation/slider?value=' + getLastOptimalMoistureValue(), { method: 'POST' });
                 } else {
                     fetch('/irrigation/mode?mode=matrix', { method: 'POST' });
-                    updateMatrixValues(selectedOptimal.value.data);
+                    updateControlMatrixValues(selectedOptimal.value.data, true);
                 }
 
                 optimals.forEach(o => $('#' + o.name + 'Card').removeClass('border-primary').removeClass('border-secondary'));
