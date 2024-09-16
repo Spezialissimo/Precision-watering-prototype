@@ -59,32 +59,30 @@ function setupRealtimeLineChart() {
                         pause: false,
                         frameRate: 30,
                         onRefresh: async function (chart) {
+                            let newSensorData = null
                             try {
                                 const response = await fetch('/sensors/');
-                                lastSensorData = await response.json();
+                                newSensorData = await response.json();
                                 $('#syncingModal').modal('hide');
                             } catch (error) {
                                 $('#syncingModal').modal('show');
-                                lastSensorData = null;
                             }
-                            if (lastSensorData == undefined || lastSensorData == null || lastSensorData.timestamp == undefined) {
+                            if (newSensorData == undefined || newSensorData == null || newSensorData.timestamp == undefined) {
+                                lastSensorData = null;
                                 return;
                             }
 
-                            if (lineChart.data.datasets[0].data.length > 0) {
-                                lastTimeStamp = lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1].x
-                                lastSensorData.timestamp = correctTimestamp(lastSensorData.timestamp);
-                                if(lastTimeStamp >= lastSensorData.timestamp) {
-                                    return;
-                                }
+                            if(lastSensorData != null && newSensorData.timestamp <= lastSensorData.timestamp) {
+                                return;
                             }
 
-                            drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 5), datasets["10_5"], lastSensorData.timestamp);
-                            drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 15), datasets["10_15"], lastSensorData.timestamp);
-                            drawNewPoint(lastSensorData.data.find(elem => elem.x == 10 && elem.y == 25), datasets["10_25"], lastSensorData.timestamp);
-                            drawNewPoint(lastSensorData.data.find(elem => elem.x == 30 && elem.y == 5), datasets["30_5"], lastSensorData.timestamp);
-                            drawNewPoint(lastSensorData.data.find(elem => elem.x == 30 && elem.y == 15), datasets["30_15"], lastSensorData.timestamp);
-                            drawNewPoint(lastSensorData.data.find(elem => elem.x == 30 && elem.y == 25), datasets["30_25"], lastSensorData.timestamp);
+                            lastSensorData = newSensorData;
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 10 && elem.y == 5), datasets["10_5"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 10 && elem.y == 15), datasets["10_15"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 10 && elem.y == 25), datasets["10_25"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 30 && elem.y == 5), datasets["30_5"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 30 && elem.y == 15), datasets["30_15"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 30 && elem.y == 25), datasets["30_25"], correctTimestamp(newSensorData.timestamp));
                         }
                     },
                     title: {
