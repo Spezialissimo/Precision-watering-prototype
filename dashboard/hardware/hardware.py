@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from time import sleep
 from enum import Enum
+import threading
 
 load_dotenv()
 
@@ -20,6 +21,23 @@ class Hardware:
 
     def __init__(self) -> None:
         self.pump_state = PumpState.Off
+        self.__pumpOpeningThreshold = float(os.getenv("PUMP_OPENING_THRESHOLD", 10))
+        self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
+        self.irrigation_thread = None
+
+    def irrigate(self, seconds):
+        if(self.irrigation_thread != None):
+            while self.irrigation_thread.is_alive() == True:
+                sleep(0.5)
+
+        self.irrigation_thread = threading.Thread(target=self.__open_pump_for, args=(seconds,)).start()
+
+    def __open_pump_for(self, seconds):
+        if seconds >  self.__pumpOpeningThreshold:
+            self.open_pump()
+            sleep(seconds)
+        if seconds < self.__maxIrrigationValue - self.__pumpOpeningThreshold:
+            self.close_pump()
 
     def open_pump(self):
         self.pump_state = PumpState.On

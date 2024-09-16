@@ -27,7 +27,6 @@ class IrrigationManager:
         self.pump = hardware
         self.optimal_value = None
         self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
-        self.__pumpOpeningThreshold = float(os.getenv("PUMP_OPENING_THRESHOLD", 10))
         self.default_optimals = {}
         self.load_optimals()
 
@@ -53,12 +52,6 @@ class IrrigationManager:
                     'value': value
                 }
 
-    def __open_pump_for(self, seconds):
-        if seconds >  self.__pumpOpeningThreshold:
-            self.pump.open_pump()
-            sleep(seconds)
-        if seconds < self.__maxIrrigationValue - self.__pumpOpeningThreshold:
-            self.pump.close_pump()
 
     def toggle_pump(self):
         state = self.pump.get_pump_state()
@@ -133,7 +126,7 @@ class IrrigationManager:
                 "optimal_m": optimal_moisture,
                 "current_m": current_moisture
             }
-            self.__open_pump_for(new_irrigation)
+            self.pump.irrigate(new_irrigation)
         else:
             new_irrigation = 0
 

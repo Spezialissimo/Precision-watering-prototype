@@ -106,7 +106,7 @@ class Controller:
                 continue
             irrigation = self.__irrigation_manager.compute_irrigation(last_sensor_data=last_sensor_data, last_irrigation_data=last_irrigation_data)
             self.__irrigation_history.append(irrigation)
-            sleep(self.__irrigationCheckPeriod - irrigation["irrigation"])
+            sleep(self.__irrigationCheckPeriod)
 
     def receive_sensor_data_thread(self):
         while True:
