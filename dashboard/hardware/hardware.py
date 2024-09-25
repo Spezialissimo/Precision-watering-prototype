@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from time import sleep
 from enum import Enum
+import random
 import threading
 
 load_dotenv()
@@ -13,17 +14,19 @@ class PumpState(Enum):
     On = "on"
 
 class Hardware:
-    __ser = serial.Serial(
-        os.getenv("SERIAL_PORT"),
-        int(os.getenv("SERIAL_BAUDRATE")),
-        timeout=1
-    )
 
     def __init__(self) -> None:
         self.pump_state = PumpState.Off
         self.__pumpOpeningThreshold = float(os.getenv("PUMP_OPENING_THRESHOLD", 10))
         self.__maxIrrigationValue = int(os.getenv("IRRIGATION_CHECK_PERIOD", 10))
         self.irrigation_thread = None
+        self.sensor_values = {}
+        self.sensor_values["10_5"] = 0
+        self.sensor_values["10_15"] = 0
+        self.sensor_values["10_25"] = 0
+        self.sensor_values["30_5"] = 0
+        self.sensor_values["30_15"] = 0
+        self.sensor_values["30_25"] = 0
 
     def irrigate(self, seconds):
         if(self.irrigation_thread != None):
@@ -41,30 +44,63 @@ class Hardware:
 
     def open_pump(self):
         self.pump_state = PumpState.On
-        self.__ser.write(b"1")
 
     def close_pump(self):
         self.pump_state = PumpState.Off
-        self.__ser.write(b"0")
 
     def get_pump_state(self):
         return self.pump_state
 
     def read_sensor_data(self):
-        buffer = ''
         while True:
-            try:
-                bytes_to_read = self.__ser.inWaiting()
-                if bytes_to_read > 0:
-                    read = self.__ser.read()
-                    read_string = read.decode('utf-8')
-                    buffer += read_string
+            if self.pump_state == PumpState.Off:
+                self.sensor_values["10_5"] = max(0, min (100,self.sensor_values["10_5"] - (random.random() % 3)))
+                self.sensor_values["10_15"] = max(0, min (100,self.sensor_values["10_15"] - (random.random() % 3)))
+                self.sensor_values["10_25"] = max(0, min (100,self.sensor_values["10_25"] - (random.random() % 3)))
+                self.sensor_values["30_5"] = max(0, min (100,self.sensor_values["30_5"] - (random.random() % 3)))
+                self.sensor_values["30_15"] = max(0, min (100,self.sensor_values["30_15"] - (random.random() % 3)))
+                self.sensor_values["30_25"] = max(0, min (100,self.sensor_values["30_25"] - (random.random() % 3)))
+            else:
+                self.sensor_values["10_5"] = max(0, min (100, self.sensor_values["10_5"] + (random.random() % 3)))
+                self.sensor_values["10_15"] = max(0, min (100, self.sensor_values["10_15"] + (random.random() % 3)))
+                self.sensor_values["10_25"] = max(0, min (100, self.sensor_values["10_25"] + (random.random() % 3)))
+                self.sensor_values["30_5"] = max(0, min (100, self.sensor_values["30_5"]  + (random.random() % 3)))
+                self.sensor_values["30_15"] = max(0, min (100, self.sensor_values["30_15"] + (random.random() % 3)))
+                self.sensor_values["30_25"] = max(0, min (100, self.sensor_values["30_25"] + (random.random() % 3)))
 
-                if '\n' in buffer:
-                    lines = buffer.split('\n')
-                    last_received = lines[-2]
-                    buffer = lines[-1]
-                    data = json.loads(last_received.strip())
-                    return data
-            except Exception as e:
-                pass
+            sleep(1)
+
+            return {
+                'data': [
+                    {
+                        'x': 10,
+                        'y': 5,
+                        'v': self.sensor_values["10_5"]
+                    },
+                    {
+                        'x': 10,
+                        'y': 15,
+                        'v': self.sensor_values["10_15"]
+                    },
+                    {
+                        'x': 10,
+                        'y': 25,
+                        'v': self.sensor_values["10_25"]
+                    },
+                    {
+                        'x': 30,
+                        'y': 5,
+                        'v': self.sensor_values["30_5"]
+                    },
+                    {
+                        'x': 30,
+                        'y': 15,
+                        'v': self.sensor_values["30_15"]
+                    },
+                    {
+                        'x': 30,
+                        'y': 25,
+                        'v': self.sensor_values["30_25"]
+                    }
+                ]
+            }

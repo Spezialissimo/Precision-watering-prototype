@@ -89,6 +89,8 @@ class IrrigationManager:
         return average
 
     def compute_irrigation(self, last_sensor_data, last_irrigation_data):
+        while last_sensor_data == None:
+            sleep(0.5)
         current_moisture = self.__compute_average(last_sensor_data['data'])
         old_irrigation = last_irrigation_data["irrigation"]
         old_r = last_irrigation_data["r"]
