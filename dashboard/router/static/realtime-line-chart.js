@@ -5,7 +5,7 @@ let datasets = {}
 
 function createRealTimeDatasetConfig(x, y, color) {
     datasets[x + "_" + y] = {
-        label: "Sensore (" + x + ", " + y + ")",
+        label: "Sensor (" + x + ", " + y + ")",
         data: [],
         borderWidth: 2,
         borderColor: color,
@@ -87,7 +87,7 @@ function setupRealtimeLineChart() {
                     },
                     title: {
                         display: true,
-                        text: 'Tempo (secondi)'
+                        text: 'Time (seconds)'
                     }
                 },
                 y: {
@@ -96,7 +96,7 @@ function setupRealtimeLineChart() {
                     max: 100,
                     title: {
                         display: true,
-                        text: 'Livello di umidità'
+                        text: 'Moisture level'
                     }
                 }
             },

@@ -18,7 +18,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         x: entry.timestamp,
                         y: putMoistureValueInRange(entry.optimal_m)
                     })),
-                    label: 'Umidità ottimale',
+                    label: 'Optimal moisture',
                     borderWidth: 3,
                     borderColor: 'blue',
                     fill: false,
@@ -32,7 +32,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                         x: entry.timestamp,
                         y: putMoistureValueInRange(entry.current_m)
                     })),
-                    label: 'Umidità attuale',
+                    label: 'Current moisture',
                     borderWidth: 3,
                     borderColor: 'cyan',
                     fill: false,
@@ -43,7 +43,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                 },
                 {
                     type: 'bar',
-                    label: 'Consiglio irriguo',
+                    label: 'Irrigation recommendation',
                     data: historyData.map(entry => ({
                         x: entry.timestamp,
                         y: normalizeIrrigationValue(entry.irrigation, maxIrrigationValue),
@@ -129,7 +129,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     },
                     title: {
                         display: true,
-                        text: 'Tempo (secondi)'
+                        text: 'Time (seconds)'
                     }
                 },
                 y: {
@@ -138,7 +138,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     max: 100,
                     title: {
                         display: true,
-                        text: 'Livello di umidità'
+                        text: 'Moisture level'
                     }
                 },
                 y1: {
@@ -148,7 +148,7 @@ function setupIrrigationLineChart(historyData, maxIrrigationValue = 15) {
                     position: 'right',
                     title: {
                         display: true,
-                        text: 'Consiglio irriguo (litri)'
+                        text: 'Irrigation recommendation (litres)'
                     },
                     grid: {
                         drawOnChartArea: false,

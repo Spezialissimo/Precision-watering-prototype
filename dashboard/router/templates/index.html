@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Irrigazione di precisione</title>
+    <title>Precision farming prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script type="text/javascript">
@@ -73,96 +73,34 @@
 </head>
 
 <body>
-
-    <div class="modal fade" id="syncingModal" tabindex="-1" aria-labelledby="syncingModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="syncingModalLabel">Sincronizando i dati con l'Arduino</h5>
-                </div>
-                <div class="modal-body">
-                    Sincronizzando i dati, attendere prego...
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="optimalSelectionModal" tabindex="-1" aria-labelledby="optimalSelectionModal"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="optimalSelectionModalLabel">Scegli regola</h5>
+                    <h5 class="modal-title" id="optimalSelectionModalLabel">Choose rule</h5>
                 </div>
                 <div class="modal-body" id="optimalsContainer">
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="moistureRangeSelectionModal" tabindex="-1" aria-labelledby="moistureRangeSelectionModal"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="moistureRangeSelectionModalLabel">Preferenze</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="moistureRangeContainer">
-                    <div class="row">
-                        <span class="fs-4 text pb-1">Scegli l'intervallo di umidità</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <label for="minMoisture" class="form-label">Minimo</label>
-                        </div>
-                        <div class="col-3">
-                            <input min="{{ moisture_scale_min }}" max="{{ moisture_scale_max }}" type="number" id="minMoisture" class="form-control" />
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <label for="maxMoisture" class="form-label">Massimo</label>
-                        </div>
-                        <div class="col-3">
-                            <input min="0" max="100" type="number" id="maxMoisture" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="row pt-2 pb-1">
-                        <div class="row">
-                            <span class="fs-4 text">Salvataggio dati</span>
-                        </div>
-                        <div class="row form-check form-switch" style="padding-left: calc(var(--bs-gutter-x) * .5);">
-                            <div class="col-4">
-                                <input class="form-check-input" type="checkbox" role="switch" id="persistency" checked style="float: right;">
-                                <label for="persistency" class="form-label" >Persistenza</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary"
-                        id="moistureRangeSelectionModalConfirm">Conferma</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="container text-center p-0 w-100 m-0 mw-100">
 
         <div class="row w-100 m-0 p-0" style="height: 10%">
-            <h1 class="text-center fw-bold mt-3">Irrigazione di precisione</h1>
-            <span style="position: absolute;right: 20px;width: 24px;top: 10px;"><i class="fa-solid fa-gear fa-xl"
-                    id="settingsButton" style="color: grey; cursor: pointer;"></i></span>
+            <h1 class="text-center fw-bold mt-3">Precision farming dashboard</h1>
         </div>
 
         <div class="row w-100 m-0 p-0" style="height: 10%">
             <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Sensori in tempo reale</h2>
+                <h2 class="text-center fw-bold">Real-time sensors
+                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="Values from the six moisture sensors">
+                </h2>
             </div>
             <div class="col-4 content-center">
-                <h2 class="text-center fw-bold">Matrice di umidità</h2>
+                <h2 class="text-center fw-bold">Moisture matrix
+                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="Interpolated values from the six moisture sensors, allows to have a better resolution and understanding of the soil moisture conditions">
+                </h2>
             </div>
         </div>
 
@@ -179,10 +117,14 @@
 
         <div class="row w-100 m-0 p-0 pt-1" style="height: 10%">
             <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Gestione irrigazione</h2>
+                <h2 class="text-center fw-bold">Irrigation management
+                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="The automatic irrigation system, every 15 seconds, will adjust the irrigation according to the irrigation rules">
+                </h2>
             </div>
             <div class="col-4">
-                <h2 class="text-center fw-bold">Regola di irrigazione</h2>
+                <h2 class="text-center fw-bold">Irrigation rules
+                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="Allows to choose the irrigation rules: slider allows to set the desired moisture avarage value, matrices allow to set the desired moisture based on a cell per cell basis. It is useful because the real soil moisture values are not linear, some areas may always retain more or less water. Matrices allows to pick the correct irrigation pattern in every case">
+                </h2>
             </div>
         </div>
         <div class="row w-100 m-0 p-0" style="height: 30%">
@@ -197,22 +139,30 @@
 
         <div class="row w-100 m-0 p-0" style="height: 10%">
             <div class="col-2" style="align-content: center;">
-                <p class="m-0 ms-2 text-start">Modalità pompa: <span id="pumpMode">Manuale</span></p>
-                <p class="m-0 ms-2 text-start">Stato della pompa: <span id="pumpStatus">Off</span> <i
+                <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
+                <p class="m-0 ms-2 text-start">Pump state: <span id="pumpStatus">Off</span> <i
                         class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
             </div>
             <div class="col-2" style="align-content: center;">
-                <button class="btn btn-primary" id="toggleMode">Cambia modalità</button>
+                <button class="btn btn-primary" id="toggleMode">Change mode</button>
             </div>
             <div class="col-2" style="align-content: center;">
-                <button class="btn btn-primary" id="togglePump">Attiva/disattiva pompa</button>
+                <button class="btn btn-primary" id="togglePump">Toggle pump</button>
             </div>
             <div class="col-2"></div>
             <div class="col-4" style="align-content: center;">
-                <button class="btn btn-primary" id="chooseOptimal" disabled="">Scegli regola</button>
+                <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose rule</button>
             </div>
         </div>
     </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <a href="https://www.flaticon.com/free-icons/info" title="info icons">Info icons created by Freepik - Flaticon</a>
+                </div>
+            </div>
+        </div>
 </body>
 
 </html>

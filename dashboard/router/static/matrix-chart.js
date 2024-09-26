@@ -74,7 +74,7 @@ function setupMatrixChart(data) {
                         },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
-                            return ["x: " + v.x, "y: " + v.y, "valore: " + v.v];
+                            return ["x: " + v.x, "y: " + v.y, "value: " + v.v];
                         }
                     }
                 },

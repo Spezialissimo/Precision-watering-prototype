@@ -7,7 +7,7 @@ function upsertIrrigationControls(optimal) {
     if (optimal.id == get_optimal_from_name("disabled").id) {
         $('#irrigationControlContainer').empty().append(
             `<div class="w-100 h-100 align-content-center">
-                <p class="text-center fw-bold">Disponibile solo in modalità automatica</p>
+                <p class="text-center fw-bold">Only available in automatic mode</p>
             </div>
             `);
         return;
@@ -21,8 +21,8 @@ function upsertIrrigationControls(optimal) {
 function setupOptimalSlider() {
     $('#irrigationControlContainer').empty().append(
         `<div class="w-100 h-100 align-content-center">
-        <label for="irrigationSlider" class="form-label w-100">Media di irrigazione richiesta: <span
-            id="sliderValue">50</span></label>
+        <label for="irrigationSlider" class="form-label w-100">Irrigation level requested: <span
+            id="sliderValue">50</span></label><br>
         <input type="range" class="form-range w-50" id="irrigationSlider">
         `);
 
@@ -113,7 +113,7 @@ function setupOptimalMatrixChart(data) {
                         },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
-                            return ["x: " + v.x, "y: " + v.y, "valore: " + v.v];
+                            return ["x: " + v.x, "y: " + v.y, "value: " + v.v];
                         }
                     }
                 }
