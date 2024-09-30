@@ -109,5 +109,11 @@ def get_optimals():
 def get_optimal_matrix_image(imageId):
     return send_from_directory('../assets', imageId + '.png')
 
+@router.route('/toggle_left_sprinkler', methods=['POST'])
+def toggle_left_sprinkler():
+    controller = user_simulations[session['user_id']]['controller']
+    controller.toggle_left_sprinkler()
+    return Response(status=200)
+
 def start_flask(host, port, ):
     router.run(host=host, port=port)

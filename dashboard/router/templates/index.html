@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script type="text/javascript">
-       window.config = {
+        window.config = {
             serverIp: "{{ server_ip }}",
             moistureScaleMin: "{{ moisture_scale_min }}",
             moistureScaleMax: "{{ moisture_scale_max }}",
@@ -85,85 +85,124 @@
             </div>
         </div>
     </div>
-    <div class="container text-center p-0 w-100 m-0 mw-100">
-
-        <div class="row w-100 m-0 p-0" style="height: 10%">
+    <header>
             <h1 class="text-center fw-bold mt-3">Precision farming dashboard</h1>
-        </div>
-
-        <div class="row w-100 m-0 p-0" style="height: 10%">
-            <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Real-time sensors
-                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="Values from the six moisture sensors">
-                </h2>
-            </div>
-            <div class="col-4 content-center">
-                <h2 class="text-center fw-bold">Moisture matrix
-                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="Interpolated values from the six moisture sensors, allows to have a better resolution and understanding of the soil moisture conditions">
-                </h2>
-            </div>
-        </div>
-
-        <div class="row w-100 m-0 p-0" style="height: 30%">
-            <div class="col-8">
-                <canvas id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
-            </div>
-            <div class="col-4 content-center">
-                <canvas id="matrixChart" height="400" width="400"
-                    style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
-
-            </div>
-        </div>
-
-        <div class="row w-100 m-0 p-0 pt-1" style="height: 10%">
-            <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Irrigation management
-                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="The automatic irrigation system, every 15 seconds, will adjust the irrigation according to the irrigation rules">
-                </h2>
-            </div>
-            <div class="col-4">
-                <h2 class="text-center fw-bold">Irrigation rules
-                    <img src="{{ url_for('static', filename='assets/info.png') }}" style="width: 20px; height: 20px;" data-toggle="tooltip" data-placement="right" title="Allows to choose the irrigation rules: slider allows to set the desired moisture avarage value, matrices allow to set the desired moisture based on a cell per cell basis. It is useful because the real soil moisture values are not linear, some areas may always retain more or less water. Matrices allows to pick the correct irrigation pattern in every case">
-                </h2>
-            </div>
-        </div>
-        <div class="row w-100 m-0 p-0" style="height: 30%">
-            <div class="col-8 content-center">
-                <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
-            </div>
-            <div class="col-4">
-                <div class="col content-center w-100 h-100" id="irrigationControlContainer">
+    </header>
+    <div class="container text-center p-0 w-100 m-0 mw-100">
+        <div class="row">
+            <div class="col-6 content-center">
+                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Real-time sensors</h2>
+                    <canvas id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Moisture matrix</h2>
+                    <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
+                    <button class="btn btn-primary" id="toggleLeftSprinkler">Toggle left sprinklers</button>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Irrigation management</h2>
+                    <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Irrigation rules</h2>
+                    <div class="col content-center w-100 h-100" id="irrigationControlContainer"></div>
+                </div>
+                <div class="row w-100 m-0 p-0">
+                    <div class="col-2" style="align-content: center;">
+                        <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
+                        <p class="m-0 ms-2 text-start">Pump state: <span id="pumpStatus">Off</span> <i class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
+                    </div>
+                    <div class="col-2" style="align-content: center;">
+                        <button class="btn btn-primary" id="toggleMode">Change mode</button>
+                    </div>
+                    <div class="col-2" style="align-content: center;">
+                        <button class="btn btn-primary" id="togglePump">Toggle pump</button>
+                    </div>
+                    <div class="col-2"></div>
+                    <div class="col-4" style="align-content: center;">
+                        <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose rule</button>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="col-6">
+                <sidebar class="text-start">
+                    <h2 class="text-center fw-bold">Introduction</h1>
+                    <p>
+                        Precision irrigation is a branch of precision agriculture that focuses on optimizing water
+                        usage.
+                        In this demo, we simulate a physical system that was part of my undergraduate thesis, featuring
+                        six sensors and two sprinklers.
+                        The six sensors are positioned in pairs, spaced 20 cm apart horizontally and 10 cm apart
+                        vertically.
+                        The first pair is located at a depth of 5 cm, with the two elements of the pair placed 10 cm
+                        from the edges of the testbed.
+                        As a result, the sensors are labeled as follows:
+                    </p>
+                    <ul>
+                        <li>Sensor (10, 5)</li>
+                        <li>Sensor (10, 15)</li>
+                        <li>Sensor (10, 25)</li>
+                        <li>Sensor (30, 5)</li>
+                        <li>Sensor (30, 15)</li>
+                        <li>Sensor (30, 25)</li>
+                    </ul>
+                    <p>
+                        The two sprinklers are referred to as the "right sprinkler" and the "left sprinkler."
+                        In the original system, a valve controls the left sprinkler; in this context, it is replaced by
+                        a switch labeled "Toggle left sprinklers."
+                    </p>
 
-        <div class="row w-100 m-0 p-0" style="height: 10%">
-            <div class="col-2" style="align-content: center;">
-                <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
-                <p class="m-0 ms-2 text-start">Pump state: <span id="pumpStatus">Off</span> <i
-                        class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
-            </div>
-            <div class="col-2" style="align-content: center;">
-                <button class="btn btn-primary" id="toggleMode">Change mode</button>
-            </div>
-            <div class="col-2" style="align-content: center;">
-                <button class="btn btn-primary" id="togglePump">Toggle pump</button>
-            </div>
-            <div class="col-2"></div>
-            <div class="col-4" style="align-content: center;">
-                <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose rule</button>
+                    <h2 class="text-center fw-bold">Real-time sensors</h2>
+                    <p>
+                        This is a chart that shows the readings from the six sensors over time.
+                    </p>
+
+                    <h2 class="text-center fw-bold">Moisture matrix</h2>
+                    <p>
+                        This graph displays the soil moisture levels across every cm² of soil in pseudo-real time, with
+                        the data obtained by interpolating the values from the six sensors.
+                        It represents a vertical cross-section of the soil. Due to the variability in soil texture and
+                        structure, this visualization helps to accurately represent how water moves through the soil,
+                        showing how certain areas retain moisture better than others.
+                    </p>
+
+                    <h2 class="text-center fw-bold">Irrigation management</h2>
+                    <p>
+                        This chart shows the current irrigation status: optimal moisture level, current moisture level,
+                        and irrigation recommendations.
+                        As mentioned earlier, this chart is updated every 15 seconds. Below the chart, you can manually
+                        turn the pump on or off (if in manual mode) and switch between manual and automatic modes.
+                    </p>
+
+                    <h2 class="text-center fw-bold">Irrigation rule</h2>
+                    <p>
+                        Here, you can decide the basis for future irrigation calculations:
+                    </p>
+                    <ul>
+                        <li><strong>Slider:</strong> The system will try to maintain an average moisture level based on
+                            the value set by the slider.</li>
+                        <li><strong>Matrix:</strong> The system will attempt to match the moisture matrix displayed in
+                            the <strong>Moisture matrix</strong> section as closely as possible.</li>
+                    </ul>
+
+                    <h2 class="text-center fw-bold">Toggle left sprinklers</h2>
+                    <p>
+                        By closing the left sprinklers, we can test how using the correct moisture matrix allows for
+                        proper irrigation.
+                        This can be visualized as simulating a scenario where the soil on the left absorbs less water
+                        than the right side.
+                        If the system attempts to maintain an excessively high average moisture level using the slider,
+                        it might never reach that level, leaving the pump running indefinitely.
+                        The same issue occurs if a completely saturated matrix is selected.
+                    </p>
+                    <a href="https://www.flaticon.com/free-icons/info" title="info icons" style="color: lightgray;">Info
+                        icons created by Freepik - Flaticon</a>
+                </sidebar>
             </div>
         </div>
     </div>
-    <footer class="footer">
-        <div class="container pt-3">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <a href="https://www.flaticon.com/free-icons/info" title="info icons" style="color: lightgray;">Info icons created by Freepik - Flaticon</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+
 </body>
 
 </html>

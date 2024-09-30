@@ -9,3 +9,6 @@ class SensorManager:
             values = self.hardware.read_sensor_data()
             values["timestamp"] = datetime.now().timestamp()
             return values
+
+    def toggle_left_sprinkler(self):
+        self.hardware.toggle_left_sprinkler()

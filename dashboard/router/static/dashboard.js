@@ -5,6 +5,10 @@ let lastSliderValue = 0;
 Chart.defaults.font.size = 16;
 
 $(document).ready(function () {
+    $('#toggleLeftSprinkler').click(function () {
+        fetch('/toggle_left_sprinkler', { method: 'POST' });
+    });
+
     $('#persistency').prop('checked', window.config.uploadStatus == "True");
 
     $('#persistency').on('change', function () {

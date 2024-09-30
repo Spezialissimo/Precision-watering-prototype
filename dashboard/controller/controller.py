@@ -84,3 +84,6 @@ class Controller:
 
     def get_optimals(self):
         return self.__irrigation_manager.get_optimals()
+
+    def toggle_left_sprinkler(self):
+        self.__sensor_manager.toggle_left_sprinkler()
