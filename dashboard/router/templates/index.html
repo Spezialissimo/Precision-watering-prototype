@@ -91,11 +91,11 @@
     <div class="container text-center p-0 w-100 m-0 mw-100">
         <div class="row">
             <div class="col-7 content-center">
-                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                <div class="row w-100 m-0 p-0 pt-3 content-center d-flex flex-column justify-content-center align-items-center">
                     <h2 class="text-center fw-bold">Real-time sensors</h2>
                     <canvas id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
                 </div>
-                <div class="row w-100 m-0 p-0 pt-1">
+                <div class="row w-100 m-0 p-0 pt-3">
                     <div class="col-6">
                         <h2 class="text-center fw-bold">Moisture matrix</h2>
                         <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
@@ -116,34 +116,31 @@
                     <div class="col-2" style="align-content: center;">
                         <button class="btn btn-primary" id="togglePump">Toggle pump</button>
                     </div>
-                    <div class="col-3">
+                    <div class="col-3" style="align-content: center;">
                         <button class="btn btn-primary" id="toggleLeftSprinkler">Toggle left sprinklers</button>
                     </div>
                     <div class="col-2" style="align-content: center;">
                         <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose rule</button>
                     </div>
                 </div>
-                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                <div class="row w-100 m-0 p-0 pt-3 content-center d-flex flex-column justify-content-center align-items-center">
                     <h2 class="text-center fw-bold">Irrigation management</h2>
                     <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
                 </div>
-                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                <div class="row w-100 m-0 p-0 pt-3 content-center d-flex flex-column justify-content-center align-items-center">
 
                 </div>
             </div>
             <div class="col-5">
-                <sidebar class="text-start">
-                    <h2 class="text-center fw-bold">Introduction</h1>
+                <sidebar class="w-75 mx-auto text-start d-block">
+                    <h2 class="text-center fw-bold">Introduction</h2>
                     <p>
-                        Precision irrigation is a branch of precision agriculture that focuses on optimizing water
-                        usage.
+                        Precision irrigation is a branch of precision agriculture that focuses on optimizing water usage.
                         In this demo, we simulate a physical system that was part of my undergraduate thesis, featuring
-                        six sensors and two sprinklers.
-                        The six sensors are positioned in pairs, spaced 20 cm apart horizontally and 10 cm apart
-                        vertically.
-                        The first pair is located at a depth of 5 cm, with the two elements of the pair placed 10 cm
-                        from the edges of the testbed.
-                        As a result, the sensors are labeled as follows:
+                        six sensors and two sprinklers. The six sensors are positioned in pairs, spaced 20 cm apart
+                        horizontally and 10 cm apart vertically. The first pair is located at a depth of 5 cm, with the
+                        two elements of the pair placed 10 cm from the edges of the testbed. As a result, the sensors
+                        are labeled as follows:
                     </p>
                     <ul>
                         <li>Sensor (10, 5)</li>
@@ -154,8 +151,8 @@
                         <li>Sensor (30, 25)</li>
                     </ul>
                     <p>
-                        The two sprinklers are referred to as the "right sprinkler" and the "left sprinkler."
-                        In the original system, a valve controls the left sprinkler; in this context, it is replaced by
+                        The two sprinklers are referred to as the "right sprinkler" and the "left sprinkler." In the
+                        original system, a valve controls the left sprinkler; in this context, it is replaced by
                         a switch labeled "Toggle left sprinklers."
                     </p>
 
@@ -167,18 +164,18 @@
                     <h2 class="text-center fw-bold">Moisture matrix</h2>
                     <p>
                         This graph displays the soil moisture levels across every cm² of soil in pseudo-real time, with
-                        the data obtained by interpolating the values from the six sensors.
-                        It represents a vertical cross-section of the soil. Due to the variability in soil texture and
-                        structure, this visualization helps to accurately represent how water moves through the soil,
-                        showing how certain areas retain moisture better than others.
+                        the data obtained by interpolating the values from the six sensors. It represents a vertical
+                        cross-section of the soil. Due to the variability in soil texture and structure, this visualization
+                        helps to accurately represent how water moves through the soil, showing how certain areas retain
+                        moisture better than others.
                     </p>
 
                     <h2 class="text-center fw-bold">Irrigation management</h2>
                     <p>
                         This chart shows the current irrigation status: optimal moisture level, current moisture level,
-                        and irrigation recommendations.
-                        As mentioned earlier, this chart is updated every 15 seconds. Below the chart, you can manually
-                        turn the pump on or off (if in manual mode) and switch between manual and automatic modes.
+                        and irrigation recommendations. As mentioned earlier, this chart is updated every 15 seconds. Below
+                        the chart, you can manually turn the pump on or off (if in manual mode) and switch between manual
+                        and automatic modes.
                     </p>
 
                     <h2 class="text-center fw-bold">Irrigation rule</h2>
@@ -195,12 +192,10 @@
                     <h2 class="text-center fw-bold">Toggle left sprinklers</h2>
                     <p>
                         By closing the left sprinklers, we can test how using the correct moisture matrix allows for
-                        proper irrigation.
-                        This can be visualized as simulating a scenario where the soil on the left absorbs less water
-                        than the right side.
-                        If the system attempts to maintain an excessively high average moisture level using the slider,
-                        it might never reach that level, leaving the pump running indefinitely.
-                        The same issue occurs if a completely saturated matrix is selected.
+                        proper irrigation. This can be visualized as simulating a scenario where the soil on the left
+                        absorbs less water than the right side. If the system attempts to maintain an excessively high
+                        average moisture level using the slider, it might never reach that level, leaving the pump running
+                        indefinitely. The same issue occurs if a completely saturated matrix is selected.
                     </p>
                 </sidebar>
             </div>
