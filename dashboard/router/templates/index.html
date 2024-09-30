@@ -90,26 +90,23 @@
     </header>
     <div class="container text-center p-0 w-100 m-0 mw-100">
         <div class="row">
-            <div class="col-6 content-center">
+            <div class="col-7 content-center">
                 <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
                     <h2 class="text-center fw-bold">Real-time sensors</h2>
                     <canvas id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
                 </div>
-                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
-                    <h2 class="text-center fw-bold">Moisture matrix</h2>
-                    <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
-                    <button class="btn btn-primary" id="toggleLeftSprinkler">Toggle left sprinklers</button>
-                </div>
-                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
-                    <h2 class="text-center fw-bold">Irrigation management</h2>
-                    <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
-                </div>
-                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
-                    <h2 class="text-center fw-bold">Irrigation rules</h2>
-                    <div class="col content-center w-100 h-100" id="irrigationControlContainer"></div>
+                <div class="row w-100 m-0 p-0 pt-1">
+                    <div class="col-6">
+                        <h2 class="text-center fw-bold">Moisture matrix</h2>
+                        <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
+                    </div>
+                    <div class="col-6">
+                        <h2 class="text-center fw-bold">Irrigation rule</h2>
+                        <div class="col content-center w-100 h-100" id="irrigationControlContainer"></div>
+                    </div>
                 </div>
                 <div class="row w-100 m-0 p-0">
-                    <div class="col-2" style="align-content: center;">
+                    <div class="col-3" style="align-content: center;">
                         <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
                         <p class="m-0 ms-2 text-start">Pump state: <span id="pumpStatus">Off</span> <i class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
                     </div>
@@ -119,13 +116,22 @@
                     <div class="col-2" style="align-content: center;">
                         <button class="btn btn-primary" id="togglePump">Toggle pump</button>
                     </div>
-                    <div class="col-2"></div>
-                    <div class="col-4" style="align-content: center;">
+                    <div class="col-3">
+                        <button class="btn btn-primary" id="toggleLeftSprinkler">Toggle left sprinklers</button>
+                    </div>
+                    <div class="col-2" style="align-content: center;">
                         <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose rule</button>
                     </div>
                 </div>
+                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Irrigation management</h2>
+                    <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-1 content-center d-flex flex-column justify-content-center align-items-center">
+
+                </div>
             </div>
-            <div class="col-6">
+            <div class="col-5">
                 <sidebar class="text-start">
                     <h2 class="text-center fw-bold">Introduction</h1>
                     <p>

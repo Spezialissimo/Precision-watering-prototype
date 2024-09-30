@@ -157,7 +157,7 @@ $(document).ready(function () {
             for (const [key, value] of Object.entries(data)) {
                 optimals.push(new Optimals(key, value.title, value.description, '/irrigation/optimal/image/' + key, value.value));
 
-                if (count % 3 === 0) {
+                if (count % 5 === 0) {
                     row = $('<div class="row my-3"></div>');
                     $('#optimalsContainer').append(row);
                 }
