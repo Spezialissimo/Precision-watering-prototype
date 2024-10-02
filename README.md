@@ -1,8 +1,8 @@
 # Prototype of an automatic irrigation system
 I've made this project for my bachelor's degree thesis. It is a small scale rendition of an automated irrigation system, with a frontend for monitoring the moisure values in real time and set the irrigation rules.
 
-This fork contains a simple demo that is not actually connected to any real hardware system. The actual project, that does need hardware components to work, can be found (here)[https://github.com/ManuelePasini/small_watering]
-You can visit the demo live (here)[https://precision-watering-prototype.onrender.com].
+This fork contains a simple demo that is not actually connected to any real hardware system. The actual project, that does need hardware components to work, can be found [here](https://github.com/ManuelePasini/small_watering)
+You can visit the demo live [here](https://precision-watering-prototype.onrender.com).
 
 Precision irrigation is a branch of precision agriculture that focuses on optimizing water usage. In this demo, we simulate a physical system, featuring six sensors and two sprinklers. The six sensors are positioned in pairs, spaced 20 cm apart horizontally and 10 cm apart vertically. The first pair is located at a depth of 5 cm, with the two elements of the pair placed 10 cm from the edges of the testbed. As a result, the sensors are labeled as follows:
 + Sensor (10, 5)
