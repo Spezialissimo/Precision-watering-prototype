@@ -1,8 +1,13 @@
+let currentMatrixChart;
+let currentOptimal;
+
+
 function upsertIrrigationControls(optimal) {
-    if(optimal.id == get_optimal_from_name("disabled").id) {
+    currentOptimal = optimal;
+    if (optimal.id == get_optimal_from_name("disabled").id) {
         $('#irrigationControlContainer').empty().append(
             `<div class="w-100 h-100 align-content-center">
-                <p class="text-center fw-bold">Available only in automatic mode</p>
+                <p class="text-center fw-bold">Only available in automatic mode</p>
             </div>
             `);
         return;
@@ -16,20 +21,17 @@ function upsertIrrigationControls(optimal) {
 function setupOptimalSlider() {
     $('#irrigationControlContainer').empty().append(
         `<div class="w-100 h-100 align-content-center">
-        <label for="irrigationSlider" class="form-label w-100">Media di irrigazione richiesta: <span
-            id="sliderValue">50</span></label>
+        <label for="irrigationSlider" class="form-label w-100">Irrigation level requested: <span
+            id="sliderValue">50</span></label><br>
         <input type="range" class="form-range w-50" id="irrigationSlider">
         `);
 
-    value = getLastOptimalMoistureValue();
+    value = Math.round(getLastOptimalMoistureValue());
     $('#irrigationSlider').val(value);
     $('#sliderValue').text(value);
 
     $('#irrigationSlider').on('change', function () {
-        var value = $(this).val();
-        lastSliderValue = value;
-        fetch('/irrigation/slider?value=' + value, { method: 'POST' });
-        updateOptimalIrrigationLine(value);
+        updateSliderValue($(this).val());
     });
 
     $('#irrigationSlider').on('input', function () {
@@ -39,19 +41,22 @@ function setupOptimalSlider() {
 }
 
 function setupOptimalMatrixChart(data) {
-    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
+    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(b) - Number(a));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
 
-    $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 410px; max-width: 400px; display: initial;"></canvas>');
+    $('#irrigationControlContainer').empty().append('<canvas id="optimalMatrixChart" height="400" width="400" style="max-height: 400px; max-width: 410px; display: initial;"></canvas>');
 
     let matrixCtx = $('#optimalMatrixChart')[0].getContext('2d');
-    new Chart(matrixCtx, {
-        plugins: [ChartDataLabels],
+    currentMatrixChart = new Chart(matrixCtx, {
         type: "matrix",
         data: {
             datasets: [
                 {
-                    data: convertToMatrixData(data),
+                    data: data["data"].map(obj => ({
+                        x: String(obj.x),
+                        y: String(obj.y),
+                        v: Math.round(obj.v)
+                    })),
                     backgroundColor: function (context) {
                         if (!context.dataset || !context.dataset.data.length || context.dataset.data[context.dataIndex].v == null) return "lightgrey";
                         const value = context.dataset.data[context.dataIndex].v;
@@ -76,7 +81,7 @@ function setupOptimalMatrixChart(data) {
                     reverse: false,
                     offset: true,
                     ticks: {
-                        autoSkip: false
+                        stepsize: 5,
                     },
                     grid: {
                         display: false,
@@ -89,12 +94,13 @@ function setupOptimalMatrixChart(data) {
                     offset: true,
                     position: "bottom",
                     ticks: {
-                        autoSkip: false,
+                        stepsize: 5,
                         maxRotation: 0,
                     },
                     grid: {
                         display: false,
-                        drawBorder: false
+                        drawBorder: false,
+                        dispaly: false,
                     }
                 }
             },
@@ -107,22 +113,7 @@ function setupOptimalMatrixChart(data) {
                         },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
-                            return ["x: " + v.x, "y: " + v.y, "v: " + v.v];
-                        }
-                    }
-                },
-                datalabels: {
-                    labels: {
-                        value: {
-                            color() {
-                                return 'black';
-                            },
-                            font() {
-                                return { weight: 'bold' };
-                            },
-                            formatter(value) {
-                                return value.v;
-                            }
+                            return ["x: " + v.x, "y: " + v.y, "value: " + v.v];
                         }
                     }
                 }
@@ -131,3 +122,11 @@ function setupOptimalMatrixChart(data) {
         }
     });
 }
+
+function setControlsMatrixChartMoinstureRange() {
+    if (currentMatrixChart != null) {
+        currentMatrixChart.update();
+    }
+}
+
+window.setControlsMatrixChartMoinstureRange = setControlsMatrixChartMoinstureRange;

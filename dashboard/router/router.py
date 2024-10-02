@@ -1,77 +1,119 @@
-from flask import jsonify, render_template, request, Response, send_from_directory
-from flask_socketio import send
-from . import router
-from . import socketio
-import time
-import threading
+from flask import session, jsonify, render_template, request, Response, send_from_directory, redirect, Flask
+from threading import Thread
+from uuid import uuid4
+from controller.controller import Controller
+import os
+from datetime import datetime
+router = Flask(__name__)
 
-dc = None
+user_simulations = {}
+router.secret_key = os.getenv('SECRET_KEY', 'your_secret_key_here')
+
+def start_simulation_for_user():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        user_id = str(uuid4())
+        session['user_id'] = user_id
+
+        controller = Controller()
+        user_simulations[user_id] = {
+            'controller': controller,
+            'threads': []
+        }
+
+        sensor_thread = Thread(target=controller.receive_sensor_data_thread)
+        sensor_thread.start()
+
+        irrigation_thread = Thread(target=controller.compute_irrigation_thread)
+        irrigation_thread.start()
+
+        user_simulations[user_id]['threads'].extend([sensor_thread, irrigation_thread])
 
 @router.route('/')
 def index():
-    return render_template('index.html')
+    session.clear()
+    start_simulation_for_user()
+    controller = user_simulations[session['user_id']]['controller']
+    ip = os.getenv('HOST', '127.0.0.1')
+    port = int(os.getenv('PORT', 5000))
+    server_ip = f"http://{ip}:{port}"
+    moisture_scale_min = int(os.getenv("MOISTURE_IN_FRONTEND_MIN", 0))
+    moisture_scale_max = int(os.getenv("MOISTURE_IN_FRONTEND_MAX", 100))
+    timestamp = datetime.now().timestamp()
+    return render_template('index.html', server_ip=server_ip, moisture_scale_min=moisture_scale_min, moisture_scale_max=moisture_scale_max, timestamp=timestamp)
 
 @router.route('/sensors/interpolated', methods=['GET'])
 def get_last_sensor_data_with_interpolation():
-    return jsonify(dc.get_last_sensor_data_with_interpolation())
+    controller = user_simulations[session['user_id']]['controller']
+    return jsonify(controller.get_last_sensor_data_with_interpolation())
 
 @router.route('/sensors/', methods=['GET'])
 def get_last_sensor_data():
-    return jsonify(dc.get_last_sensor_data())
+    controller = user_simulations[session['user_id']]['controller']
+    return jsonify(controller.get_last_sensor_data())
 
 @router.route('/irrigation/history', methods=['GET'])
 def get_history_irrigation_data():
+    controller = user_simulations[session['user_id']]['controller']
     seconds = request.args.get('seconds', default=None, type=int)
-    return jsonify(dc.get_all_irrigation_data(seconds))
+    return jsonify([controller.get_last_irrigation_data()])
 
 @router.route('/irrigation/', methods=['GET'])
 def get_last_irrigation_data():
-    return jsonify(dc.get_last_irrigation_data())
+    controller = user_simulations[session['user_id']]['controller']
+    return jsonify(controller.get_last_irrigation_data())
 
 @router.route('/irrigation/slider', methods=['POST'])
 def set_irrigation_value():
-    value = request.args.get('value', default=None, type=int)
-    dc.set_new_optimal_value(value)
+    controller = user_simulations[session['user_id']]['controller']
+    value = request.args.get('value', default=None, type=float)
+    controller.set_new_optimal_value(value)
     return Response(status=200)
 
 @router.route('/irrigation/matrix', methods=['POST'])
 def set_irrigation_matrix():
-    matrixId = request.args.get('matrix', default=None, type=str)
-    dc.set_new_optimal_matrix(matrixId)
-    avarage = dc.get_optimal_matrix_average()
-    return jsonify(avarage)
+    controller = user_simulations[session['user_id']]['controller']
+    data = request.get_json()
+    matrix = data.get('matrix', None)
+    controller.set_new_optimal_matrix(matrix)
+    average = controller.get_optimal_matrix_average()
+    return jsonify(average)
 
 @router.route('/irrigation/mode', methods=['POST'])
 def set_irrigation_mode():
+    controller = user_simulations[session['user_id']]['controller']
     mode = request.args.get('mode', default=None, type=str)
-    dc.set_irrigation_mode(mode)
+    controller.set_irrigation_mode(mode)
     return Response(status=200)
 
 @router.route('/pump/', methods=['POST'])
 def set_pump_state():
-    dc.toggle_pump()
-    return Response(status=200)
+    controller = user_simulations[session['user_id']]['controller']
+    controller.toggle_pump()
+    pump_state = controller.get_pump_state()
+    return jsonify(pump_state.name)
+
+@router.route('/pump/state', methods=['GET'])
+def get_pump_state():
+    controller = user_simulations[session['user_id']]['controller']
+    pump_state = controller.get_pump_state()
+    return jsonify(pump_state.name)
 
 @router.route('/irrigation/optimal/', methods=['GET'])
 def get_optimals():
-    return jsonify(dc.get_optimals())
+    controller = user_simulations[session['user_id']]['controller']
+    return jsonify(controller.get_optimals())
 
 @router.route('/irrigation/optimal/image/<imageId>', methods=['GET'])
 def get_optimal_matrix_image(imageId):
     return send_from_directory('../assets', imageId + '.png')
 
-def send_pump_state():
-    while True:
-        pump_state = dc.get_pump_state()
-        socketio.emit('pump_state_update', {'pump_state': pump_state.name})
-        time.sleep(1)
+@router.route('/toggle_left_sprinkler', methods=['POST'])
+def toggle_left_sprinkler():
+    controller = user_simulations[session['user_id']]['controller']
+    controller.toggle_left_sprinkler()
+    return Response(status=200)
 
-@socketio.on('connect')
-def handle_connect():
-    thread = threading.Thread(target=send_pump_state)
-    thread.start()
-
-def start_flask(host, port, data_collector):
-    global dc
-    dc = data_collector
-    socketio.run(router, host=host, port=port, debug=False)
+def start_flask(host, port, ):
+    router.run(host=host, port=port)

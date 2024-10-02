@@ -1,11 +1,18 @@
 let matrixChart;
 
+function convertToMatrixData(data) {
+    return data["data"].map(obj => ({
+        x: String(obj.x),
+        y: String(obj.y),
+        v: putMoistureValueInRange(Math.round(obj.v))
+    }));
+}
+
 function setupMatrixChart(data) {
-    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(a) - Number(b));
+    const individualXs = [...new Set(data.data.map(element => String(element['x'])))].sort((a, b) => Number(b) - Number(a));
     const individualYs = [...new Set(data.data.map(element => String(element['y'])))].sort((a, b) => Number(a) - Number(b));
     let matrixCtx = $('#matrixChart')[0].getContext('2d');
     matrixChart = new Chart(matrixCtx, {
-        plugins: [ChartDataLabels],
         type: "matrix",
         data: {
             datasets: [
@@ -35,7 +42,8 @@ function setupMatrixChart(data) {
                     reverse: false,
                     offset: true,
                     ticks: {
-                        autoSkip: false
+                        stepSize: 5
+                        // autoSkip: false
                     },
                     grid: {
                         display: false,
@@ -48,7 +56,7 @@ function setupMatrixChart(data) {
                     offset: true,
                     position: "bottom",
                     ticks: {
-                        autoSkip: false,
+                        stepSize: 5,
                         maxRotation: 0,
                     },
                     grid: {
@@ -66,25 +74,10 @@ function setupMatrixChart(data) {
                         },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
-                            return ["x: " + v.x, "y: " + v.y, "v: " + v];
+                            return ["x: " + v.x, "y: " + v.y, "value: " + v.v];
                         }
                     }
                 },
-                datalabels: {
-                    labels: {
-                        value: {
-                            color() {
-                                return 'black';
-                            },
-                            font() {
-                                return { weight: 'bold' };
-                            },
-                            formatter(value) {
-                                return value.v;
-                            }
-                        }
-                    }
-                }
             },
             animation: false
         }

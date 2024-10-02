@@ -1,9 +1,10 @@
-let lastSensorData = {};
+let lastSensorData;
 let skippedCounter = 0;
 let lineChart
+let datasets = {}
 
 function createRealTimeDatasetConfig(x, y, color) {
-    return {
+    datasets[x + "_" + y] = {
         label: "Sensor (" + x + ", " + y + ")",
         data: [],
         borderWidth: 2,
@@ -14,18 +15,19 @@ function createRealTimeDatasetConfig(x, y, color) {
         tension: 0.4,
         cubicInterpolationMode: 'monotone'
     }
+    return datasets[x + "_" + y]
 }
 
-function drawNewPoint(sensor_data, datasetIndex) {
-    if (lineChart.data.datasets[datasetIndex].data.length > 2) {
-        const lastDrawnData = lineChart.data.datasets[datasetIndex].data[lineChart.data.datasets[datasetIndex].data.length - 1];
-        if (lastDrawnData.y != sensor_data.data[datasetIndex].v || skippedCounter >= 1) {
-            lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: sensor_data.data[datasetIndex].v });
+function drawNewPoint(sensor_data, dataset, timestamp) {
+    if (dataset.data.length > 2) {
+        const lastDrawnData = dataset.data[dataset.data.length - 1];
+        if (lastDrawnData.y != sensor_data.v || skippedCounter >= 1) {
+            dataset.data.push({ x: timestamp, y: putMoistureValueInRange(sensor_data.v) });
         } else {
             skippedCounter++;
         }
-    }else {
-        lineChart.data.datasets[datasetIndex].data.push({ x: convertTimestampToDateForRealtime(sensor_data.timestamp), y: sensor_data.data[datasetIndex].v });
+    } else {
+        dataset.data.push({ x: timestamp, y: putMoistureValueInRange(sensor_data.v) });
     }
 }
 
@@ -35,15 +37,16 @@ function setupRealtimeLineChart() {
         type: 'line',
         data: {
             datasets: [
-                createRealTimeDatasetConfig('10', '5', 'blue'),
-                createRealTimeDatasetConfig('10', '15', 'purple'),
-                createRealTimeDatasetConfig('10', '25', 'cyan'),
-                createRealTimeDatasetConfig('30', '5', 'green'),
-                createRealTimeDatasetConfig('30', '15', 'orange'),
-                createRealTimeDatasetConfig('30', '25', 'magenta'),
+                createRealTimeDatasetConfig('10', '5', '#EB9400'),
+                createRealTimeDatasetConfig('10', '15', '#8900EB'),
+                createRealTimeDatasetConfig('10', '25', '#00EB62'),
+                createRealTimeDatasetConfig('30', '5', '#F0E379'),
+                createRealTimeDatasetConfig('30', '15', '#E00C00'),
+                createRealTimeDatasetConfig('30', '25', '#64AAEB'),
             ]
         },
         options: {
+            plugins: { tooltip: { enabled: false } },
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -56,22 +59,30 @@ function setupRealtimeLineChart() {
                         pause: false,
                         frameRate: 30,
                         onRefresh: async function (chart) {
+                            let newSensorData = null
                             try {
                                 const response = await fetch('/sensors/');
-                                lastSensorData = await response.json();
+                                newSensorData = await response.json();
                                 $('#syncingModal').modal('hide');
                             } catch (error) {
                                 $('#syncingModal').modal('show');
                             }
-                            if (lastSensorData == {} || lastSensorData.timestamp == undefined) {
+                            if (newSensorData == undefined || newSensorData == null || newSensorData.timestamp == undefined) {
+                                lastSensorData = null;
                                 return;
                             }
-                            drawNewPoint(lastSensorData, 0);
-                            drawNewPoint(lastSensorData, 1);
-                            drawNewPoint(lastSensorData, 2);
-                            drawNewPoint(lastSensorData, 3);
-                            drawNewPoint(lastSensorData, 4);
-                            drawNewPoint(lastSensorData, 5);
+
+                            if(lastSensorData != null && newSensorData.timestamp <= lastSensorData.timestamp) {
+                                return;
+                            }
+
+                            lastSensorData = newSensorData;
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 10 && elem.y == 5), datasets["10_5"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 10 && elem.y == 15), datasets["10_15"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 10 && elem.y == 25), datasets["10_25"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 30 && elem.y == 5), datasets["30_5"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 30 && elem.y == 15), datasets["30_15"], correctTimestamp(newSensorData.timestamp));
+                            drawNewPoint(newSensorData.data.find(elem => elem.x == 30 && elem.y == 25), datasets["30_25"], correctTimestamp(newSensorData.timestamp));
                         }
                     },
                     title: {
@@ -85,7 +96,7 @@ function setupRealtimeLineChart() {
                     max: 100,
                     title: {
                         display: true,
-                        text: 'Humidity level'
+                        text: 'Moisture level'
                     }
                 }
             },

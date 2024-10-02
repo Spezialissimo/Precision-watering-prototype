@@ -1,4 +1,49 @@
+let minMoisture = parseInt(window.config.moistureScaleMin, 10);
+let maxMoisture = parseInt(window.config.moistureScaleMax, 10);
+let timestampDelta = (Date.now()/1000) - parseInt(window.config.timestamp, 10);
+let lastSliderValue = 0;
+Chart.defaults.font.size = 16;
+
 $(document).ready(function () {
+    $('#toggleLeftSprinkler').click(function () {
+        fetch('/toggle_left_sprinkler', { method: 'POST' });
+    });
+
+    $('#persistency').prop('checked', window.config.uploadStatus == "True");
+
+    $('#persistency').on('change', function () {
+        if ($(this).is(':checked')) {
+            fetch('/start_upload', { method: 'POST' });
+        } else {
+            fetch('/stop_upload', { method: 'POST' });
+        }
+    });
+
+    $('#settingsButton').click(function () {
+        $('#moistureRangeSelectionModal').modal('show');
+    });
+
+    $('#blinkingCircle').addClass('blinking-element-off');
+
+    $('#minMoisture').val(minMoisture);
+    $('#maxMoisture').val(maxMoisture);
+
+    $('#minMoisture').on('input', function () {
+        $('#maxMoisture').attr('min', minMoisture + 1);
+    });
+
+    $('#maxMoisture').on('input', function () {
+        $('#minMoisture').attr('max', maxMoisture - 1);
+    });
+
+    $('#moistureRangeSelectionModalConfirm').click(function () {
+        minMoisture = Number($('#minMoisture').val());
+        maxMoisture = Number($('#maxMoisture').val());
+        if (currentOptimal.id == "Matrix") {
+            updateControlMatrixValues(currentOptimal.value.data, false);
+        }
+        $('#moistureRangeSelectionModal').modal('hide');
+    });
 
     class PumpMode {
         static Manual = new PumpMode('Manual');
@@ -7,6 +52,7 @@ $(document).ready(function () {
         constructor(name) {
             this.name = name;
         }
+
         toString() {
             return `PumpMode.${this.name}`;
         }
@@ -22,6 +68,7 @@ $(document).ready(function () {
         try {
             const response = await fetch('/sensors/');
             const data = await response.json();
+            data.timestamp = correctTimestamp(data.timestamp);
             setupRealtimeLineChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {
@@ -33,6 +80,7 @@ $(document).ready(function () {
         try {
             const response = await fetch('/sensors/interpolated');
             const data = await response.json();
+            data.timestamp = correctTimestamp(data.timestamp);
             updateMatrixChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {
@@ -44,6 +92,7 @@ $(document).ready(function () {
         try {
             const response = await fetch('/irrigation/history?seconds=600');
             const data = await response.json();
+            data.forEach(entry => entry.timestamp = correctTimestamp(entry.timestamp));
             setupIrrigationLineChart(data);
             $('#syncingModal').modal('hide');
         } catch (error) {
@@ -51,8 +100,27 @@ $(document).ready(function () {
         }
     }
 
+    async function fetchPumpState() {
+        try {
+            const response = await fetch('/pump/state');
+            const data = await response.json();
+            $('#pumpStatus').text(data);
+            if (data == 'On') {
+                $('#blinkingCircle').removeClass('blinking-element-off');
+                $('#blinkingCircle').addClass('blinking-element-on');
+            } else {
+                $('#blinkingCircle').removeClass('blinking-element-on');
+                $('#blinkingCircle').addClass('blinking-element-off');
+            }
+        } catch (error) {
+            $('#syncingModal').modal('show');
+        }
+    }
+
     $('#togglePump').click(function () {
-        fetch('/pump/', { method: 'POST' });
+        fetch('/pump/', { method: 'POST' }).then(response => response.json()).then(data => {
+            $('#pumpStatus').text(data.pump_state);
+        });
     });
 
     $('#toggleMode').click(function () {
@@ -60,7 +128,7 @@ $(document).ready(function () {
             pumpMode = PumpMode.Auto;
             $('#togglePump').prop('disabled', true);
             $('#chooseOptimal').prop('disabled', false);
-            $('#pumpMode').text('Automatic');
+            $('#pumpMode').text('Automatico');
             selectedOptimal = get_optimal_from_name("Slider");
             upsertIrrigationControls(selectedOptimal);
             fetch('/irrigation/mode?mode=slider', { method: 'POST' })
@@ -69,7 +137,7 @@ $(document).ready(function () {
             pumpMode = PumpMode.Manual;
             $('#togglePump').prop('disabled', false);
             $('#chooseOptimal').prop('disabled', true);
-            $('#pumpMode').text('Manual');
+            $('#pumpMode').text('Manuale');
             selectedOptimal = get_optimal_from_name("disabled");
             upsertIrrigationControls(selectedOptimal);
             fetch('/irrigation/mode?mode=manual', { method: 'POST' })
@@ -89,13 +157,13 @@ $(document).ready(function () {
             for (const [key, value] of Object.entries(data)) {
                 optimals.push(new Optimals(key, value.title, value.description, '/irrigation/optimal/image/' + key, value.value));
 
-                if (count % 3 === 0) {
-                    row = $('<div class="row"></div>');
+                if (count % 5 === 0) {
+                    row = $('<div class="row my-3"></div>');
                     $('#optimalsContainer').append(row);
                 }
 
                 row.append(`
-                <div class="col-4" id="${key}Container">
+                <div class="col rounded" id="${key}Container">
                     ${optimals[optimals.length - 1].toHtml()}
                 </div>
             `);
@@ -110,12 +178,8 @@ $(document).ready(function () {
                     fetch('/irrigation/mode?mode=slider', { method: 'POST' })
                     fetch('/irrigation/slider?value=' + getLastOptimalMoistureValue(), { method: 'POST' });
                 } else {
-                    fetch('/irrigation/mode?mode=matrix', { method: 'POST' })
-                    fetch('/irrigation/matrix?matrix=' + actualId, { method: 'POST' })
-                        .then(response => response.json())
-                        .then(data => {
-                            updateOptimalIrrigationLine(data);
-                        });
+                    fetch('/irrigation/mode?mode=matrix', { method: 'POST' });
+                    updateControlMatrixValues(selectedOptimal.value.data, true);
                 }
 
                 optimals.forEach(o => $('#' + o.name + 'Card').removeClass('border-primary').removeClass('border-secondary'));
@@ -141,16 +205,11 @@ $(document).ready(function () {
             })
         });
 
-    const socket = io('http://localhost:5000');
-
-    socket.on('pump_state_update', (data) => {
-        $('#pumpStatus').text(data.pump_state);
-    });
-
     fetchData();
     fetchInterpolatedData();
     fetchAllIrrigationData();
     setInterval(fetchInterpolatedData, 500);
+    setInterval(fetchPumpState, 1000);
 
     $('#chooseOptimal').prop('disabled', true);
 });

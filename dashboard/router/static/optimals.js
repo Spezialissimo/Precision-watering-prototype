@@ -19,10 +19,7 @@ class Optimals {
 
     toHtml() {
         return `<div class="card"  id="${this.id}Card">
-                    <img src="${this.image_uri}" class="card-img-top h-100" alt="...">
-                    <div class="card-body">
-                        <p class="card-text">${this.description}</p>
-                    </div>
+                    <img src="${this.image_uri}" class="card-img-top h-100 rounded" alt="...">
                 </div>`;
     }
 }

@@ -4,9 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Precision Farming Dashboard</title>
+    <title>Precision watering prototype</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script type="text/javascript">
+        window.config = {
+            serverIp: "{{ server_ip }}",
+            moistureScaleMin: "{{ moisture_scale_min }}",
+            moistureScaleMax: "{{ moisture_scale_max }}",
+            timestamp: "{{ timestamp }}",
+            uploadStatus: "{{ upload_status }}"
+        };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
@@ -17,12 +26,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script src="https://kit.fontawesome.com/1df86e7f33.js" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='chartjs-plugin-annotation.min.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <!-- Include your custom scripts after the libraries -->
     <script src="{{ url_for('static', filename='optimals.js') }}"></script>
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
@@ -39,113 +46,200 @@
             font-family: 'Montserrat', sans-serif;
         }
 
-        .blinking-element {
+        .blinking-element-off {
             animation: blinkAnimation 4s ease-in-out infinite;
             color: red;
         }
 
+        .blinking-element-on {
+            animation: blinkAnimation 4s ease-in-out infinite;
+            color: green;
+        }
+
         @keyframes blinkAnimation {
-            0%, 50%, 100% {
+
+            0%,
+            50%,
+            100% {
                 opacity: 1;
             }
-            25%, 75% {
+
+            25%,
+            75% {
                 opacity: 0;
             }
         }
 
+        @media (min-width: 768px) {
+            sidebar {
+                width: 90% !important;
+            }
+        }
+        @media (max-width: 768px) {
+            sidebar {
+                width: 95% !important;
+            }
+
+            .container>.row {
+                flex-direction: column-reverse;
+            }
+
+            .col-7, .col-5 {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .button-group {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 10px;
+            }
+
+            .linechart {
+                max-height: 300px !important;
+            }
+        }
     </style>
+    <link rel="shortcut icon" href="favicon.ico" >
+    <link rel="icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" type="image/gif">
 </head>
 
 <body>
-
-    <div class="modal fade" id="syncingModal" tabindex="-1" aria-labelledby="syncingModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="syncingModalLabel">Syncing data with Arduino</h5>
-                </div>
-                <div class="modal-body">
-                    Syncing data, please wait...
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="optimalSelectionModal" tabindex="-1" aria-labelledby="optimalSelectionModal"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="syncingModalLabel">Select optimal</h5>
+                    <h5 class="modal-title" id="optimalSelectionModalLabel">Choose rule</h5>
                 </div>
                 <div class="modal-body" id="optimalsContainer">
-
                 </div>
             </div>
         </div>
     </div>
-
+    <header>
+            <h1 class="text-center fw-bold mt-3">Precision watering dashboard</h1>
+    </header>
     <div class="container text-center p-0 w-100 m-0 mw-100">
+        <div class="row">
+            <div class="col-7 content-center">
+                <div class="row w-100 m-0 p-0 pt-3 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Real-time sensors</h2>
+                    <canvas class="linechart" id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-3">
+                    <div class="col-6">
+                        <h2 class="text-center fw-bold">Current moisture matrix</h2>
+                    </div>
+                    <div class="col-6" style="align-content: center;">
+                        <h2 class="text-center fw-bold">Irrigation rule</h2>
+                    </div>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-3">
+                    <div class="col-6">
+                        <canvas id="matrixChart" height="400" width="400" style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
+                    </div>
+                    <div class="col-6">
+                        <div class="col content-center w-100 h-100" id="irrigationControlContainer"></div>
+                    </div>
+                </div>
+                <div class="row w-100 m-0 p-0">
+                    <div class="col-12 col-md-4" style="align-content: center;">
+                        <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
+                        <p class="m-0 ms-2 text-start">Pump state: <span id="pumpStatus">Off</span> <i class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
+                    </div>
+                    <div class="col-6 col-md-2 mt-2 mt-md-0" style="align-content: center;">
+                        <button class="btn btn-primary w-100" id="toggleMode">Change mode</button>
+                    </div>
+                    <div class="col-6 col-md-2 mt-2 mt-md-0" style="align-content: center;">
+                        <button class="btn btn-primary w-100" id="togglePump">Toggle pump</button>
+                    </div>
+                    <div class="col-6 col-md-2 mt-2 mt-md-0" style="align-content: center;">
+                        <button class="btn btn-primary w-100" id="toggleLeftSprinkler">Toggle left sprinklers</button>
+                    </div>
+                    <div class="col-6 col-md-2 mt-2 mt-md-0" style="align-content: center;">
+                        <button class="btn btn-primary w-100 h-100" id="chooseOptimal" disabled="">Choose rule</button>
+                    </div>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-4 content-center d-flex flex-column justify-content-center align-items-center">
+                    <h2 class="text-center fw-bold">Irrigation management</h2>
+                    <canvas class="linechart" id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
+                </div>
+                <div class="row w-100 m-0 p-0 pt-3 content-center d-flex flex-column justify-content-center align-items-center">
 
-        <div class="row w-100 m-0 p-0" style="height: 10%">
-            <h1 class="text-center fw-bold mt-3">Precision Farming Dashboard</h1>
-        </div>
-
-        <div class="row w-100 m-0 p-0" style="height: 10%">
-            <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Realtime sensor values</h2>
-            </div>
-            <div class="col-4 content-center">
-                <h2 class="text-center fw-bold">Realtime moisture levels</h2>
-            </div>
-        </div>
-
-        <div class="row w-100 m-0 p-0" style="height: 30%">
-            <div class="col-8">
-                    <canvas id="lineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
-            </div>
-            <div class="col-4 content-center">
-                    <canvas id="matrixChart" height="400" width="400"
-                        style="max-height: 400px; max-width: 410px; display: initial;"></canvas>
-
-            </div>
-        </div>
-
-        <div class="row w-100 m-0 p-0 pt-1" style="height: 10%">
-            <div class="col-8 content-center">
-                <h2 class="text-center fw-bold">Irrigation management</h2>
-            </div>
-            <div class="col-4">
-                <h2 class="text-center fw-bold">Optimal rule</h2>
-            </div>
-        </div>
-        <div class="row w-100 m-0 p-0" style="height: 30%">
-            <div class="col-8 content-center">
-                <canvas id="irrigationLineChart" height="400" style="max-height: 410px; display: initial;"></canvas>
-            </div>
-            <div class="col-4">
-                <div class="col content-center w-100 h-100" id="irrigationControlContainer">
                 </div>
             </div>
-        </div>
+            <div class="col-5">
+                <sidebar class="mx-auto text-start d-block">
+                    <h2 class="text-center fw-bold">Introduction</h2>
+                    <p>
+                        Precision irrigation is a branch of precision agriculture that focuses on optimizing water usage.
+                        In this demo, we simulate a physical system that was part of my undergraduate thesis, featuring
+                        six sensors and two sprinklers. The six sensors are positioned in pairs, spaced 20 cm apart
+                        horizontally and 10 cm apart vertically. The first pair is located at a depth of 5 cm, with the
+                        two elements of the pair placed 10 cm from the edges of the testbed. As a result, the sensors
+                        are labeled as follows:
+                    </p>
+                    <ul>
+                        <li>Sensor (10, 5)</li>
+                        <li>Sensor (10, 15)</li>
+                        <li>Sensor (10, 25)</li>
+                        <li>Sensor (30, 5)</li>
+                        <li>Sensor (30, 15)</li>
+                        <li>Sensor (30, 25)</li>
+                    </ul>
+                    <p>
+                        The two sprinklers are referred to as the "right sprinkler" and the "left sprinkler." In the
+                        original system, a valve controls the left sprinkler; in this context, it is replaced by
+                        a switch labeled "Toggle left sprinklers."
+                    </p>
 
-        <div class="row w-100 m-0 p-0" style="height: 10%">
-            <div class="col-2" style="align-content: center;">
-                <p class="m-0 ms-2 text-start">Pump mode: <span id="pumpMode">Manual</span></p>
-                <p class="m-0 ms-2 text-start">Pump status: <span id="pumpStatus">Off</span>  <i class="fa-solid fa-circle blinking-element" id="blinkingCircle"></i></p>
-            </div>
-            <div class="col-2" style="align-content: center;">
-                <button class="btn btn-primary" id="toggleMode">Switch mode</button>
-            </div>
-            <div class="col-2" style="align-content: center;">
-                <button class="btn btn-primary" id="togglePump">Toggle Pump</button>
-            </div>
-            <div class="col-2"></div>
-            <div class="col-4" style="align-content: center;">
-                <button class="btn btn-primary" id="chooseOptimal" disabled="">Choose optimal</button>
+                    <h2 class="text-center fw-bold">Real-time sensors</h2>
+                    <p>
+                        This is a chart that shows the readings from the six sensors over time.
+                    </p>
+
+                    <h2 class="text-center fw-bold">Moisture matrix</h2>
+                    <p>
+                        This graph displays the soil moisture levels across every cm² of soil in pseudo-real time, with
+                        the data obtained by interpolating the values from the six sensors. It represents a vertical
+                        cross-section of the soil. Due to the variability in soil texture and structure, this visualization
+                        helps to accurately represent how water moves through the soil, showing how certain areas retain
+                        moisture better than others.
+                    </p>
+
+                    <h2 class="text-center fw-bold">Irrigation management</h2>
+                    <p>
+                        This chart shows the current irrigation status: optimal moisture level, current moisture level,
+                        and irrigation recommendations. As mentioned earlier, this chart is updated every 15 seconds. Below
+                        the chart, you can manually turn the pump on or off (if in manual mode) and switch between manual
+                        and automatic modes.
+                    </p>
+
+                    <h2 class="text-center fw-bold">Irrigation rule</h2>
+                    <p>
+                        Here, you can decide the basis for future irrigation calculations:
+                    </p>
+                    <ul>
+                        <li><strong>Slider:</strong> The system will try to maintain an average moisture level based on
+                            the value set by the slider.</li>
+                        <li><strong>Matrix:</strong> The system will attempt to match the moisture matrix displayed in
+                            the <strong>Moisture matrix</strong> section as closely as possible.</li>
+                    </ul>
+
+                    <h2 class="text-center fw-bold">Toggle left sprinklers</h2>
+                    <p>
+                        By closing the left sprinklers, we can test how using the correct moisture matrix allows for
+                        proper irrigation. This can be visualized as simulating a scenario where the soil on the left
+                        absorbs less water than the right side. If the system attempts to maintain an excessively high
+                        average moisture level using the slider, it might never reach that level, leaving the pump running
+                        indefinitely. The same issue occurs if a completely saturated matrix is selected.
+                    </p>
+                </sidebar>
             </div>
         </div>
     </div>
+
 </body>
 
 </html>
